@@ -326,12 +326,137 @@ canvas.chart{width:100%!important;height:180px!important;}
   </div>
 </div>
 
-<!-- NAV -->
+
+<!-- BODY MAP PAGE -->
+<div class="page" id="page-body">
+  <div class="page-hdr">
+    <div><div class="page-title">🫀 ร่างกาย</div><div class="page-sub">Muscle Heatmap สัปดาห์นี้</div></div>
+    <div id="bodyWeekBadge" class="tag g">7 วัน</div>
+  </div>
+
+  <!-- Body stats -->
+  <div class="body-stats-row">
+    <div class="body-stat"><div class="body-stat-v" id="bodySetsWeek">0</div><div class="body-stat-l">Sets/สัปดาห์</div></div>
+    <div class="body-stat"><div class="body-stat-v" id="bodyMusclesHit">0</div><div class="body-stat-l">กลุ่มกล้ามเนื้อ</div></div>
+    <div class="body-stat"><div class="body-stat-v" id="bodyTopMuscle">—</div><div class="body-stat-l">ท่าที่ train มากสุด</div></div>
+  </div>
+
+  <!-- SVG Body Map card -->
+  <div class="card" style="position:relative;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <span class="sec-t">Muscle Activation Map</span>
+      <div class="chip-row">
+        <div class="chip active" onclick="switchBodyView('week',this)" style="padding:5px 12px;font-size:12px;">สัปดาห์</div>
+        <div class="chip" onclick="switchBodyView('month',this)" style="padding:5px 12px;font-size:12px;">เดือน</div>
+        <div class="chip" onclick="switchBodyView('all',this)" style="padding:5px 12px;font-size:12px;">ทั้งหมด</div>
+      </div>
+    </div>
+
+    <div class="body-map-wrap">
+      <!-- FRONT -->
+      <div class="body-svg-side">
+        <div class="body-svg-label">ด้านหน้า</div>
+        <svg viewBox="0 0 120 240" width="130" style="overflow:visible;">
+          <!-- Head -->
+          <ellipse cx="60" cy="18" rx="14" ry="16" fill="rgba(90,90,138,.2)" stroke="rgba(130,100,255,.2)" stroke-width="1"/>
+          <!-- Neck -->
+          <rect x="54" y="32" width="12" height="10" rx="4" fill="rgba(90,90,138,.15)"/>
+          <!-- Shoulders -->
+          <ellipse id="f-shoulders" cx="60" cy="50" rx="38" ry="10" class="muscle-group cold" data-muscle="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
+          <!-- Chest -->
+          <path id="f-chest" d="M28 52 Q40 44 52 50 Q60 56 68 50 Q80 44 92 52 L90 75 Q75 82 60 80 Q45 82 30 75 Z" class="muscle-group cold" data-muscle="Chest" onclick="showMuscleInfo('Chest')"/>
+          <!-- Biceps L -->
+          <ellipse id="f-biceps-l" cx="20" cy="75" rx="9" ry="20" class="muscle-group cold" data-muscle="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(-8,20,75)"/>
+          <!-- Biceps R -->
+          <ellipse id="f-biceps-r" cx="100" cy="75" rx="9" ry="20" class="muscle-group cold" data-muscle="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(8,100,75)"/>
+          <!-- Forearm L -->
+          <ellipse cx="15" cy="108" rx="7" ry="18" fill="rgba(90,90,138,.15)" stroke="rgba(130,100,255,.15)" stroke-width="1" transform="rotate(-5,15,108)"/>
+          <!-- Forearm R -->
+          <ellipse cx="105" cy="108" rx="7" ry="18" fill="rgba(90,90,138,.15)" stroke="rgba(130,100,255,.15)" stroke-width="1" transform="rotate(5,105,108)"/>
+          <!-- Abs -->
+          <path id="f-abs" d="M42 80 Q52 78 60 80 Q68 78 78 80 L76 130 Q68 135 60 133 Q52 135 44 130 Z" class="muscle-group cold" data-muscle="Core" onclick="showMuscleInfo('Core')"/>
+          <!-- Abs lines -->
+          <line x1="60" y1="82" x2="60" y2="132" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>
+          <line x1="44" y1="100" x2="76" y2="100" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
+          <line x1="44" y1="116" x2="76" y2="116" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
+          <!-- Quads L -->
+          <ellipse id="f-quads-l" cx="47" cy="165" rx="14" ry="28" class="muscle-group cold" data-muscle="Quads" onclick="showMuscleInfo('Quads')" transform="rotate(4,47,165)"/>
+          <!-- Quads R -->
+          <ellipse id="f-quads-r" cx="73" cy="165" rx="14" ry="28" class="muscle-group cold" data-muscle="Quads" onclick="showMuscleInfo('Quads')" transform="rotate(-4,73,165)"/>
+          <!-- Calves L front -->
+          <ellipse id="f-calves-l" cx="45" cy="207" rx="9" ry="18" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(3,45,207)"/>
+          <!-- Calves R front -->
+          <ellipse id="f-calves-r" cx="75" cy="207" rx="9" ry="18" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(-3,75,207)"/>
+        </svg>
+      </div>
+      <!-- BACK -->
+      <div class="body-svg-side">
+        <div class="body-svg-label">ด้านหลัง</div>
+        <svg viewBox="0 0 120 240" width="130" style="overflow:visible;">
+          <!-- Head back -->
+          <ellipse cx="60" cy="18" rx="14" ry="16" fill="rgba(90,90,138,.2)" stroke="rgba(130,100,255,.2)" stroke-width="1"/>
+          <!-- Neck back -->
+          <rect x="54" y="32" width="12" height="10" rx="4" fill="rgba(90,90,138,.15)"/>
+          <!-- Traps -->
+          <path id="b-traps" d="M34 46 Q48 36 60 42 Q72 36 86 46 L82 60 Q70 54 60 56 Q50 54 38 60 Z" class="muscle-group cold" data-muscle="Traps" onclick="showMuscleInfo('Traps')"/>
+          <!-- Rear Delt L -->
+          <ellipse id="b-rdelt-l" cx="24" cy="60" rx="11" ry="10" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(-20,24,60)"/>
+          <!-- Rear Delt R -->
+          <ellipse id="b-rdelt-r" cx="96" cy="60" rx="11" ry="10" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(20,96,60)"/>
+          <!-- Lats -->
+          <path id="b-lats" d="M28 58 Q24 70 28 90 Q36 105 48 108 L52 80 Q38 72 35 60Z" class="muscle-group cold" data-muscle="Back" onclick="showMuscleInfo('Back')"/>
+          <path d="M92 58 Q96 70 92 90 Q84 105 72 108 L68 80 Q82 72 85 60Z" class="muscle-group cold" data-muscle="Back" onclick="showMuscleInfo('Back')" id="b-lats-r"/>
+          <!-- Mid Back -->
+          <path id="b-midback" d="M48 62 Q54 60 60 62 Q66 60 72 62 L72 108 Q66 115 60 113 Q54 115 48 108 Z" class="muscle-group cold" data-muscle="Back" onclick="showMuscleInfo('Back')"/>
+          <!-- Triceps L -->
+          <ellipse id="b-triceps-l" cx="18" cy="78" rx="8" ry="19" class="muscle-group cold" data-muscle="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(-10,18,78)"/>
+          <!-- Triceps R -->
+          <ellipse id="b-triceps-r" cx="102" cy="78" rx="8" ry="19" class="muscle-group cold" data-muscle="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(10,102,78)"/>
+          <!-- Glutes -->
+          <path id="b-glutes" d="M40 130 Q52 120 60 124 Q68 120 80 130 L78 158 Q68 166 60 163 Q52 166 42 158 Z" class="muscle-group cold" data-muscle="Glutes" onclick="showMuscleInfo('Glutes')"/>
+          <!-- Hamstrings L -->
+          <ellipse id="b-hams-l" cx="47" cy="183" rx="13" ry="24" class="muscle-group cold" data-muscle="Hamstrings" onclick="showMuscleInfo('Hamstrings')" transform="rotate(4,47,183)"/>
+          <!-- Hamstrings R -->
+          <ellipse id="b-hams-r" cx="73" cy="183" rx="13" ry="24" class="muscle-group cold" data-muscle="Hamstrings" onclick="showMuscleInfo('Hamstrings')" transform="rotate(-4,73,183)"/>
+          <!-- Calves L back -->
+          <ellipse id="b-calves-l" cx="45" cy="215" rx="9" ry="16" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(3,45,215)"/>
+          <!-- Calves R back -->
+          <ellipse id="b-calves-r" cx="75" cy="215" rx="9" ry="16" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(-3,75,215)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="body-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(90,90,138,.4);"></div>ยังไม่ได้ train</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(124,95,255,.7);"></div>น้อย</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(34,211,164,.8);"></div>ปกติ</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,140,66,.9);"></div>🔥 หนักมาก</div>
+    </div>
+
+    <!-- Muscle tooltip -->
+    <div class="muscle-tooltip" id="muscleTooltip"></div>
+  </div>
+
+  <!-- Muscle breakdown -->
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;">Volume per Muscle Group</div>
+    <div id="muscleBreakdown" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+
+  <!-- Recovery status -->
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;">🛌 Recovery Status</div>
+    <div id="recoveryStatus" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
 <nav id="nav">
   <button class="nav-btn active" onclick="navTo('home')" id="nav-home"><span class="ni">🏠</span><span class="nl">หน้าหลัก</span></button>
   <button class="nav-btn" onclick="navTo('history')" id="nav-history"><span class="ni">📋</span><span class="nl">ประวัติ</span></button>
   <button class="nav-center" onclick="navTo('workout')">💪</button>
-  <button class="nav-btn" onclick="navTo('progress')" id="nav-progress"><span class="ni">📈</span><span class="nl">Progress</span></button>
+  <button class="nav-btn" onclick="navTo('body')" id="nav-body"><span class="ni">🫀</span><span class="nl">ร่างกาย</span></button>
   <button class="nav-btn" onclick="navTo('calc')" id="nav-calc"><span class="ni">🧮</span><span class="nl">Calc</span></button>
 </nav>
 
@@ -951,9 +1076,9 @@ async function renderProgress() {
   const sel = document.getElementById('progressExSelect');
   const prev = sel.value;
   sel.innerHTML = '<option value="">-- เลือกท่า --</option>';
-  Object.keys(trendMap).filter(n => trendMap[n].length >= 1).forEach(name => {
+  Object.keys(trendMap).filter(name => trendMap[name].length >= 1).forEach(name => {
     const opt = document.createElement('option');
-    opt.value = name; opt.textContent = name + ' (' + trendMap[n].length + ' sessions)';
+    opt.value = name; opt.textContent = name + ' (' + trendMap[name].length + ' sessions)';
     sel.appendChild(opt);
   });
   if (prev) sel.value = prev;
@@ -1202,5 +1327,206 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 </div>
+
+<script>
+// ══ BODY MUSCLE MAP ══
+
+// Map exercise names → muscle group IDs
+const MUSCLE_MAP = {
+  'Chest':      { front:['f-chest'],           back:[],                          label:'Chest' },
+  'Shoulders':  { front:['f-shoulders'],        back:['b-rdelt-l','b-rdelt-r'],   label:'Shoulders' },
+  'Back':       { front:[],                     back:['b-lats','b-lats-r','b-midback'], label:'Back' },
+  'Traps':      { front:[],                     back:['b-traps'],                 label:'Traps' },
+  'Rear Delt':  { front:[],                     back:['b-rdelt-l','b-rdelt-r'],   label:'Rear Delt' },
+  'Biceps':     { front:['f-biceps-l','f-biceps-r'], back:[],                     label:'Biceps' },
+  'Triceps':    { front:[],                     back:['b-triceps-l','b-triceps-r'], label:'Triceps' },
+  'Core':       { front:['f-abs'],              back:[],                          label:'Core / Abs' },
+  'Quads':      { front:['f-quads-l','f-quads-r'], back:[],                       label:'Quads' },
+  'Hamstrings': { front:[],                     back:['b-hams-l','b-hams-r'],     label:'Hamstrings' },
+  'Calves':     { front:['f-calves-l','f-calves-r'], back:['b-calves-l','b-calves-r'], label:'Calves' },
+  'Glutes':     { front:[],                     back:['b-glutes'],                label:'Glutes' },
+};
+
+// Map exercise name keywords → muscle group
+const EX_TO_MUSCLE = {
+  'Bench Press':'Chest', 'Incline Bench':'Chest', 'Dumbbell Fly':'Chest',
+  'Push-Up':'Chest', 'Dip':'Chest',
+  'Squat':'Quads', 'Leg Press':'Quads', 'Leg Extension':'Quads', 'Lunge':'Quads',
+  'Romanian Deadlift':'Hamstrings', 'Leg Curl':'Hamstrings', 'Deadlift':'Back',
+  'Calf Raise':'Calves',
+  'Pull-Up':'Back', 'Lat Pulldown':'Back', 'Seated Row':'Back',
+  'Barbell Row':'Back', 'Face Pull':'Rear Delt',
+  'Overhead Press':'Shoulders', 'Lateral Raise':'Shoulders', 'Front Raise':'Shoulders',
+  'Bicep Curl':'Biceps', 'Hammer Curl':'Biceps', 'Preacher Curl':'Biceps',
+  'Tricep Pushdown':'Triceps', 'Skull Crusher':'Triceps',
+  'Plank':'Core', 'Crunch':'Core', 'Cable Crunch':'Core',
+};
+
+function getMuscleName(exName) {
+  // exact match first
+  for (const [key, muscle] of Object.entries(EX_TO_MUSCLE)) {
+    if (exName === key) return muscle;
+  }
+  // substring match
+  for (const [key, muscle] of Object.entries(EX_TO_MUSCLE)) {
+    if (exName.toLowerCase().includes(key.toLowerCase())) return muscle;
+  }
+  return null;
+}
+
+let bodyViewPeriod = 'week';
+
+async function renderBodyMap() {
+  allWorkouts = await dbGetAll('workouts');
+  const cutoff = bodyViewPeriod === 'week' ? Date.now()-7*86400000
+               : bodyViewPeriod === 'month' ? Date.now()-30*86400000
+               : 0;
+  const filtered = allWorkouts.filter(w => new Date(w.date).getTime() > cutoff);
+
+  // Count sets per muscle group
+  const muscleSets = {};
+  filtered.forEach(w => {
+    w.exercises.forEach(ex => {
+      const muscle = getMuscleName(ex.name);
+      if (!muscle) return;
+      const doneSets = ex.sets.filter(s => s.done).length;
+      muscleSets[muscle] = (muscleSets[muscle]||0) + doneSets;
+    });
+  });
+
+  const totalSets = Object.values(muscleSets).reduce((a,b)=>a+b,0);
+  const maxSets = Math.max(...Object.values(muscleSets),1);
+  const muscleCount = Object.keys(muscleSets).length;
+  const topMuscle = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('bodySetsWeek').textContent = totalSets;
+  document.getElementById('bodyMusclesHit').textContent = muscleCount;
+  document.getElementById('bodyTopMuscle').textContent = topMuscle ? topMuscle[0].split('/')[0] : '—';
+
+  // Reset all muscles
+  document.querySelectorAll('.muscle-group').forEach(el => {
+    el.classList.remove('warm','hot','fire');
+    el.classList.add('cold');
+  });
+
+  // Animate muscles based on intensity
+  Object.entries(muscleSets).forEach(([muscle, sets]) => {
+    const info = MUSCLE_MAP[muscle];
+    if (!info) return;
+    const pct = sets / maxSets;
+    const level = pct > 0.75 ? 'fire' : pct > 0.4 ? 'hot' : 'warm';
+    const ids = [...(info.front||[]), ...(info.back||[])];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('cold','warm','hot','fire');
+      setTimeout(() => el.classList.add(level), Math.random()*400);
+    });
+  });
+
+  renderMuscleBreakdown(muscleSets, maxSets);
+  renderRecoveryStatus(filtered, muscleSets);
+}
+
+function renderMuscleBreakdown(muscleSets, maxSets) {
+  const el = document.getElementById('muscleBreakdown');
+  const sorted = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1]);
+  if (!sorted.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-i">💪</div><div class="empty-t">ยังไม่มีข้อมูล</div></div>';
+    return;
+  }
+  el.innerHTML = sorted.map(([muscle, sets]) => {
+    const pct = Math.round((sets/maxSets)*100);
+    const color = pct > 75 ? 'var(--orange)' : pct > 40 ? 'var(--green)' : 'var(--purple2)';
+    return `<div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="font-size:13px;font-weight:600;color:var(--text);">${muscle}</span>
+        <span style="font-size:12px;color:var(--text3);">${sets} sets</span>
+      </div>
+      <div class="pb-bg">
+        <div class="pb-fill" style="width:0%;background:${color};transition:width .8s cubic-bezier(.4,0,.2,1);"
+          data-target="${pct}"></div>
+      </div>
+    </div>`;
+  }).join('');
+  // Animate bars
+  setTimeout(() => {
+    el.querySelectorAll('[data-target]').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+    });
+  }, 100);
+}
+
+function renderRecoveryStatus(filtered, muscleSets) {
+  const el = document.getElementById('recoveryStatus');
+  const now = Date.now();
+  // Find last workout date per muscle
+  const lastTrained = {};
+  [...filtered].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(w => {
+    w.exercises.forEach(ex => {
+      const muscle = getMuscleName(ex.name);
+      if (!muscle || lastTrained[muscle]) return;
+      if (ex.sets.some(s=>s.done)) lastTrained[muscle] = new Date(w.date).getTime();
+    });
+  });
+
+  const muscles = Object.keys(MUSCLE_MAP);
+  const items = muscles.map(muscle => {
+    const last = lastTrained[muscle];
+    if (!last) return { muscle, status: 'ready', label: '✅ พร้อม train', hours: null };
+    const hoursSince = (now - last) / 3600000;
+    const recommended = 48; // 48h recovery
+    if (hoursSince >= recommended) return { muscle, status: 'ready', label: '✅ พร้อม train', hours: Math.round(hoursSince) };
+    const pct = Math.round((hoursSince/recommended)*100);
+    return { muscle, status: 'recovering', label: `🔄 Recovery ${pct}%`, hours: Math.round(hoursSince), pct };
+  }).filter(i => i.hours !== null || i.status === 'ready');
+
+  const sorted = items.filter(i=>i.status==='recovering').sort((a,b)=>b.pct-a.pct)
+    .concat(items.filter(i=>i.status==='ready' && i.hours !== null).sort((a,b)=>b.hours-a.hours));
+
+  if (!sorted.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-i">🛌</div><div class="empty-t">ยังไม่มีข้อมูล</div></div>';
+    return;
+  }
+  el.innerHTML = sorted.slice(0,8).map(item => {
+    const bar = item.status === 'recovering'
+      ? `<div class="pb-bg" style="margin-top:5px;"><div class="pb-fill" style="width:${item.pct}%;background:var(--orange);"></div></div>`
+      : '';
+    return `<div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;font-weight:600;color:var(--text);">${item.muscle}</span>
+        <span style="font-size:12px;color:${item.status==='ready'?'var(--green2)':'var(--orange)'};">${item.label}</span>
+      </div>
+      ${bar}
+    </div>`;
+  }).join('');
+}
+
+function switchBodyView(period, el) {
+  bodyViewPeriod = period;
+  document.querySelectorAll('#page-body .chip-row .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderBodyMap();
+}
+
+function showMuscleInfo(muscle) {
+  const info = MUSCLE_MAP[muscle];
+  if (!info) return;
+  // Find last workout for this muscle
+  const tooltip = document.getElementById('muscleTooltip');
+  const sets = document.getElementById('bodySetsWeek');
+  // Find muscle sets from rendered data
+  const breakdownEl = document.getElementById('muscleBreakdown');
+  showToast(muscle + ' — กดดูใน breakdown ด้านล่าง', '💪');
+}
+
+// Patch navTo to call renderBodyMap
+const _origNavTo = navTo;
+navTo = function(page) {
+  _origNavTo(page);
+  if (page === 'body') renderBodyMap();
+};
+</script>
+
 </body>
 </html>
