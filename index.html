@@ -355,8 +355,12 @@ canvas.chart{width:100%!important;height:180px!important;}
           <rect x="54" y="32" width="12" height="10" rx="4" fill="rgba(90,90,138,.15)"/>
           <!-- Traps -->
           <path id="b-traps" d="M34 46 Q48 36 60 42 Q72 36 86 46 L82 60 Q70 54 60 56 Q50 54 38 60 Z" class="muscle-group cold" data-muscle="Traps" onclick="showMuscleInfo('Traps')"/>
-          <!-- Rear Delt L -->
-          <ellipse id="b-rdelt-l" cx="24" cy="60" rx="11" ry="10" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(-20,24,60)"/>
+          <!-- Rear delts — separate from shoulder front -->
+          <ellipse id="b-rdelt-l" cx="24" cy="58" rx="10" ry="9" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(-25,24,58)"/>
+          <ellipse id="b-rdelt-r" cx="96" cy="58" rx="10" ry="9" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(25,96,58)"/>
+          <!-- Back forearms -->
+          <ellipse id="b-forearms-l" cx="14" cy="108" rx="7" ry="17" class="muscle-group cold" data-muscle="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(-8,14,108)"/>
+          <ellipse id="b-forearms-r" cx="106" cy="108" rx="7" ry="17" class="muscle-group cold" data-muscle="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(8,106,108)"/>
           <!-- Rear Delt R -->
           <ellipse id="b-rdelt-r" cx="96" cy="60" rx="11" ry="10" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(20,96,60)"/>
           <!-- Lats -->
@@ -1455,33 +1459,79 @@ if ('serviceWorker' in navigator) {
 
 // Map exercise names → muscle group IDs
 const MUSCLE_MAP = {
-  'Chest':      { front:['f-chest'],           back:[],                          label:'Chest' },
-  'Shoulders':  { front:['f-shoulders'],        back:['b-rdelt-l','b-rdelt-r'],   label:'Shoulders' },
-  'Back':       { front:[],                     back:['b-lats','b-lats-r','b-midback'], label:'Back' },
-  'Traps':      { front:[],                     back:['b-traps'],                 label:'Traps' },
-  'Rear Delt':  { front:[],                     back:['b-rdelt-l','b-rdelt-r'],   label:'Rear Delt' },
-  'Biceps':     { front:['f-biceps-l','f-biceps-r'], back:[],                     label:'Biceps' },
-  'Triceps':    { front:[],                     back:['b-triceps-l','b-triceps-r'], label:'Triceps' },
-  'Core':       { front:['f-abs'],              back:[],                          label:'Core / Abs' },
-  'Quads':      { front:['f-quads-l','f-quads-r'], back:[],                       label:'Quads' },
-  'Hamstrings': { front:[],                     back:['b-hams-l','b-hams-r'],     label:'Hamstrings' },
-  'Calves':     { front:['f-calves-l','f-calves-r'], back:['b-calves-l','b-calves-r'], label:'Calves' },
-  'Glutes':     { front:[],                     back:['b-glutes'],                label:'Glutes' },
+  'Chest':      { front:['f-chest'],                               back:[],                              emoji:'🫁', tip:'Bench Press, Fly, Push-Up' },
+  'Shoulders':  { front:['f-shoulders'],                           back:[],                              emoji:'🔵', tip:'OHP, Lateral Raise, Front Raise' },
+  'Rear Delt':  { front:[],                                        back:['b-rdelt-l','b-rdelt-r'],       emoji:'🔵', tip:'Face Pull, Reverse Fly, Band Pull' },
+  'Back':       { front:[],                                        back:['b-lats','b-lats-r','b-midback'], emoji:'🔷', tip:'Deadlift, Row, Pull-Up, Pulldown' },
+  'Traps':      { front:[],                                        back:['b-traps'],                     emoji:'🟣', tip:'Shrug, Face Pull, Upright Row' },
+  'Biceps':     { front:['f-biceps-l','f-biceps-r'],               back:[],                              emoji:'💪', tip:'Curl, Hammer Curl, Chin-Up' },
+  'Triceps':    { front:[],                                        back:['b-triceps-l','b-triceps-r'],   emoji:'💪', tip:'Pushdown, Skull Crusher, Dip' },
+  'Forearms':   { front:['f-forearms-l','f-forearms-r'],           back:['b-forearms-l','b-forearms-r'], emoji:'🖐️', tip:'Wrist Curl, Reverse Curl, Farmer Walk' },
+  'Core':       { front:['f-abs'],                                 back:[],                              emoji:'🟡', tip:'Plank, Crunch, Leg Raise, Cable Crunch' },
+  'Obliques':   { front:['f-obliques-l','f-obliques-r'],           back:[],                              emoji:'🟡', tip:'Russian Twist, Side Plank, Cable Woodchop' },
+  'Quads':      { front:['f-quads-l','f-quads-r'],                 back:[],                              emoji:'🦵', tip:'Squat, Leg Press, Lunge, Leg Extension' },
+  'Hamstrings': { front:[],                                        back:['b-hams-l','b-hams-r'],         emoji:'🦵', tip:'RDL, Leg Curl, Good Morning' },
+  'Glutes':     { front:[],                                        back:['b-glutes'],                    emoji:'🍑', tip:'Hip Thrust, Squat, RDL, Glute Bridge' },
+  'Calves':     { front:['f-calves-l','f-calves-r'],               back:['b-calves-l','b-calves-r'],     emoji:'🦶', tip:'Calf Raise (standing/seated)' },
+  'Cardio':     { front:[],                                        back:[],                              emoji:'❤️', tip:'Running, Cycling, Jump Rope, HIIT' },
 };
 
 // Map exercise name keywords → muscle group
 const EX_TO_MUSCLE = {
-  'Bench Press':'Chest', 'Incline Bench':'Chest', 'Dumbbell Fly':'Chest',
-  'Push-Up':'Chest', 'Dip':'Chest',
-  'Squat':'Quads', 'Leg Press':'Quads', 'Leg Extension':'Quads', 'Lunge':'Quads',
-  'Romanian Deadlift':'Hamstrings', 'Leg Curl':'Hamstrings', 'Deadlift':'Back',
-  'Calf Raise':'Calves',
-  'Pull-Up':'Back', 'Lat Pulldown':'Back', 'Seated Row':'Back',
-  'Barbell Row':'Back', 'Face Pull':'Rear Delt',
-  'Overhead Press':'Shoulders', 'Lateral Raise':'Shoulders', 'Front Raise':'Shoulders',
-  'Bicep Curl':'Biceps', 'Hammer Curl':'Biceps', 'Preacher Curl':'Biceps',
-  'Tricep Pushdown':'Triceps', 'Skull Crusher':'Triceps',
-  'Plank':'Core', 'Crunch':'Core', 'Cable Crunch':'Core',
+  // Chest
+  'Bench Press':'Chest','Incline Bench Press':'Chest','Decline Bench':'Chest',
+  'Dumbbell Fly':'Chest','Cable Fly':'Chest','Pec Deck':'Chest',
+  'Push-Up':'Chest','Dip':'Chest','Chest Press':'Chest',
+  // Shoulders
+  'Overhead Press':'Shoulders','Arnold Press':'Shoulders','Military Press':'Shoulders',
+  'Lateral Raise':'Shoulders','Front Raise':'Shoulders','Upright Row':'Shoulders',
+  'Shoulder Press':'Shoulders','DB Shoulder Press':'Shoulders',
+  // Rear Delt / Upper Back
+  'Face Pull':'Rear Delt','Reverse Fly':'Rear Delt','Band Pull Apart':'Rear Delt',
+  'Rear Delt Fly':'Rear Delt',
+  // Back
+  'Deadlift':'Back','Pull-Up':'Back','Chin-Up':'Back','Lat Pulldown':'Back',
+  'Seated Row':'Back','Barbell Row':'Back','Dumbbell Row':'Back',
+  'Cable Row':'Back','T-Bar Row':'Back','Chest Supported Row':'Back',
+  'Meadows Row':'Back','Pendlay Row':'Back',
+  // Traps
+  'Shrug':'Traps','Barbell Shrug':'Traps','Dumbbell Shrug':'Traps','Trap Bar':'Traps',
+  // Biceps
+  'Bicep Curl':'Biceps','Barbell Curl':'Biceps','Dumbbell Curl':'Biceps',
+  'Hammer Curl':'Biceps','Preacher Curl':'Biceps','Concentration Curl':'Biceps',
+  'Cable Curl':'Biceps','EZ Bar Curl':'Biceps','Incline Curl':'Biceps',
+  // Triceps
+  'Tricep Pushdown':'Triceps','Skull Crusher':'Triceps','Overhead Tricep':'Triceps',
+  'Close Grip Bench':'Triceps','Tricep Extension':'Triceps','Diamond Push-Up':'Triceps',
+  'Cable Tricep':'Triceps','JM Press':'Triceps',
+  // Forearms
+  'Wrist Curl':'Forearms','Reverse Curl':'Forearms','Farmer Walk':'Forearms',
+  'Farmer Carry':'Forearms','Dead Hang':'Forearms',
+  // Core
+  'Plank':'Core','Crunch':'Core','Cable Crunch':'Core','Ab Wheel':'Core',
+  'Leg Raise':'Core','Hanging Knee Raise':'Core','Sit-Up':'Core',
+  'Dragon Flag':'Core','Hollow Body':'Core','V-Up':'Core',
+  // Obliques
+  'Russian Twist':'Obliques','Side Plank':'Obliques','Woodchop':'Obliques',
+  'Oblique Crunch':'Obliques','Pallof Press':'Obliques',
+  // Quads
+  'Squat':'Quads','Front Squat':'Quads','Hack Squat':'Quads',
+  'Leg Press':'Quads','Leg Extension':'Quads','Lunge':'Quads',
+  'Split Squat':'Quads','Bulgarian Split':'Quads','Step-Up':'Quads',
+  'Wall Sit':'Quads',
+  // Hamstrings
+  'Romanian Deadlift':'Hamstrings','RDL':'Hamstrings','Leg Curl':'Hamstrings',
+  'Nordic Curl':'Hamstrings','Good Morning':'Hamstrings','Stiff Leg':'Hamstrings',
+  'Glute Ham Raise':'Hamstrings',
+  // Glutes
+  'Hip Thrust':'Glutes','Glute Bridge':'Glutes','Sumo Deadlift':'Glutes',
+  'Cable Kickback':'Glutes','Donkey Kick':'Glutes','Abduction':'Glutes',
+  // Calves
+  'Calf Raise':'Calves','Seated Calf':'Calves','Standing Calf':'Calves',
+  'Donkey Calf':'Calves','Jump Rope':'Calves',
+  // Cardio
+  'Running':'Cardio','Cycling':'Cardio','Rowing':'Cardio','Elliptical':'Cardio',
+  'HIIT':'Cardio','Stair':'Cardio','Swimming':'Cardio','Burpee':'Cardio',
 };
 
 function getMuscleName(exName) {
@@ -1634,12 +1684,29 @@ function switchBodyView(period, el) {
 function showMuscleInfo(muscle) {
   const info = MUSCLE_MAP[muscle];
   if (!info) return;
-  // Find last workout for this muscle
-  const tooltip = document.getElementById('muscleTooltip');
-  const sets = document.getElementById('bodySetsWeek');
-  // Find muscle sets from rendered data
-  const breakdownEl = document.getElementById('muscleBreakdown');
-  showToast(muscle + ' — กดดูใน breakdown ด้านล่าง', '💪');
+  // Count sets for this muscle from current view period
+  const cutoff = bodyViewPeriod === 'week' ? Date.now()-7*86400000
+               : bodyViewPeriod === 'month' ? Date.now()-30*86400000 : 0;
+  const relevant = (allWorkouts||[]).filter(w => new Date(w.date).getTime() >= cutoff);
+  let totalSets = 0, topEx = '', topSets = 0;
+  const exCounts = {};
+  relevant.forEach(w => {
+    w.exercises.forEach(ex => {
+      if (getMuscleName(ex.name) !== muscle) return;
+      const done = ex.sets.filter(s => s.done).length;
+      totalSets += done;
+      exCounts[ex.name] = (exCounts[ex.name]||0) + done;
+    });
+  });
+  if (Object.keys(exCounts).length) {
+    topEx = Object.entries(exCounts).sort((a,b)=>b[1]-a[1])[0][0];
+    topSets = exCounts[topEx];
+  }
+  const period = bodyViewPeriod === 'week' ? 'สัปดาห์นี้' : bodyViewPeriod === 'month' ? 'เดือนนี้' : 'ทั้งหมด';
+  const msg = totalSets
+    ? `${info.emoji||'💪'} ${muscle}: ${totalSets} sets ${period}${topEx ? ' · ' + topEx : ''}`
+    : `${info.emoji||'💪'} ${muscle} — ยังไม่ได้ train ${period}`;
+  showToast(msg, '');
 }
 
 
