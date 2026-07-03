@@ -1043,7 +1043,10 @@ canvas.chart{width:100%!important;height:180px!important;}
   <div class="modal">
     <div class="mhdr"><div class="mtitle" id="modalTitle">Workout Detail</div><button class="mclose" onclick="closeModal('workoutDetailModal')">✕</button></div>
     <div id="modalBody"></div>
-    <div style="margin-top:16px;"><button class="btn btn-r btn-full" onclick="deleteWorkoutFromModal()">🗑 ลบ Workout</button></div>
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="btn btn-ghost btn-full" onclick="editWorkoutInModal()" id="modalEditBtn">✏️ แก้ไข</button>
+      <button class="btn btn-r btn-full" onclick="deleteWorkoutFromModal()">🗑 ลบ</button>
+    </div>
   </div>
 </div>
 <div class="moverlay" id="restModal">
@@ -1419,6 +1422,86 @@ async function deleteWorkoutFromModal(){
   await dbDelete('workouts',currentModalWorkoutId);
   closeModal('workoutDetailModal');
   showToast('ลบแล้ว','🗑');
+  if(currentPage==='home')renderHome();
+  if(currentPage==='history')renderHistory('all');
+}
+// ── EDIT WORKOUT ──
+let editMode=false;
+function editWorkoutInModal(){
+  editMode=!editMode;
+  const btn=document.getElementById('modalEditBtn');
+  if(editMode){
+    btn.textContent='💾 บันทึก';
+    btn.classList.remove('btn-ghost');
+    btn.classList.add('btn-p');
+    renderEditableModal();
+  }else{
+    btn.textContent='✏️ แก้ไข';
+    btn.classList.add('btn-ghost');
+    btn.classList.remove('btn-p');
+    saveWorkoutEdits();
+  }
+}
+function renderEditableModal(){
+  dbGet('workouts',currentModalWorkoutId).then(w=>{
+    let html=`<div style="font-size:12px;color:var(--t3);margin-bottom:10px;">กดเพื่อแก้ค่า แล้วกด 💾 บันทึก</div>`;
+    html+=`<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--t3);font-weight:800;text-transform:uppercase;">ชื่อ Workout</label><input type="text" class="inp" id="editName" value="${(w.name||'').replace(/"/g,'&quot;')}" style="width:100%;margin-top:4px;"></div>`;
+    w.exercises.forEach((ex,ei)=>{
+      html+=`<div style="margin-bottom:14px;padding:12px;background:rgba(255,255,255,.03);border-radius:12px;">`;
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:15px;font-weight:800;color:var(--t);">${ex.name}</div><button class="btn btn-r btn-sm" onclick="removeSetFromEdit(${ei},-1)" style="padding:4px 8px;font-size:10px;">✕ ท่า</button></div>`;
+      ex.sets.forEach((st,si)=>{
+        const checked=st.done?'checked':'';
+        html+=`<div style="display:grid;grid-template-columns:24px 1fr 1fr 30px;gap:8px;align-items:center;margin-bottom:6px;">
+          <span style="color:var(--t3);font-size:12px;font-weight:700;">${si+1}</span>
+          <input type="number" class="set-inp" value="${st.weight??''}" placeholder="kg" step="0.5" oninput="updEditSet(${ei},${si},'weight',this.value)" inputmode="decimal">
+          <input type="number" class="set-inp" value="${st.reps??''}" placeholder="reps" oninput="updEditSet(${ei},${si},'reps',this.value)" inputmode="numeric">
+          <input type="checkbox" ${checked} onchange="updEditSet(${ei},${si},'done',this.checked)" style="width:20px;height:20px;accent-color:var(--g);">
+        </div>`;
+      });
+      html+=`<button class="btn btn-ghost btn-sm" onclick="addSetToEdit(${ei})" style="margin-top:6px;padding:5px 12px;font-size:11px;">+ Set</button>`;
+      html+=`</div>`;
+    });
+    document.getElementById('modalBody').innerHTML=html;
+    window._editWorkout=w;
+  });
+}
+function updEditSet(ei,si,field,val){
+  if(!window._editWorkout)return;
+  const ex=window._editWorkout.exercises[ei];
+  if(!ex||!ex.sets[si])return;
+  ex.sets[si][field]=field==='done'?val:val;
+}
+function addSetToEdit(ei){
+  if(!window._editWorkout)return;
+  const ex=window._editWorkout.exercises[ei];
+  if(!ex)return;
+  const last=ex.sets.slice(-1)[0];
+  ex.sets.push({weight:last?last.weight:'',reps:last?last.reps:'',done:false});
+  renderEditableModal();
+}
+function removeSetFromEdit(ei,si){
+  if(!window._editWorkout)return;
+  if(si===-1){
+    window._editWorkout.exercises.splice(ei,1);
+  }else{
+    window._editWorkout.exercises[ei].sets.splice(si,1);
+  }
+  renderEditableModal();
+}
+async function saveWorkoutEdits(){
+  if(!window._editWorkout)return;
+  const w=window._editWorkout;
+  const nameInput=document.getElementById('editName');
+  if(nameInput)w.name=nameInput.value.trim()||'Workout';
+  await dbPut('workouts',w);
+  const idx=allWorkouts.findIndex(x=>x.id===w.id);
+  if(idx>=0)allWorkouts[idx]=w;
+  showToast('บันทึกแล้ว ✅','💾');
+  editMode=false;
+  document.getElementById('modalEditBtn').textContent='✏️ แก้ไข';
+  document.getElementById('modalEditBtn').classList.add('btn-ghost');
+  document.getElementById('modalEditBtn').classList.remove('btn-p');
+  openWorkoutDetail(currentModalWorkoutId); // refresh view
   if(currentPage==='home')renderHome();
   if(currentPage==='history')renderHistory('all');
 }
