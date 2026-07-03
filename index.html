@@ -801,13 +801,11 @@ async function deleteWorkoutFromModal() {
 async function exportCSV() {
   allWorkouts = await dbGetAll('workouts');
   if (!allWorkouts.length) { showToast('ไม่มีข้อมูล', '⚠️'); return; }
-  let csv = 'Date,Workout,Exercise,Set,Weight(kg),Reps,Done
-';
+  let csv = 'Date,Workout,Exercise,Set,Weight(kg),Reps,Done\n';
   allWorkouts.forEach(w => {
     w.exercises.forEach(ex => {
       ex.sets.forEach((s,i) => {
-        csv += [new Date(w.date).toLocaleString('th-TH'), w.name, ex.name, i+1, s.weight||'', s.reps||'', s.done?'yes':'no'].join(',') + '
-';
+        csv += [new Date(w.date).toLocaleString('th-TH'), w.name, ex.name, i+1, s.weight||'', s.reps||'', s.done?'yes':'no'].join(',') + '\n';
       });
     });
   });
