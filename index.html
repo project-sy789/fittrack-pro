@@ -2276,20 +2276,48 @@ function renderWtHistory(entries) {
     const isToday = new Date().toDateString() === d.toDateString();
     const dateStr = isToday ? 'วันนี้' : d.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
     const timeStr = d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    return `<div class="wt-hist-row">
+    return `<div class="wt-hist-row" id="wtr-${e.id}">
       <div style="display:flex;align-items:center;gap:12px;">
         <div style="width:36px;height:36px;border-radius:50%;background:${i===0?'rgba(124,95,255,.3)':'rgba(255,255,255,.05)'};display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid ${i===0?'var(--p2)':'var(--border)'};">${i===0?'⚖️':'·'}</div>
-        <div>
+        <div id="wtd-${e.id}">
           <div style="font-size:15px;font-weight:900;color:var(--t);">${e.weight} <span style="font-size:12px;color:var(--t3);font-weight:600;">kg</span></div>
           <div style="font-size:11px;color:var(--t3);">${dateStr} ${timeStr}</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         ${diff!==null?`<span style="font-size:13px;font-weight:800;color:${diffColor};">${diff>0?'+':''}${diff}kg</span>`:''}
+        <button onclick="editWeightInline(${e.id})" style="background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:4px;opacity:.6;">✏️</button>
         <button onclick="deleteWeight(${e.id})" style="background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:4px;opacity:.6;">🗑</button>
       </div>
     </div>`;
   }).join('');
+}
+function editWeightInline(id){
+  const div=document.getElementById('wtd-'+id);
+  if(!div)return;
+  dbGet('weights',id).then(w=>{
+    div.innerHTML=`
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input type="number" class="set-inp" id="wte-${id}" value="${w.weight}" step="0.1" style="width:70px;font-size:15px;font-weight:900;" inputmode="decimal">
+        <span style="font-size:12px;color:var(--t3);font-weight:600;">kg</span>
+        <button class="btn btn-p btn-sm" onclick="saveWeightEdit(${id})" style="padding:4px 10px;font-size:11px;">✓</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderWeightTab()" style="padding:4px 10px;font-size:11px;">✕</button>
+      </div>`;
+    const inp=document.getElementById('wte-'+id);
+    inp.focus();inp.select();
+    inp.onkeydown=(e)=>{if(e.key==='Enter')saveWeightEdit(id);if(e.key==='Escape')renderWeightTab();};
+  });
+}
+async function saveWeightEdit(id){
+  const inp=document.getElementById('wte-'+id);
+  if(!inp)return;
+  const val=parseFloat(inp.value);
+  if(!val||val<1||val>500){showToast('น้ำหนักไม่ถูกต้อง','⚠️');return;}
+  const w=await dbGet('weights',id);
+  w.weight=Math.round(val*10)/10;
+  await dbPut('weights',w);
+  showToast('แก้ไขแล้ว ✅','💾');
+  await renderWeightTab();
 }
 
 async function deleteWeight(id) {
