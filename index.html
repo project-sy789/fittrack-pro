@@ -414,6 +414,11 @@ canvas.chart{width:100%!important;height:180px!important;}
   stroke:rgba(120,100,255,.12);
   stroke-width:.6;
 }
+.body-silhouette{
+  fill:rgba(100,100,140,.08);
+  stroke:rgba(120,100,255,.15);
+  stroke-width:.5;
+}
 .body-detail{
   fill:none;
   stroke:rgba(255,255,255,.04);
@@ -793,182 +798,225 @@ canvas.chart{width:100%!important;height:180px!important;}
           </div>
         </div>
 
-        <!-- BODY MAP SVG — anatomically accurate -->
+        <!-- BODY MAP — human silhouette + muscle overlay -->
         <div class="body-wrap">
           <!-- ════ FRONT ════ -->
           <div class="body-side">
             <div class="body-side-lbl">ด้านหน้า</div>
-            <svg class="body-svg" viewBox="0 0 200 420" width="180" style="overflow:visible;">
+            <svg class="body-svg" viewBox="0 0 200 460" width="175" style="overflow:visible;">
               <defs>
-                <radialGradient id="muscleGrad" cx="40%" cy="35%">
-                  <stop offset="0%" stop-color="rgba(255,255,255,.06)"/>
-                  <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-                </radialGradient>
-                <filter id="muscleShadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur in="SourceAlpha" stdDeviation="0.8"/>
-                  <feOffset dx="0.4" dy="0.6" result="off"/>
-                  <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+                <filter id="fShadow" x="-10%" y="-5%" width="120%" height="115%">
+                  <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+                  <feOffset dx="0" dy="2"/>
+                  <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
                   <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
               </defs>
 
-              <!-- ── HEAD ── -->
-              <ellipse cx="100" cy="20" rx="18" ry="22" class="body-outline"/>
-              <path d="M88 36 L88 50 Q100 53 112 50 L112 36 Z" class="body-outline"/>
-              <!-- jaw line -->
-              <path d="M90 30 Q100 38 110 30" class="body-detail" fill="none"/>
-              <!-- sternocleidomastoid -->
-              <path d="M90 38 Q95 45 100 50 Q105 45 110 38" class="body-detail" fill="none" stroke-width="0.6"/>
+              <!-- ════ HUMAN SILHOUETTE — one solid body shape ════ -->
+              <path d="
+                M100 8
+                C94 8 89 12 89 18
+                C89 24 92 28 95 30
+                L92 38
+                C90 39 87 40 84 42
+                C78 44 72 47 68 52
+                C64 50 58 48 52 50
+                C44 52 38 58 35 66
+                C32 74 31 84 33 94
+                C35 104 38 112 42 118
+                C44 120 47 120 49 118
+                C48 126 46 136 45 148
+                C44 160 43 172 44 182
+                C45 188 48 190 52 188
+                C55 186 57 180 58 172
+                C60 160 62 148 64 138
+                C66 142 68 148 69 156
+                C70 168 69 180 67 192
+                C65 204 62 216 60 228
+                C58 240 57 252 58 262
+                C59 270 62 274 66 274
+                C70 274 73 270 75 262
+                C77 250 79 238 81 226
+                C83 214 85 202 87 192
+                C89 200 91 210 92 222
+                C93 234 93 246 92 258
+                C91 268 89 276 87 282
+                C86 288 88 292 92 292
+                C96 292 99 288 101 282
+                C103 276 104 268 104 258
+                C105 246 105 234 104 222
+                C103 210 101 200 99 192
+                C101 202 103 214 105 226
+                C107 238 109 250 111 262
+                C113 270 116 274 120 274
+                C124 274 127 270 128 262
+                C129 252 128 240 126 228
+                C124 216 121 204 119 192
+                C117 180 116 168 117 156
+                C118 148 120 142 122 138
+                C124 148 126 160 128 172
+                C129 180 131 186 134 188
+                C138 190 141 188 142 182
+                C143 172 142 160 141 148
+                C140 136 138 126 137 118
+                C139 120 142 120 144 118
+                C148 112 151 104 153 94
+                C155 84 154 74 151 66
+                C148 58 142 52 134 50
+                C128 48 122 50 116 52
+                C112 47 106 44 100 42
+                C97 40 94 39 92 38
+                L95 30
+                C98 28 101 24 101 18
+                C101 12 96 8 100 8
+                Z" class="body-silhouette" filter="url(#fShadow)"/>
 
-              <!-- ── TORSO OUTLINE ── -->
-              <path d="M55 52 Q100 42 145 52 L155 115 Q148 128 140 140 Q140 165 142 185 Q140 210 134 228 L112 240 Q100 244 88 240 L66 228 Q60 210 58 185 Q60 165 60 140 Q52 128 45 115 Z" class="body-outline" filter="url(#muscleShadow)"/>
+              <!-- ════ MUSCLE OVERLAY (on top of silhouette) ════ -->
+              <!-- Shoulders -->
+              <path id="f-shoulders-l" d="M68 52 C64 50 58 48 52 50 C44 52 40 58 38 66 C36 72 36 78 38 82 C42 80 46 76 50 72 C56 68 62 64 66 60 C68 58 69 55 68 52 Z" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
+              <path id="f-shoulders-r" d="M132 52 C136 50 142 48 148 50 C156 52 160 58 162 66 C164 72 164 78 162 82 C158 80 154 76 150 72 C144 68 138 64 134 60 C132 58 131 55 132 52 Z" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
 
-              <!-- ── ANTERIOR DELTOID — rounded shoulder caps ── -->
-              <path id="f-shoulders-l" d="M55 52 Q42 56 38 68 Q35 80 42 86 Q52 90 62 84 Q68 72 64 58 Q60 52 55 52 Z" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
-              <path id="f-shoulders-r" d="M145 52 Q158 56 162 68 Q165 80 158 86 Q148 90 138 84 Q132 72 136 58 Q140 52 145 52 Z" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
-              <path d="M64 58 Q66 70 62 82" class="body-detail" fill="none" stroke-width="0.6"/>
-              <path d="M136 58 Q134 70 138 82" class="body-detail" fill="none" stroke-width="0.6"/>
+              <!-- Chest -->
+              <path id="f-chest-l" d="M70 56 C64 60 58 66 56 74 C56 82 58 88 62 92 C68 95 76 96 84 94 C90 92 95 88 98 84 L98 62 C90 56 80 54 70 56 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
+              <path id="f-chest-r" d="M130 56 C136 60 142 66 144 74 C144 82 142 88 138 92 C132 95 124 96 116 94 C110 92 105 88 102 84 L102 62 C110 56 120 54 130 56 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
 
-              <!-- ── PECTORALIS MAJOR — fan-shaped, anatomically correct ── -->
-              <path id="f-chest-l" d="M68 58 Q58 64 54 76 Q54 90 60 100 Q70 106 82 104 Q92 100 100 94 L100 66 Q84 54 68 58 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
-              <path id="f-chest-r" d="M132 58 Q142 64 146 76 Q146 90 140 100 Q130 106 118 104 Q108 100 100 94 L100 66 Q116 54 132 58 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
-              <!-- sternum -->
-              <line x1="100" y1="58" x2="100" y2="104" class="body-detail" stroke-width="0.8"/>
-              <!-- lower pec border -->
-              <path d="M60 100 Q80 104 100 102 Q120 104 140 100" class="body-detail" fill="none" stroke-width="0.7"/>
-              <!-- upper pec line -->
-              <path d="M68 58 Q84 62 100 60 Q116 62 132 58" class="body-detail" fill="none" stroke-width="0.5"/>
+              <!-- Biceps -->
+              <path id="f-biceps-l" d="M48 68 C44 72 41 80 40 90 C39 100 41 110 44 116 C47 114 49 108 50 100 C51 90 51 80 50 72 C49 70 48 69 48 68 Z" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')"/>
+              <path id="f-biceps-r" d="M152 68 C156 72 159 80 160 90 C161 100 159 110 156 116 C153 114 151 108 150 100 C149 90 149 80 150 72 C151 70 152 69 152 68 Z" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')"/>
 
-              <!-- ── BICEPS — elongated teardrop with belly ── -->
-              <path id="f-biceps-l" d="M42 58 Q36 64 34 76 Q32 92 35 108 Q38 118 44 122 Q50 116 52 104 Q53 88 50 74 Q48 62 42 58 Z" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')"/>
-              <path id="f-biceps-r" d="M158 58 Q164 64 166 76 Q168 92 165 108 Q162 118 156 122 Q150 116 148 104 Q147 88 150 74 Q152 62 158 58 Z" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')"/>
-              <path d="M40 72 Q42 92 41 112" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M160 72 Q158 92 159 112" class="body-detail" fill="none" stroke-width="0.5"/>
+              <!-- Forearms -->
+              <path id="f-forearms-l" d="M44 118 C40 124 37 134 36 146 C35 158 37 170 40 178 C43 176 45 168 46 158 C47 146 47 134 46 124 C45 121 44 119 44 118 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
+              <path id="f-forearms-r" d="M156 118 C160 124 163 134 164 146 C165 158 163 170 160 178 C157 176 155 168 154 158 C153 146 153 134 154 124 C155 121 156 119 156 118 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
 
-              <!-- ── FOREARMS ── -->
-              <path id="f-forearms-l" d="M35 122 Q28 128 24 140 Q20 156 22 172 Q26 184 32 188 Q38 182 41 168 Q42 150 39 132 Q37 124 35 122 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
-              <path id="f-forearms-r" d="M165 122 Q172 128 176 140 Q180 156 178 172 Q174 184 168 188 Q162 182 159 168 Q158 150 161 132 Q163 124 165 122 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
+              <!-- Obliques -->
+              <path id="f-obliques-l" d="M62 96 C58 104 55 114 54 124 C54 134 56 142 60 148 C64 146 67 138 68 128 C69 118 69 108 68 100 C67 98 64 97 62 96 Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
+              <path id="f-obliques-r" d="M138 96 C142 104 145 114 146 124 C146 134 144 142 140 148 C136 146 133 138 132 128 C131 118 131 108 132 100 C133 98 136 97 138 96 Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
 
-              <!-- ── OBLIQUES — side abdominal wall ── -->
-              <path id="f-obliques-l" d="M60 104 Q54 116 50 132 Q50 148 54 162 Q60 168 66 164 Q70 148 70 130 Q70 114 68 104 Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
-              <path id="f-obliques-r" d="M140 104 Q146 116 150 132 Q150 148 146 162 Q140 168 134 164 Q130 148 130 130 Q130 114 132 104 Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
+              <!-- Abs -->
+              <path id="f-abs-1l" d="M68 98 C76 96 84 96 92 98 L92 112 C84 114 76 114 68 112 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-1r" d="M132 98 C124 96 116 96 108 98 L108 112 C116 114 124 114 132 112 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-2l" d="M67 114 C75 112 83 112 91 114 L91 128 C83 130 75 130 67 128 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-2r" d="M133 114 C125 112 117 112 109 114 L109 128 C117 130 125 130 133 128 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-3l" d="M66 130 C74 128 82 128 90 130 L90 146 C82 148 74 148 66 146 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-3r" d="M134 130 C126 128 118 128 110 130 L110 146 C118 148 126 148 134 146 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
 
-              <!-- ── RECTUS ABDOMINIS — 6-pack ── -->
-              <path id="f-abs-1l" d="M70 104 Q85 101 100 104 L100 120 Q85 123 70 120 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-1r" d="M130 104 Q115 101 100 104 L100 120 Q115 123 130 120 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-2l" d="M70 122 Q85 119 100 122 L100 138 Q85 141 70 138 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-2r" d="M130 122 Q115 119 100 122 L100 138 Q115 141 130 138 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-3l" d="M70 140 Q85 137 100 140 L100 158 Q85 161 70 158 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-3r" d="M130 140 Q115 137 100 140 L100 158 Q115 161 130 158 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <line x1="100" y1="104" x2="100" y2="162" class="body-detail" stroke-width="0.8"/>
-              <line x1="70" y1="121" x2="130" y2="121" class="body-detail" stroke-width="0.5"/>
-              <line x1="70" y1="139" x2="130" y2="139" class="body-detail" stroke-width="0.5"/>
+              <!-- Quads -->
+              <path id="f-quads-l" d="M66 150 C60 154 56 162 54 174 C52 188 53 202 56 214 C59 224 64 230 70 230 L74 152 C72 151 69 150 66 150 Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
+              <path id="f-quads-r" d="M134 150 C140 154 144 162 146 174 C148 188 147 202 144 214 C141 224 136 230 130 230 L126 152 C128 151 131 150 134 150 Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
 
-              <!-- ── QUADRICEPS — teardrop with VMO ── -->
-              <path id="f-quads-l" d="M70 162 Q60 168 56 180 Q52 198 54 216 Q56 234 62 248 Q72 256 82 254 L82 166 Q76 162 70 162 Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
-              <path id="f-quads-r" d="M130 162 Q140 168 144 180 Q148 198 146 216 Q144 234 138 248 Q128 256 118 254 L118 166 Q124 162 130 162 Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
-              <path d="M70 172 Q68 210 66 246" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M130 172 Q132 210 134 246" class="body-detail" fill="none" stroke-width="0.5"/>
-              <!-- VMO (vastus medialis obliquus) -->
-              <ellipse cx="78" cy="240" rx="8" ry="8" class="body-detail" style="fill:rgba(255,255,255,.04)"/>
-              <ellipse cx="122" cy="240" rx="8" ry="8" class="body-detail" style="fill:rgba(255,255,255,.04)"/>
+              <!-- Tibialis -->
+              <path id="f-tibialis-l" d="M66 240 C62 246 59 256 58 268 C57 280 59 290 63 296 C67 294 70 286 71 274 C72 262 71 250 69 242 C68 241 67 240 66 240 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <path id="f-tibialis-r" d="M134 240 C138 246 141 256 142 268 C143 280 141 290 137 296 C133 294 130 286 129 274 C128 262 129 250 131 242 C132 241 133 240 134 240 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
 
-              <!-- ── HIP FLEXORS ── -->
-              <path d="M82 254 Q78 264 74 270 Q70 272 72 266" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M118 254 Q122 264 126 270 Q130 272 128 266" class="body-detail" fill="none" stroke-width="0.5"/>
-
-              <!-- ── KNEE ── -->
-              <ellipse cx="70" cy="252" rx="9" ry="6" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
-              <ellipse cx="130" cy="252" rx="9" ry="6" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
-
-              <!-- ── TIBIALIS ANTERIOR ── -->
-              <path id="f-tibialis-l" d="M70 260 Q62 266 60 280 Q58 296 62 310 Q68 316 74 314 Q78 296 77 280 Q75 266 70 260 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <path id="f-tibialis-r" d="M130 260 Q138 266 140 280 Q142 296 138 310 Q132 316 126 314 Q122 296 123 280 Q125 266 130 260 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-
-              <!-- ── CALVES (front/peroneal) ── -->
-              <ellipse id="f-calves-l" cx="72" cy="340" rx="11" ry="22" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <ellipse id="f-calves-r" cx="128" cy="340" rx="11" ry="22" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-
-              <!-- ── ANKLE/FOOT ── -->
-              <ellipse cx="72" cy="380" rx="7" ry="10" class="body-outline"/>
-              <ellipse cx="128" cy="380" rx="7" ry="10" class="body-outline"/>
+              <!-- Front calves -->
+              <ellipse id="f-calves-l" cx="68" cy="265" rx="9" ry="18" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <ellipse id="f-calves-r" cx="132" cy="265" rx="9" ry="18" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
             </svg>
           </div>
 
           <!-- ════ BACK ════ -->
           <div class="body-side">
             <div class="body-side-lbl">ด้านหลัง</div>
-            <svg class="body-svg" viewBox="0 0 200 420" width="180" style="overflow:visible;">
-              <!-- ── HEAD ── -->
-              <ellipse cx="100" cy="20" rx="18" ry="22" class="body-outline"/>
-              <path d="M88 36 L88 50 Q100 53 112 50 L112 36 Z" class="body-outline"/>
+            <svg class="body-svg" viewBox="0 0 200 460" width="175" style="overflow:visible;">
+              <!-- ════ HUMAN SILHOUETTE (same shape) ════ -->
+              <path d="
+                M100 8
+                C94 8 89 12 89 18
+                C89 24 92 28 95 30
+                L92 38
+                C90 39 87 40 84 42
+                C78 44 72 47 68 52
+                C64 50 58 48 52 50
+                C44 52 38 58 35 66
+                C32 74 31 84 33 94
+                C35 104 38 112 42 118
+                C44 120 47 120 49 118
+                C48 126 46 136 45 148
+                C44 160 43 172 44 182
+                C45 188 48 190 52 188
+                C55 186 57 180 58 172
+                C60 160 62 148 64 138
+                C66 142 68 148 69 156
+                C70 168 69 180 67 192
+                C65 204 62 216 60 228
+                C58 240 57 252 58 262
+                C59 270 62 274 66 274
+                C70 274 73 270 75 262
+                C77 250 79 238 81 226
+                C83 214 85 202 87 192
+                C89 200 91 210 92 222
+                C93 234 93 246 92 258
+                C91 268 89 276 87 282
+                C86 288 88 292 92 292
+                C96 292 99 288 101 282
+                C103 276 104 268 104 258
+                C105 246 105 234 104 222
+                C103 210 101 200 99 192
+                C101 202 103 214 105 226
+                C107 238 109 250 111 262
+                C113 270 116 274 120 274
+                C124 274 127 270 128 262
+                C129 252 128 240 126 228
+                C124 216 121 204 119 192
+                C117 180 116 168 117 156
+                C118 148 120 142 122 138
+                C124 148 126 160 128 172
+                C129 180 131 186 134 188
+                C138 190 141 188 142 182
+                C143 172 142 160 141 148
+                C140 136 138 126 137 118
+                C139 120 142 120 144 118
+                C148 112 151 104 153 94
+                C155 84 154 74 151 66
+                C148 58 142 52 134 50
+                C128 48 122 50 116 52
+                C112 47 106 44 100 42
+                C97 40 94 39 92 38
+                L95 30
+                C98 28 101 24 101 18
+                C101 12 96 8 100 8
+                Z" class="body-silhouette" filter="url(#fShadow)"/>
 
-              <!-- ── TORSO OUTLINE ── -->
-              <path d="M55 52 Q100 42 145 52 L155 115 Q148 128 140 140 Q140 165 142 185 Q140 210 134 228 L112 240 Q100 244 88 240 L66 228 Q60 210 58 185 Q60 165 60 140 Q52 128 45 115 Z" class="body-outline" filter="url(#muscleShadow)"/>
+              <!-- Traps -->
+              <path id="b-traps-upper" d="M70 44 C80 40 90 38 100 38 C110 38 120 40 130 44 C132 50 131 56 128 60 C120 58 110 57 100 57 C90 57 80 58 72 60 C69 56 68 50 70 44 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
+              <path id="b-traps-mid" d="M66 60 C76 58 88 57 100 57 C112 57 124 58 134 60 C136 68 134 76 130 80 C120 78 110 77 100 77 C90 77 80 78 70 80 C66 76 64 68 66 60 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
 
-              <!-- ── TRAPEZIUS — diamond shape ── -->
-              <path id="b-traps-upper" d="M72 48 Q100 42 128 48 Q134 56 136 66 Q128 72 116 70 Q100 68 84 70 Q72 72 64 66 Q66 56 72 48 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
-              <path id="b-traps-mid" d="M66 72 Q100 70 134 72 Q136 84 134 94 Q100 96 66 94 Q64 84 66 72 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
-              <!-- spine -->
-              <line x1="100" y1="48" x2="100" y2="180" class="body-detail" stroke-width="0.8"/>
+              <!-- Rear Delts -->
+              <path id="b-rdelt-l" d="M68 52 C64 50 58 48 52 50 C44 52 40 58 38 66 C36 72 36 78 38 82 C42 80 46 76 50 72 C56 68 62 64 66 60 C68 58 69 55 68 52 Z" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')"/>
+              <path id="b-rdelt-r" d="M132 52 C136 50 142 48 148 50 C156 52 160 58 162 66 C164 72 164 78 162 82 C158 80 154 76 150 72 C144 68 138 64 134 60 C132 58 131 55 132 52 Z" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')"/>
 
-              <!-- ── REAR DELTOID ── -->
-              <path id="b-rdelt-l" d="M55 52 Q42 56 38 68 Q35 80 42 86 Q52 90 62 84 Q68 72 64 58 Q60 52 55 52 Z" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')"/>
-              <path id="b-rdelt-r" d="M145 52 Q158 56 162 68 Q165 80 158 86 Q148 90 138 84 Q132 72 136 58 Q140 52 145 52 Z" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')"/>
+              <!-- Infraspinatus -->
+              <path id="b-infra-l" d="M62 84 C56 88 53 94 53 102 C54 110 58 116 64 118 C70 116 74 110 75 102 C75 94 72 88 66 84 C65 84 63 84 62 84 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-infra-r" d="M138 84 C144 88 147 94 147 102 C146 110 142 116 136 118 C130 116 126 110 125 102 C125 94 128 88 134 84 C135 84 137 84 138 84 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
 
-              <!-- ── INFRASPINATUS / TERES ── -->
-              <path id="b-infra-l" d="M62 88 Q56 94 54 104 Q56 114 62 118 Q70 116 74 108 Q74 98 70 88 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path id="b-infra-r" d="M138 88 Q144 94 146 104 Q144 114 138 118 Q130 116 126 108 Q126 98 130 88 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <!-- Lats -->
+              <path id="b-lats-l" d="M64 96 C54 100 46 108 42 120 C39 132 40 144 45 154 C50 160 58 162 66 160 C72 156 76 148 77 138 L77 100 C74 98 70 96 66 96 C65 96 64 96 64 96 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-lats-r" d="M136 96 C146 100 154 108 158 120 C161 132 160 144 155 154 C150 160 142 162 134 160 C128 156 124 148 123 138 L123 100 C126 98 130 96 134 96 C135 96 136 96 136 96 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
 
-              <!-- ── LATISSIMUS DORSI — wide V-taper ── -->
-              <path id="b-lats-l" d="M62 100 Q44 106 38 122 Q34 140 40 156 Q50 168 62 170 Q70 166 74 158 L74 106 Q70 100 66 100 Q64 100 62 100 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path id="b-lats-r" d="M138 100 Q156 106 162 122 Q166 140 160 156 Q150 168 138 170 Q130 166 126 158 L126 106 Q130 100 134 100 Q136 100 138 100 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path d="M66 112 Q56 128 50 150" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M134 112 Q144 128 150 150" class="body-detail" fill="none" stroke-width="0.5"/>
+              <!-- Erector Spinae -->
+              <path id="b-erector-l" d="M82 96 C78 100 76 108 75 120 C74 134 76 148 80 158 C84 162 88 162 90 158 C92 148 93 134 92 120 C91 108 89 100 86 96 C85 96 83 96 82 96 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-erector-r" d="M118 96 C122 100 124 108 125 120 C126 134 124 148 120 158 C116 162 112 162 110 158 C108 148 107 134 108 120 C109 108 111 100 114 96 C115 96 117 96 118 96 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
 
-              <!-- ── ERECTOR SPINAE ── -->
-              <path id="b-erector-l" d="M84 100 Q78 106 76 120 Q74 138 78 156 Q82 168 88 172 Q92 168 94 154 Q96 138 94 122 Q90 106 84 100 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path id="b-erector-r" d="M116 100 Q122 106 124 120 Q126 138 122 156 Q118 168 112 172 Q108 168 106 154 Q104 138 106 122 Q110 106 116 100 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <!-- Triceps -->
+              <path id="b-triceps-l" d="M48 68 C44 74 41 84 40 96 C39 108 41 118 44 122 C47 120 49 114 50 104 C51 92 51 80 50 72 C49 70 48 69 48 68 Z" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')"/>
+              <path id="b-triceps-r" d="M152 68 C156 74 159 84 160 96 C161 108 159 118 156 122 C153 120 151 114 150 104 C149 92 149 80 150 72 C151 70 152 69 152 68 Z" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')"/>
 
-              <!-- ── TRICEPS — horseshoe ── -->
-              <path id="b-triceps-l" d="M42 58 Q36 66 34 82 Q32 100 36 116 Q40 122 46 120 Q50 112 50 98 Q50 82 48 68 Q46 60 42 58 Z" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')"/>
-              <path id="b-triceps-r" d="M158 58 Q164 66 166 82 Q168 100 164 116 Q160 122 154 120 Q150 112 150 98 Q150 82 152 68 Q154 60 158 58 Z" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')"/>
-              <path d="M42 76 Q44 100 44 116" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M158 76 Q156 100 156 116" class="body-detail" fill="none" stroke-width="0.5"/>
+              <!-- Back Forearms -->
+              <path id="b-forearms-l" d="M44 122 C40 128 37 138 36 150 C35 162 37 174 40 182 C43 180 45 172 46 162 C47 150 47 138 46 128 C45 125 44 123 44 122 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
+              <path id="b-forearms-r" d="M156 122 C160 128 163 138 164 150 C165 162 163 174 160 182 C157 180 155 172 154 162 C153 150 153 138 154 128 C155 125 156 123 156 122 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
 
-              <!-- ── BACK FOREARMS ── -->
-              <path id="b-forearms-l" d="M36 122 Q30 130 26 144 Q22 162 26 178 Q30 188 36 186 Q40 170 40 150 Q39 130 36 122 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
-              <path id="b-forearms-r" d="M164 122 Q170 130 174 144 Q178 162 174 178 Q170 188 164 186 Q160 170 160 150 Q161 130 164 122 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
+              <!-- Glutes -->
+              <path id="b-glutes-l" d="M64 168 C54 172 47 180 44 192 C42 204 44 216 50 226 C56 234 64 236 72 234 C78 230 82 222 83 212 L83 172 C78 168 72 166 66 168 C65 168 64 168 64 168 Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
+              <path id="b-glutes-r" d="M136 168 C146 172 153 180 156 192 C158 204 156 216 150 226 C144 234 136 236 128 234 C122 230 118 222 117 212 L117 172 C122 168 128 166 134 168 C135 168 136 168 136 168 Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
 
-              <!-- ── GLUTES — heart shape ── -->
-              <path id="b-glutes-l" d="M66 186 Q50 192 44 208 Q40 226 46 246 Q54 262 68 266 Q80 262 84 252 L84 190 Q76 184 68 186 Q67 186 66 186 Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
-              <path id="b-glutes-r" d="M134 186 Q150 192 156 208 Q160 226 154 246 Q146 262 132 266 Q120 262 116 252 L116 190 Q124 184 132 186 Q133 186 134 186 Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
-              <line x1="100" y1="186" x2="100" y2="260" class="body-detail" stroke-width="0.8"/>
-              <path d="M46 246 Q66 252 84 250" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M154 246 Q134 252 116 250" class="body-detail" fill="none" stroke-width="0.5"/>
+              <!-- Hamstrings -->
+              <path id="b-hams-l" d="M66 240 C58 244 53 252 51 264 C49 278 51 292 56 302 C62 308 68 308 72 304 C75 294 76 280 75 266 C74 254 72 246 69 240 C68 240 67 240 66 240 Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
+              <path id="b-hams-r" d="M134 240 C142 244 147 252 149 264 C151 278 149 292 144 302 C138 308 132 308 128 304 C125 294 124 280 125 266 C126 254 128 246 131 240 C132 240 133 240 134 240 Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
 
-              <!-- ── HAMSTRINGS ── -->
-              <path id="b-hams-l" d="M66 268 Q56 274 52 290 Q48 310 54 328 Q62 340 70 340 Q76 334 78 318 Q78 300 74 284 Q70 270 66 268 Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
-              <path id="b-hams-r" d="M134 268 Q144 274 148 290 Q152 310 146 328 Q138 340 130 340 Q124 334 122 318 Q122 300 126 284 Q130 270 134 268 Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
-              <path d="M66 280 Q62 310 66 332" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M134 280 Q138 310 134 332" class="body-detail" fill="none" stroke-width="0.5"/>
-
-              <!-- ── KNEE ── -->
-              <ellipse cx="70" cy="345" rx="9" ry="6" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
-              <ellipse cx="130" cy="345" rx="9" ry="6" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
-
-              <!-- ── GASTROCNEMIUS — diamond shape ── -->
-              <path id="b-calves-l" d="M66 352 Q56 358 52 372 Q48 388 54 402 Q62 414 70 414 Q76 408 78 392 Q78 374 74 358 Q70 352 66 352 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <path id="b-calves-r" d="M134 352 Q144 358 148 372 Q152 388 146 402 Q138 414 130 414 Q124 408 122 392 Q122 374 126 358 Q130 352 134 352 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <path d="M66 364 Q64 390 68 410" class="body-detail" fill="none" stroke-width="0.5"/>
-              <path d="M134 364 Q136 390 132 410" class="body-detail" fill="none" stroke-width="0.5"/>
-              <!-- soleus -->
-              <path d="M58 392 Q66 400 74 402" class="body-detail" fill="none" stroke-width="0.4"/>
-              <path d="M142 392 Q134 400 126 402" class="body-detail" fill="none" stroke-width="0.4"/>
-
-              <!-- ── ANKLE/FOOT ── -->
-              <ellipse cx="70" cy="420" rx="7" ry="10" class="body-outline"/>
-              <ellipse cx="130" cy="420" rx="7" ry="10" class="body-outline"/>
+              <!-- Back Calves -->
+              <path id="b-calves-l" d="M66 310 C58 314 53 322 51 334 C49 348 51 362 56 372 C62 378 68 378 72 374 C75 364 76 350 75 336 C74 324 72 316 69 310 C68 310 67 310 66 310 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <path id="b-calves-r" d="M134 310 C142 314 147 322 149 334 C151 348 149 362 144 372 C138 378 132 378 128 374 C125 364 124 350 125 336 C126 324 128 316 131 310 C132 310 133 310 134 310 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
             </svg>
           </div>
         </div>
