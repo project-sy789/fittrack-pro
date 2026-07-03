@@ -415,10 +415,11 @@ canvas.chart{width:100%!important;height:180px!important;}
   stroke-width:.6;
 }
 .body-silhouette{
-  fill:rgba(100,100,140,.08);
-  stroke:rgba(120,100,255,.15);
-  stroke-width:.5;
+  fill:rgba(100,100,140,.10);
+  stroke:rgba(120,100,255,.18);
+  stroke-width:.6;
 }
+.body-svg{height:auto;}
 .body-detail{
   fill:none;
   stroke:rgba(255,255,255,.04);
@@ -803,7 +804,7 @@ canvas.chart{width:100%!important;height:180px!important;}
           <!-- ════ FRONT ════ -->
           <div class="body-side">
             <div class="body-side-lbl">ด้านหน้า</div>
-            <svg class="body-svg" viewBox="0 0 200 460" width="175" style="overflow:visible;">
+            <svg class="body-svg" viewBox="0 0 200 460" width="175" style="overflow:visible;height:auto;">
               <defs>
                 <filter id="fShadow" x="-10%" y="-5%" width="120%" height="115%">
                   <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
@@ -813,76 +814,26 @@ canvas.chart{width:100%!important;height:180px!important;}
                 </filter>
               </defs>
 
-              <!-- ════ HUMAN SILHOUETTE — proportional body ════ -->
-              <path d="
-                M100 5
-                C92 5 86 11 86 19
-                C86 26 90 31 94 33
-                L93 40
-                C91 41 89 42 87 43
-                C80 45 73 49 68 55
-                C62 53 55 53 48 56
-                C40 59 34 66 31 74
-                C29 82 30 90 33 96
-                C35 98 38 98 40 96
-                C39 104 37 114 36 124
-                C35 136 35 148 37 158
-                C38 163 41 165 44 163
-                C47 161 49 156 50 149
-                C51 140 52 130 53 121
-                C55 125 57 131 58 138
-                C59 148 58 158 56 168
-                C54 180 51 192 49 204
-                C47 216 46 228 47 238
-                C48 245 51 248 54 248
-                C57 248 60 245 61 238
-                C63 228 64 216 66 204
-                C68 192 70 180 72 170
-                C74 178 76 188 77 200
-                C78 212 78 224 77 236
-                C76 246 74 254 72 260
-                C71 265 73 268 76 268
-                C79 268 82 265 83 260
-                C85 254 86 246 86 236
-                C87 224 87 212 86 200
-                C85 188 83 178 81 170
-                C83 180 85 192 87 204
-                C89 216 91 228 93 238
-                C94 245 97 248 100 248
-                C103 248 106 245 107 238
-                C109 228 110 216 112 204
-                C114 192 116 180 118 170
-                C120 178 122 188 123 200
-                C124 212 124 224 123 236
-                C122 246 120 254 118 260
-                C117 265 119 268 122 268
-                C125 268 128 265 129 260
-                C131 254 132 246 132 236
-                C133 224 133 212 132 200
-                C131 188 129 178 127 170
-                C129 180 131 192 133 204
-                C135 216 137 228 139 238
-                C140 245 143 248 146 248
-                C149 248 152 245 153 238
-                C154 228 153 216 151 204
-                C149 192 146 180 144 168
-                C142 158 141 148 142 138
-                C143 131 145 125 147 121
-                C148 130 149 140 150 149
-                C151 156 153 161 156 163
-                C159 165 162 163 163 158
-                C165 148 165 136 164 124
-                C163 114 161 104 160 96
-                C162 98 165 98 167 96
-                C170 90 171 82 169 74
-                C166 66 160 59 152 56
-                C145 53 138 53 132 55
-                C127 49 120 45 113 43
-                C111 42 109 41 107 40
-                L106 33
-                C110 31 114 26 114 19
-                C114 11 108 5 100 5
-                Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- ════ HUMAN SILHOUETTE — clean simple outline, single path no overlap ════ -->
+              <!-- Head -->
+              <circle cx="100" cy="16" r="11" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Neck -->
+              <rect x="96" y="25" width="8" height="12" rx="4" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Torso: shoulders wide, waist narrow -->
+              <path d="M74,40 Q60,42 48,50 Q36,58 34,72 Q33,82 37,88 L42,90 Q44,82 45,72 Q46,62 50,55 L50,90 Q50,120 52,150 Q53,165 54,180 L54,200 Q54,215 56,228 Q58,240 62,248 L72,250 Q74,240 75,225 L76,200 Q77,175 78,150 Q79,120 80,90 L80,55 Q80,50 78,45 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <path d="M126,40 Q140,42 152,50 Q164,58 166,72 Q167,82 163,88 L158,90 Q156,82 155,72 Q154,62 150,55 L150,90 Q150,120 148,150 Q147,165 146,180 L146,200 Q146,215 144,228 Q142,240 138,248 L128,250 Q126,240 125,225 L124,200 Q123,175 122,150 Q121,120 120,90 L120,55 Q120,50 122,45 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Left Arm -->
+              <path d="M48,50 Q38,60 36,80 Q35,100 38,120 Q40,140 43,160 Q45,175 47,185 L51,183 Q49,170 47,150 Q45,130 44,110 Q43,90 44,70 Q46,55 50,50 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Right Arm -->
+              <path d="M152,50 Q162,60 164,80 Q165,100 162,120 Q160,140 157,160 Q155,175 153,185 L149,183 Q151,170 153,150 Q155,130 156,110 Q157,90 156,70 Q154,55 150,50 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Left Leg -->
+              <path d="M72,250 Q70,270 68,300 Q66,330 64,360 Q63,380 62,395 L72,395 Q73,380 74,360 Q76,330 78,300 Q80,270 82,250 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Right Leg -->
+              <path d="M128,250 Q130,270 132,300 Q134,330 136,360 Q137,380 138,395 L128,395 Q127,380 126,360 Q124,330 122,300 Q120,270 118,250 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Left Foot -->
+              <ellipse cx="67" cy="403" rx="9" ry="5" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Right Foot -->
+              <ellipse cx="133" cy="403" rx="9" ry="5" class="body-silhouette" filter="url(#fShadow)"/>
 
               <!-- ════ MUSCLE OVERLAY (on top of silhouette) ════ -->
               <!-- Shoulders -->
@@ -930,77 +881,28 @@ canvas.chart{width:100%!important;height:180px!important;}
           <!-- ════ BACK ════ -->
           <div class="body-side">
             <div class="body-side-lbl">ด้านหลัง</div>
-            <svg class="body-svg" viewBox="0 0 200 460" width="175" style="overflow:visible;">
-              <!-- ════ HUMAN SILHOUETTE (same shape) ════ -->
-              <path d="
-                M100 5
-                C92 5 86 11 86 19
-                C86 26 90 31 94 33
-                L93 40
-                C91 41 89 42 87 43
-                C80 45 73 49 68 55
-                C62 53 55 53 48 56
-                C40 59 34 66 31 74
-                C29 82 30 90 33 96
-                C35 98 38 98 40 96
-                C39 104 37 114 36 124
-                C35 136 35 148 37 158
-                C38 163 41 165 44 163
-                C47 161 49 156 50 149
-                C51 140 52 130 53 121
-                C55 125 57 131 58 138
-                C59 148 58 158 56 168
-                C54 180 51 192 49 204
-                C47 216 46 228 47 238
-                C48 245 51 248 54 248
-                C57 248 60 245 61 238
-                C63 228 64 216 66 204
-                C68 192 70 180 72 170
-                C74 178 76 188 77 200
-                C78 212 78 224 77 236
-                C76 246 74 254 72 260
-                C71 265 73 268 76 268
-                C79 268 82 265 83 260
-                C85 254 86 246 86 236
-                C87 224 87 212 86 200
-                C85 188 83 178 81 170
-                C83 180 85 192 87 204
-                C89 216 91 228 93 238
-                C94 245 97 248 100 248
-                C103 248 106 245 107 238
-                C109 228 110 216 112 204
-                C114 192 116 180 118 170
-                C120 178 122 188 123 200
-                C124 212 124 224 123 236
-                C122 246 120 254 118 260
-                C117 265 119 268 122 268
-                C125 268 128 265 129 260
-                C131 254 132 246 132 236
-                C133 224 133 212 132 200
-                C131 188 129 178 127 170
-                C129 180 131 192 133 204
-                C135 216 137 228 139 238
-                C140 245 143 248 146 248
-                C149 248 152 245 153 238
-                C154 228 153 216 151 204
-                C149 192 146 180 144 168
-                C142 158 141 148 142 138
-                C143 131 145 125 147 121
-                C148 130 149 140 150 149
-                C151 156 153 161 156 163
-                C159 165 162 163 163 158
-                C165 148 165 136 164 124
-                C163 114 161 104 160 96
-                C162 98 165 98 167 96
-                C170 90 171 82 169 74
-                C166 66 160 59 152 56
-                C145 53 138 53 132 55
-                C127 49 120 45 113 43
-                C111 42 109 41 107 40
-                L106 33
-                C110 31 114 26 114 19
-                C114 11 108 5 100 5
-                Z" class="body-silhouette" filter="url(#fShadow)"/>
+            <svg class="body-svg" viewBox="0 0 200 460" width="175" style="overflow:visible;height:auto;">
+              <!-- ════ HUMAN SILHOUETTE (back, same shape) ════ -->
+              <!-- Head -->
+              <circle cx="100" cy="16" r="11" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Neck -->
+              <rect x="96" y="25" width="8" height="12" rx="4" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Torso L -->
+              <path d="M74,40 Q60,42 48,50 Q36,58 34,72 Q33,82 37,88 L42,90 Q44,82 45,72 Q46,62 50,55 L50,90 Q50,120 52,150 Q53,165 54,180 L54,200 Q54,215 56,228 Q58,240 62,248 L72,250 Q74,240 75,225 L76,200 Q77,175 78,150 Q79,120 80,90 L80,55 Q80,50 78,45 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Torso R -->
+              <path d="M126,40 Q140,42 152,50 Q164,58 166,72 Q167,82 163,88 L158,90 Q156,82 155,72 Q154,62 150,55 L150,90 Q150,120 148,150 Q147,165 146,180 L146,200 Q146,215 144,228 Q142,240 138,248 L128,250 Q126,240 125,225 L124,200 Q123,175 122,150 Q121,120 120,90 L120,55 Q120,50 122,45 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Left Arm -->
+              <path d="M48,50 Q38,60 36,80 Q35,100 38,120 Q40,140 43,160 Q45,175 47,185 L51,183 Q49,170 47,150 Q45,130 44,110 Q43,90 44,70 Q46,55 50,50 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Right Arm -->
+              <path d="M152,50 Q162,60 164,80 Q165,100 162,120 Q160,140 157,160 Q155,175 153,185 L149,183 Q151,170 153,150 Q155,130 156,110 Q157,90 156,70 Q154,55 150,50 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Left Leg -->
+              <path d="M72,250 Q70,270 68,300 Q66,330 64,360 Q63,380 62,395 L72,395 Q73,380 74,360 Q76,330 78,300 Q80,270 82,250 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Right Leg -->
+              <path d="M128,250 Q130,270 132,300 Q134,330 136,360 Q137,380 138,395 L128,395 Q127,380 126,360 Q124,330 122,300 Q120,270 118,250 Z" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Left Foot -->
+              <ellipse cx="67" cy="403" rx="9" ry="5" class="body-silhouette" filter="url(#fShadow)"/>
+              <!-- Right Foot -->
+              <ellipse cx="133" cy="403" rx="9" ry="5" class="body-silhouette" filter="url(#fShadow)"/>
 
               <!-- Traps -->
               <path id="b-traps-upper" d="M70 44 C80 40 90 38 100 38 C110 38 120 40 130 44 C132 50 131 56 128 60 C120 58 110 57 100 57 C90 57 80 58 72 60 C69 56 68 50 70 44 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
