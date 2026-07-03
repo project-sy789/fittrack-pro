@@ -1472,7 +1472,11 @@ function renderExSuggestions(q){
   const el=document.getElementById('exSuggestions');
   const lq=q.toLowerCase();
   const filtered=EXERCISES.filter(e=>!q||e.name.toLowerCase().includes(lq)||e.muscle.toLowerCase().includes(lq)).slice(0,16);
-  el.innerHTML=filtered.map(e=>`<div class="chip" role="button" tabindex="0" onclick="addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')},this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')},this)}">${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`).join('');
+  el.innerHTML=filtered.map(e=>{
+    const n=e.name.replace(/'/g,"\\'");
+    const m=(e.muscle||'').replace(/'/g,"\\'");
+    return `<div class="chip" role="button" tabindex="0" onclick="addExerciseToWorkout('${n}','${m}',this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();addExerciseToWorkout('${n}','${m}',this)}">${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`;
+  }).join('');
 }
 function addCustomExercise(){
   const val=document.getElementById('exSearchInput').value.trim();
