@@ -1,14 +1,22 @@
 {
-  "name": "FitTrack Pro",
+  "id": "/fittrack-pro/",
+  "name": "FitTrack Pro — Progressive Overload Tracker",
   "short_name": "FitTrack",
-  "description": "บันทึกการออกกำลังกาย Progressive Overload Tracker",
-  "start_url": ".",
+  "description": "บันทึกการออกกำลังกาย ติดตาม Progressive Overload คำนวณการออกกำลังให้ครบ",
+  "start_url": "/fittrack-pro/",
+  "scope": "/fittrack-pro/",
   "display": "standalone",
-  "background_color": "#0d0d1a",
-  "theme_color": "#0d0d1a",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#080810",
+  "theme_color": "#080810",
   "orientation": "portrait",
+  "lang": "th",
+  "dir": "ltr",
+  "categories": ["health", "fitness", "lifestyle"],
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ]
 }

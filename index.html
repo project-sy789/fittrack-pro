@@ -431,6 +431,10 @@ canvas.chart{width:100%!important;height:180px!important;}
       </div>
       <span id="streakFlame" style="font-size:34px;line-height:1;">🔥</span>
     </div>
+    <button id="installBtn" class="btn btn-primary" onclick="installApp()"
+      style="display:none;position:absolute;top:8px;right:8px;font-size:11px;padding:6px 12px;border-radius:8px;">
+      📲 ติดตั้ง
+    </button>
   </div>
   <div class="sc">
     <!-- Body summary hero -->
@@ -2100,11 +2104,59 @@ window.addEventListener('load', () => {
   document.head.appendChild(script);
 });
 
+// ── PWA: Service Worker with auto-update ──
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      // Check for updates every 5 min
+      setInterval(() => reg.update().catch(() => {}), 5 * 60 * 1000);
+      // New SW waiting → activate immediately
+      reg.waiting?.postMessage({type: 'SKIP_WAITING'});
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            // New version ready → reload
+            if (confirm('🔄 มีเวอร์ชันใหม่! กด OK เพื่ออัปเดต')) {
+              location.reload();
+            }
+          }
+        });
+      });
+    } catch (e) { console.warn('SW reg failed:', e); }
+  });
+  // SW sent message → reload
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data?.type === 'SW_UPDATED') {
+      // Silent reload only if no active workout
+      if (!window.curWorkout) location.reload();
+    }
   });
 }
+
+// ── PWA: Install prompt ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button
+  const ib = document.getElementById('installBtn');
+  if (ib) ib.style.display = 'flex';
+});
+window.installApp = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  const ib = document.getElementById('installBtn');
+  if (ib) ib.style.display = 'none';
+};
+window.addEventListener('appinstalled', () => {
+  const ib = document.getElementById('installBtn');
+  if (ib) ib.style.display = 'none';
+});
 </script>
 </div>
 </body>
