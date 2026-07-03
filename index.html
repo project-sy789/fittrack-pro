@@ -158,8 +158,40 @@ canvas.chart{width:100%!important;height:180px!important;}
   <div class="stat-row">
     <div class="stat-card p"><span style="font-size:22px;">🏋️</span><span class="stat-v" id="statWorkouts">0</span><span class="stat-l">Workouts ทั้งหมด</span></div>
     <div class="stat-card g" style="animation-delay:.1s"><span style="font-size:22px;">🔥</span><span class="stat-v" id="statStreak">0</span><span class="stat-l">Day Streak</span></div>
-    <div class="stat-card o" style="animation-delay:.2s"><span style="font-size:22px;">⚖️</span><span class="stat-v" id="statVolume">0</span><span class="stat-l">Volume/สัปดาห์ kg</span></div>
+    <div class="stat-card o" style="animation-delay:.2s"><span style="font-size:22px;">⚖️</span><span class="stat-v" id="statBodyWeight">—</span><span class="stat-l">น้ำหนักล่าสุด kg</span></div>
     <div class="stat-card r" style="animation-delay:.3s"><span style="font-size:22px;">🏆</span><span class="stat-v" id="statPRs">0</span><span class="stat-l">Personal Records</span></div>
+  </div>
+
+  <!-- Body summary card — weight + volume + BMI combined -->
+  <div class="card" id="homeBodyCard" style="display:none;">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:120px;">
+        <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">ร่างกายวันนี้</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span style="font-size:32px;font-weight:900;color:var(--purple2);" id="homeWeightBig">—</span>
+          <span style="font-size:14px;color:var(--text3);">kg</span>
+          <span style="font-size:13px;font-weight:700;margin-left:4px;" id="homeWeightDiff"></span>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;" id="homeWeightDate">ยังไม่มีข้อมูลน้ำหนัก</div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="font-size:20px;font-weight:800;" id="homeBMI" style="color:var(--green2);">—</div>
+          <div style="font-size:10px;color:var(--text3);">BMI</div>
+        </div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:var(--orange);" id="homeVolume">0</div>
+          <div style="font-size:10px;color:var(--text3);">Vol/สัปดาห์</div>
+        </div>
+      </div>
+      <button class="btn btn-g" onclick="navTo('progress');setTimeout(()=>switchProgressTab('weight',document.querySelector('#progressTabs .chip:nth-child(2)')),100)"
+        style="padding:8px 14px;font-size:12px;flex-shrink:0;">⚖️ บันทึก</button>
+    </div>
+    <!-- Mini weight trend spark line -->
+    <div style="margin-top:12px;height:50px;position:relative;">
+      <canvas id="homeSparkChart" style="width:100%!important;height:50px!important;"></canvas>
+    </div>
   </div>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><span class="sec-t">Volume รายสัปดาห์</span><span class="tag g">7 วัน</span></div>
@@ -669,19 +701,104 @@ function getPRs(workouts) {
 
 // ── HOME ──
 async function renderHome() {
-  allWorkouts = await dbGetAll('workouts');
-  allWorkouts.sort((a,b) => new Date(b.date) - new Date(a.date));
+  // ── Load all data sources in parallel ──
+  const [workoutsRaw, weightsRaw] = await Promise.all([
+    dbGetAll('workouts'),
+    dbGetAll('weights'),
+  ]);
+  allWorkouts = workoutsRaw.sort((a,b) => new Date(b.date) - new Date(a.date));
+  const weightsSorted = weightsRaw.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // ── Workout stats ──
   const streak = calcStreak(allWorkouts);
-  const vol = weekVolume(allWorkouts);
-  const prs = getPRs(allWorkouts);
+  const vol    = weekVolume(allWorkouts);
+  const prs    = getPRs(allWorkouts);
   document.getElementById('statWorkouts').textContent = allWorkouts.length;
-  document.getElementById('statStreak').textContent = streak;
-  document.getElementById('statVolume').textContent = Math.round(vol).toLocaleString();
-  document.getElementById('statPRs').textContent = Object.keys(prs).length;
-  document.getElementById('streakFlame').textContent = streak >= 7 ? '🔥🔥' : streak >= 3 ? '🔥' : '💪';
+  document.getElementById('statStreak').textContent   = streak;
+  document.getElementById('statPRs').textContent      = Object.keys(prs).length;
+  document.getElementById('streakFlame').textContent  = streak >= 7 ? '🔥🔥' : streak >= 3 ? '🔥' : '💪';
+
+  // ── Weight integration ──
+  if (weightsSorted.length) {
+    const last  = weightsSorted[weightsSorted.length - 1];
+    const prev  = weightsSorted.length > 1 ? weightsSorted[weightsSorted.length - 2] : null;
+    const diff  = prev ? Math.round((last.weight - prev.weight) * 10) / 10 : null;
+    const diffStr  = diff !== null ? (diff > 0 ? '+' + diff : diff) + ' kg' : '';
+    const diffColor = diff === null ? '' : diff < 0 ? 'color:var(--green2)' : diff > 0 ? 'color:var(--red)' : 'color:var(--text3)';
+    const h = parseFloat(localStorage.getItem('wtHeight'));
+    const bmi = h ? Math.round(last.weight / ((h/100)**2) * 10) / 10 : null;
+
+    document.getElementById('statBodyWeight').textContent = last.weight;
+
+    // Show body summary card
+    const card = document.getElementById('homeBodyCard');
+    card.style.display = 'block';
+    document.getElementById('homeWeightBig').textContent = last.weight;
+    document.getElementById('homeWeightDiff').innerHTML  = diff !== null
+      ? `<span style="${diffColor}">${diffStr}</span>` : '';
+    const lastDate = new Date(last.date);
+    const isToday  = new Date().toDateString() === lastDate.toDateString();
+    document.getElementById('homeWeightDate').textContent = isToday
+      ? 'วันนี้ ' + lastDate.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})
+      : lastDate.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
+    document.getElementById('homeVolume').textContent = Math.round(vol).toLocaleString();
+
+    if (bmi) {
+      const bmiColor = bmi < 18.5 ? 'var(--orange)' : bmi < 25 ? 'var(--green2)' : bmi < 30 ? 'var(--yellow)' : 'var(--red)';
+      document.getElementById('homeBMI').textContent = bmi;
+      document.getElementById('homeBMI').style.color = bmiColor;
+    } else {
+      document.getElementById('homeBMI').textContent = '—';
+    }
+
+    // Spark line — last 14 weight entries
+    renderHomeSparkLine(weightsSorted.slice(-14));
+  } else {
+    document.getElementById('statBodyWeight').textContent = '—';
+    document.getElementById('homeBodyCard').style.display = 'none';
+  }
+
   renderWeeklyChart();
   renderOverloadSnapshot();
   renderRecentWorkouts();
+}
+
+// ── Home sparkline (tiny weight trend) ──
+let homeSparkInst = null;
+function renderHomeSparkLine(entries) {
+  const ctx = document.getElementById('homeSparkChart').getContext('2d');
+  if (homeSparkInst) homeSparkInst.destroy();
+  if (!entries.length) return;
+  const labels = entries.map(e => {
+    const d = new Date(e.date);
+    return d.getDate() + '/' + (d.getMonth()+1);
+  });
+  const data = entries.map(e => e.weight);
+  homeSparkInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: 'rgba(124,95,255,.7)',
+        backgroundColor: 'rgba(124,95,255,.1)',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.4,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600 }
+    }
+  });
 }
 
 // ── WEEKLY CHART ──
