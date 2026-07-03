@@ -767,129 +767,188 @@ canvas.chart{width:100%!important;height:180px!important;}
           </div>
         </div>
 
-        <!-- BODY MAP SVG — detailed anatomical -->
+        <!-- BODY MAP SVG — anatomically accurate -->
         <div class="body-wrap">
-          <!-- FRONT -->
+          <!-- ════ FRONT ════ -->
           <div class="body-side">
             <div class="body-side-lbl">ด้านหน้า</div>
-            <svg viewBox="0 0 100 220" width="145" style="overflow:visible;">
-              <!-- body outline -->
-              <ellipse cx="50" cy="15" rx="12" ry="13" class="body-outline"/>
-              <rect x="38" y="26" width="24" height="8" rx="4" class="body-outline"/>
-              <!-- torso -->
-              <path d="M28 42 Q50 36 72 42 L74 100 Q62 106 50 104 Q38 106 26 100 Z" class="body-outline"/>
-              <!-- pelvis -->
-              <path d="M30 100 Q50 108 70 100 L68 120 Q50 128 32 120 Z" class="body-outline"/>
+            <svg viewBox="0 0 120 280" width="155" style="overflow:visible;">
+              <defs>
+                <filter id="bodyShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/>
+                  <feOffset dx="0.5" dy="0.8" result="off"/>
+                  <feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>
+                  <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
 
-              <!-- SHOULDERS -->
-              <ellipse id="f-shoulders-l" cx="22" cy="46" rx="9" ry="10" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')" transform="rotate(-10,22,46)"/>
-              <ellipse id="f-shoulders-r" cx="78" cy="46" rx="9" ry="10" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')" transform="rotate(10,78,46)"/>
+              <!-- ── HEAD ── -->
+              <ellipse cx="60" cy="14" rx="11" ry="13" class="body-outline"/>
+              <!-- neck -->
+              <path d="M54 25 L54 33 Q60 35 66 33 L66 25 Z" class="body-outline"/>
+              <!-- sternocleidomastoid (neck muscle) -->
+              <path d="M55 26 Q58 30 60 33 Q62 30 65 26" class="body-detail" fill="none" stroke-width="0.4"/>
 
-              <!-- CHEST — two pecs -->
-              <path id="f-chest-l" d="M30 44 Q40 40 50 44 L50 66 Q40 70 30 66 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
-              <path id="f-chest-r" d="M70 44 Q60 40 50 44 L50 66 Q60 70 70 66 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
-              <!-- chest line -->
-              <line x1="50" y1="44" x2="50" y2="66" class="body-detail"/>
+              <!-- ── TORSO OUTLINE ── -->
+              <path d="M32 34 Q60 28 88 34 L92 72 Q86 80 82 88 Q82 104 84 120 Q82 132 78 142 L66 148 Q60 150 54 148 L42 142 Q38 132 36 120 Q38 104 38 88 Q34 80 28 72 Z" class="body-outline" filter="url(#bodyShadow)"/>
 
-              <!-- BICEPS -->
-              <ellipse id="f-biceps-l" cx="17" cy="68" rx="7" ry="15" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(-6,17,68)"/>
-              <ellipse id="f-biceps-r" cx="83" cy="68" rx="7" ry="15" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(6,83,68)"/>
+              <!-- ── SHOULDERS (Anterior Deltoid) — rounded cap shape ── -->
+              <path id="f-shoulders-l" d="M30 36 Q24 38 22 44 Q20 50 24 54 Q30 56 36 52 Q40 44 38 38 Z" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
+              <path id="f-shoulders-r" d="M90 36 Q96 38 98 44 Q100 50 96 54 Q90 56 84 52 Q80 44 82 38 Z" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
+              <!-- deltoid separation line -->
+              <path d="M38 38 Q40 44 42 50" class="body-detail" fill="none" stroke-width="0.5"/>
+              <path d="M82 38 Q80 44 78 50" class="body-detail" fill="none" stroke-width="0.5"/>
 
-              <!-- FOREARMS -->
-              <ellipse id="f-forearms-l" cx="13" cy="94" rx="5.5" ry="14" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(-4,13,94)"/>
-              <ellipse id="f-forearms-r" cx="87" cy="94" rx="5.5" ry="14" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(4,87,94)"/>
+              <!-- ── CHEST (Pectoralis Major) — fan-shaped pecs ── -->
+              <!-- Left pec: originates from sternum, fans out to shoulder -->
+              <path id="f-chest-l" d="M42 36 Q36 40 34 48 Q34 56 38 62 Q44 66 52 64 Q58 60 60 54 L60 40 Q52 34 42 36 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
+              <!-- Right pec -->
+              <path id="f-chest-r" d="M78 36 Q84 40 86 48 Q86 56 82 62 Q76 66 68 64 Q62 60 60 54 L60 40 Q68 34 78 36 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
+              <!-- sternum line (center chest) -->
+              <line x1="60" y1="36" x2="60" y2="64" class="body-detail" stroke-width="0.6"/>
+              <!-- lower pec line -->
+              <path d="M38 62 Q48 64 60 63 Q72 64 82 62" class="body-detail" fill="none" stroke-width="0.5"/>
 
-              <!-- OBLIQUES -->
-              <path id="f-obliques-l" d="M28 66 Q24 78 26 96 L32 100 Q30 84 34 68Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
-              <path id="f-obliques-r" d="M72 66 Q76 78 74 96 L68 100 Q70 84 66 68Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
+              <!-- ── BICEPS — elongated teardrop shape ── -->
+              <path id="f-biceps-l" d="M22 44 Q18 48 17 56 Q16 66 18 76 Q20 82 24 84 Q28 80 29 72 Q30 60 28 52 Q26 46 22 44 Z" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')"/>
+              <path id="f-biceps-r" d="M98 44 Q102 48 103 56 Q104 66 102 76 Q100 82 96 84 Q92 80 91 72 Q90 60 92 52 Q94 46 98 44 Z" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')"/>
+              <!-- bicep peak line -->
+              <path d="M22 54 Q24 64 23 76" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M98 54 Q96 64 97 76" class="body-detail" fill="none" stroke-width="0.4"/>
 
-              <!-- ABS — 6 blocks -->
-              <path id="f-abs-1l" d="M34 68 Q42 66 50 68 L50 78 Q42 80 34 78Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-1r" d="M66 68 Q58 66 50 68 L50 78 Q58 80 66 78Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-2l" d="M33 80 Q41 78 50 80 L50 90 Q41 92 33 90Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-2r" d="M67 80 Q59 78 50 80 L50 90 Q59 92 67 90Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-3l" d="M32 92 Q41 90 50 92 L50 100 Q41 102 32 100Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <path id="f-abs-3r" d="M68 92 Q59 90 50 92 L50 100 Q59 102 68 100Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
-              <!-- abs grid lines -->
-              <line x1="50" y1="68" x2="50" y2="100" class="body-detail"/>
-              <line x1="33" y1="79" x2="67" y2="79" class="body-detail"/>
-              <line x1="33" y1="91" x2="67" y2="91" class="body-detail"/>
+              <!-- ── FOREARMS (Brachioradialis) ── -->
+              <path id="f-forearms-l" d="M18 84 Q14 88 12 96 Q10 106 12 116 Q14 124 18 126 Q22 122 24 114 Q24 102 23 92 Q21 86 18 84 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
+              <path id="f-forearms-r" d="M102 84 Q106 88 108 96 Q110 106 108 116 Q106 124 102 126 Q98 122 96 114 Q96 102 97 92 Q99 86 102 84 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
 
-              <!-- QUADS — four heads suggestion -->
-              <path id="f-quads-l" d="M32 122 Q40 118 48 122 L46 158 Q38 162 30 158Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
-              <path id="f-quads-r" d="M68 122 Q60 118 52 122 L54 158 Q62 162 70 158Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
-              <!-- VMO detail -->
-              <ellipse cx="46" cy="156" rx="5" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
-              <ellipse cx="54" cy="156" rx="5" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
+              <!-- ── OBLIQUES (External Obliques) — side abdominal wall ── -->
+              <path id="f-obliques-l" d="M36 64 Q32 72 30 82 Q30 92 32 100 Q36 104 40 102 Q42 90 42 78 Q42 70 40 64 Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
+              <path id="f-obliques-r" d="M84 64 Q88 72 90 82 Q90 92 88 100 Q84 104 80 102 Q78 90 78 78 Q78 70 80 64 Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
 
-              <!-- TIBIALIS ANTERIOR (shins) -->
-              <path id="f-tibialis-l" d="M32 162 Q38 160 42 164 L40 190 Q35 192 31 188Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <path id="f-tibialis-r" d="M68 162 Q62 160 58 164 L60 190 Q65 192 69 188Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <!-- ── ABS (Rectus Abdominis) — 6-pack with tendinous intersections ── -->
+              <!-- Row 1 -->
+              <path id="f-abs-1l" d="M42 64 Q50 62 60 64 L60 74 Q50 76 42 74 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-1r" d="M78 64 Q70 62 60 64 L60 74 Q70 76 78 74 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <!-- Row 2 -->
+              <path id="f-abs-2l" d="M42 76 Q50 74 60 76 L60 86 Q50 88 42 86 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-2r" d="M78 76 Q70 74 60 76 L60 86 Q70 88 78 86 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <!-- Row 3 -->
+              <path id="f-abs-3l" d="M42 88 Q50 86 60 88 L60 98 Q50 100 42 98 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-3r" d="M78 88 Q70 86 60 88 L60 98 Q70 100 78 98 Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <!-- linea alba (center line) -->
+              <line x1="60" y1="64" x2="60" y2="100" class="body-detail" stroke-width="0.6"/>
+              <!-- tendinous intersections -->
+              <line x1="42" y1="75" x2="78" y2="75" class="body-detail" stroke-width="0.4"/>
+              <line x1="42" y1="87" x2="78" y2="87" class="body-detail" stroke-width="0.4"/>
 
-              <!-- CALVES front -->
-              <ellipse id="f-calves-l" cx="37" cy="200" rx="7" ry="14" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <ellipse id="f-calves-r" cx="63" cy="200" rx="7" ry="14" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <!-- ── QUADS (Quadriceps) — 4 heads: rectus femoris + vastus ── -->
+              <!-- Left quad — teardrop shape with VMO at bottom -->
+              <path id="f-quads-l" d="M42 100 Q36 104 34 112 Q32 124 33 136 Q34 148 38 158 Q44 162 50 160 L50 104 Q46 100 42 100 Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
+              <!-- Right quad -->
+              <path id="f-quads-r" d="M78 100 Q84 104 86 112 Q88 124 87 136 Q86 148 82 158 Q76 162 70 160 L70 104 Q74 100 78 100 Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
+              <!-- rectus femoris center line -->
+              <path d="M42 106 Q41 130 40 156" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M78 106 Q79 130 80 156" class="body-detail" fill="none" stroke-width="0.4"/>
+              <!-- VMO bulge (teardrop bottom) -->
+              <ellipse cx="46" cy="154" rx="5" ry="5" class="body-detail" style="fill:rgba(255,255,255,.04)"/>
+              <ellipse cx="74" cy="154" rx="5" ry="5" class="body-detail" style="fill:rgba(255,255,255,.04)"/>
+
+              <!-- ── HIP FLEXORS / Sartorius ── -->
+              <path d="M50 160 Q48 166 46 170 Q44 172 44 168" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M70 160 Q72 166 74 170 Q76 172 76 168" class="body-detail" fill="none" stroke-width="0.4"/>
+
+              <!-- ── TIBIALIS ANTERIOR (shin muscle) ── -->
+              <path id="f-tibialis-l" d="M40 164 Q36 168 35 176 Q34 186 36 194 Q40 198 44 196 Q46 186 45 176 Q44 168 40 164 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <path id="f-tibialis-r" d="M80 164 Q84 168 85 176 Q86 186 84 194 Q80 198 76 196 Q74 186 75 176 Q76 168 80 164 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+
+              <!-- ── CALVES front (peroneal) ── -->
+              <ellipse id="f-calves-l" cx="41" cy="214" rx="7" ry="14" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <ellipse id="f-calves-r" cx="79" cy="214" rx="7" ry="14" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+
+              <!-- ── KNEE JOINT ── -->
+              <ellipse cx="42" cy="160" rx="6" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
+              <ellipse cx="78" cy="160" rx="6" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
             </svg>
           </div>
 
-          <!-- BACK -->
+          <!-- ════ BACK ════ -->
           <div class="body-side">
             <div class="body-side-lbl">ด้านหลัง</div>
-            <svg viewBox="0 0 100 220" width="145" style="overflow:visible;">
-              <!-- body outline -->
-              <ellipse cx="50" cy="15" rx="12" ry="13" class="body-outline"/>
-              <rect x="38" y="26" width="24" height="8" rx="4" class="body-outline"/>
-              <path d="M28 42 Q50 36 72 42 L74 100 Q62 106 50 104 Q38 106 26 100 Z" class="body-outline"/>
-              <path d="M30 100 Q50 108 70 100 L68 120 Q50 128 32 120 Z" class="body-outline"/>
+            <svg viewBox="0 0 120 280" width="155" style="overflow:visible;">
+              <!-- ── HEAD ── -->
+              <ellipse cx="60" cy="14" rx="11" ry="13" class="body-outline"/>
+              <path d="M54 25 L54 33 Q60 35 66 33 L66 25 Z" class="body-outline"/>
 
-              <!-- TRAPS — upper + mid -->
-              <path id="b-traps-upper" d="M32 36 Q50 30 68 36 L64 50 Q50 46 36 50Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
+              <!-- ── TORSO OUTLINE ── -->
+              <path d="M32 34 Q60 28 88 34 L92 72 Q86 80 82 88 Q82 104 84 120 Q82 132 78 142 L66 148 Q60 150 54 148 L42 142 Q38 132 36 120 Q38 104 38 88 Q34 80 28 72 Z" class="body-outline" filter="url(#bodyShadow)"/>
+
+              <!-- ── TRAPS (Trapezius) — diamond shape from neck to mid-back ── -->
+              <!-- Upper traps: from neck → shoulder -->
+              <path id="b-traps-upper" d="M44 30 Q60 26 76 30 Q80 36 82 42 Q78 48 72 46 Q60 44 48 46 Q42 48 38 42 Q40 36 44 30 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
+              <!-- Mid traps: below upper, across back -->
+              <path id="b-traps-mid" d="M40 46 Q60 44 80 46 Q82 54 80 60 Q60 62 40 60 Q38 54 40 46 Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
               <!-- spine line -->
-              <line x1="50" y1="42" x2="50" y2="104" class="body-detail"/>
+              <line x1="60" y1="30" x2="60" y2="110" class="body-detail" stroke-width="0.6"/>
 
-              <!-- REAR DELTS -->
-              <ellipse id="b-rdelt-l" cx="22" cy="48" rx="8" ry="8" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(-20,22,48)"/>
-              <ellipse id="b-rdelt-r" cx="78" cy="48" rx="8" ry="8" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(20,78,48)"/>
+              <!-- ── REAR DELTS — rounded cap on back shoulder ── -->
+              <path id="b-rdelt-l" d="M30 36 Q24 38 22 44 Q20 50 24 54 Q30 56 36 52 Q40 44 38 38 Z" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')"/>
+              <path id="b-rdelt-r" d="M90 36 Q96 38 98 44 Q100 50 96 54 Q90 56 84 52 Q80 44 82 38 Z" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')"/>
 
-              <!-- INFRASPINATUS / TERES -->
-              <path id="b-infra-l" d="M30 50 Q40 46 50 50 L50 64 Q40 68 30 64Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path id="b-infra-r" d="M70 50 Q60 46 50 50 L50 64 Q60 68 70 64Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <!-- ── INFRASPINATUS / TERES MAJOR — below rear delt, above lat ── -->
+              <path id="b-infra-l" d="M38 54 Q34 58 33 64 Q34 70 38 72 Q44 70 46 64 Q46 58 42 54 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-infra-r" d="M82 54 Q86 58 87 64 Q86 70 82 72 Q76 70 74 64 Q74 58 78 54 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
 
-              <!-- LATS -->
-              <path id="b-lats-l" d="M26 54 Q22 68 24 88 Q30 102 42 106 L44 80 Q34 72 30 56Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path id="b-lats-r" d="M74 54 Q78 68 76 88 Q70 102 58 106 L56 80 Q66 72 70 56Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <!-- ── LATS (Latissimus Dorsi) — wide V-shape from armpit to waist ── -->
+              <path id="b-lats-l" d="M38 62 Q28 66 24 76 Q22 88 26 98 Q32 106 42 108 Q48 106 50 100 L50 66 Q46 62 42 62 Q40 62 38 62 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-lats-r" d="M82 62 Q92 66 96 76 Q98 88 94 98 Q88 106 78 108 Q72 106 70 100 L70 66 Q74 62 78 62 Q80 62 82 62 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <!-- lat spread line -->
+              <path d="M42 70 Q36 80 32 94" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M78 70 Q84 80 88 94" class="body-detail" fill="none" stroke-width="0.4"/>
 
-              <!-- MID / LOWER BACK (Erectors) -->
-              <path id="b-erector-l" d="M44 64 Q48 62 50 64 L50 104 Q46 108 42 104 Q40 90 40 76Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
-              <path id="b-erector-r" d="M56 64 Q52 62 50 64 L50 104 Q54 108 58 104 Q60 90 60 76Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <!-- ── LOWER BACK (Erector Spinae) — two columns along spine ── -->
+              <path id="b-erector-l" d="M52 64 Q48 68 47 78 Q46 90 48 102 Q50 110 54 112 Q56 108 57 98 Q58 86 57 76 Q55 68 52 64 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-erector-r" d="M68 64 Q72 68 73 78 Q74 90 72 102 Q70 110 66 112 Q64 108 63 98 Q62 86 63 76 Q65 68 68 64 Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
 
-              <!-- TRICEPS -->
-              <ellipse id="b-triceps-l" cx="15" cy="68" rx="6.5" ry="16" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(-8,15,68)"/>
-              <ellipse id="b-triceps-r" cx="85" cy="68" rx="6.5" ry="16" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(8,85,68)"/>
+              <!-- ── TRICEPS — horseshoe shape (long + lateral head) ── -->
+              <path id="b-triceps-l" d="M22 44 Q18 50 17 60 Q16 72 19 82 Q22 86 26 84 Q28 78 28 68 Q28 58 26 50 Q24 46 22 44 Z" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')"/>
+              <path id="b-triceps-r" d="M98 44 Q102 50 103 60 Q104 72 101 82 Q98 86 94 84 Q92 78 92 68 Q92 58 94 50 Q96 46 98 44 Z" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')"/>
+              <!-- triceps horseshoe line -->
+              <path d="M22 54 Q24 68 24 80" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M98 54 Q96 68 96 80" class="body-detail" fill="none" stroke-width="0.4"/>
 
-              <!-- BACK FOREARMS -->
-              <ellipse id="b-forearms-l" cx="12" cy="94" rx="5" ry="13" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(-6,12,94)"/>
-              <ellipse id="b-forearms-r" cx="88" cy="94" rx="5" ry="13" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(6,88,94)"/>
+              <!-- ── BACK FOREARMS ── -->
+              <path id="b-forearms-l" d="M18 84 Q14 90 12 100 Q10 112 13 122 Q17 126 21 122 Q23 110 23 98 Q22 88 18 84 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
+              <path id="b-forearms-r" d="M102 84 Q106 90 108 100 Q110 112 107 122 Q103 126 99 122 Q97 110 97 98 Q98 88 102 84 Z" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')"/>
 
-              <!-- GLUTES -->
-              <path id="b-glutes-l" d="M32 120 Q42 116 50 120 L50 150 Q42 158 32 152Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
-              <path id="b-glutes-r" d="M68 120 Q58 116 50 120 L50 150 Q58 158 68 152Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
-              <!-- glute crease -->
-              <line x1="50" y1="120" x2="50" y2="152" class="body-detail"/>
+              <!-- ── GLUTES (Gluteus Maximus) — rounded heart shape ── -->
+              <path id="b-glutes-l" d="M40 114 Q30 118 27 128 Q25 140 28 152 Q33 162 42 164 Q50 162 54 156 L54 116 Q48 112 42 114 Q41 114 40 114 Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
+              <path id="b-glutes-r" d="M80 114 Q90 118 93 128 Q95 140 92 152 Q87 162 78 164 Q70 162 66 156 L66 116 Q72 112 78 114 Q79 114 80 114 Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
+              <!-- glute crease (center) -->
+              <line x1="60" y1="114" x2="60" y2="160" class="body-detail" stroke-width="0.6"/>
+              <!-- glute fold (lower) -->
+              <path d="M28 152 Q42 156 54 154" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M92 152 Q78 156 66 154" class="body-detail" fill="none" stroke-width="0.4"/>
 
-              <!-- HAMSTRINGS — biceps femoris / semitendinosus -->
-              <path id="b-hams-l" d="M32 154 Q40 150 48 154 L46 186 Q38 190 30 186Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
-              <path id="b-hams-r" d="M68 154 Q60 150 52 154 L54 186 Q62 190 70 186Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
-              <!-- ham detail line -->
-              <line x1="40" y1="154" x2="38" y2="186" class="body-detail"/>
-              <line x1="60" y1="154" x2="62" y2="186" class="body-detail"/>
+              <!-- ── HAMSTRINGS (Biceps Femoris + Semitendinosus) ── -->
+              <!-- Left hamstring — two heads suggestion -->
+              <path id="b-hams-l" d="M40 164 Q34 168 32 178 Q30 190 33 202 Q38 210 44 210 Q48 206 49 196 Q49 184 47 174 Q44 166 40 164 Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
+              <path id="b-hams-r" d="M80 164 Q86 168 88 178 Q90 190 87 202 Q82 210 76 210 Q72 206 71 196 Q71 184 73 174 Q76 166 80 164 Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
+              <!-- biceps femoris head separation -->
+              <path d="M40 170 Q38 185 40 200" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M80 170 Q82 185 80 200" class="body-detail" fill="none" stroke-width="0.4"/>
 
-              <!-- CALVES back — gastrocnemius -->
-              <path id="b-calves-l" d="M30 188 Q38 184 44 190 L42 212 Q36 216 30 210Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <path id="b-calves-r" d="M70 188 Q62 184 56 190 L58 212 Q64 216 70 210Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
-              <!-- soleus line -->
-              <line x1="37" y1="192" x2="36" y2="212" class="body-detail"/>
-              <line x1="63" y1="192" x2="64" y2="212" class="body-detail"/>
+              <!-- ── KNEE ── -->
+              <ellipse cx="42" cy="212" rx="6" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
+              <ellipse cx="78" cy="212" rx="6" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
+
+              <!-- ── CALVES (Gastrocnemius) — diamond/heart shape ── -->
+              <path id="b-calves-l" d="M40 216 Q34 220 32 230 Q30 240 33 250 Q38 258 43 258 Q47 254 47 244 Q47 232 45 222 Q43 216 40 216 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <path id="b-calves-r" d="M80 216 Q86 220 88 230 Q90 240 87 250 Q82 258 77 258 Q73 254 73 244 Q73 232 75 222 Q77 216 80 216 Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <!-- gastroc medial/lateral head line -->
+              <path d="M40 224 Q39 240 41 254" class="body-detail" fill="none" stroke-width="0.4"/>
+              <path d="M80 224 Q81 240 79 254" class="body-detail" fill="none" stroke-width="0.4"/>
+              <!-- soleus -->
+              <path d="M36 240 Q40 246 44 248" class="body-detail" fill="none" stroke-width="0.3"/>
+              <path d="M84 240 Q80 246 76 248" class="body-detail" fill="none" stroke-width="0.3"/>
             </svg>
           </div>
         </div>
@@ -1237,7 +1296,7 @@ const MUSCLE_MAP={
   'Shoulders': {front:['f-shoulders-l','f-shoulders-r'],back:[],emoji:'🔵',tip:'OHP, Lateral Raise'},
   'Rear Delt': {front:[],back:['b-rdelt-l','b-rdelt-r'],emoji:'🔵',tip:'Face Pull, Reverse Fly'},
   'Back':      {front:[],back:['b-lats-l','b-lats-r','b-infra-l','b-infra-r','b-erector-l','b-erector-r'],emoji:'🔷',tip:'Deadlift, Row, Pull-Up'},
-  'Traps':     {front:[],back:['b-traps-upper'],emoji:'🟣',tip:'Shrug, Face Pull'},
+  'Traps':     {front:[],back:['b-traps-upper','b-traps-mid'],emoji:'🟣',tip:'Shrug, Face Pull'},
   'Biceps':    {front:['f-biceps-l','f-biceps-r'],back:[],emoji:'💪',tip:'Curl, Hammer, Chin-Up'},
   'Triceps':   {front:[],back:['b-triceps-l','b-triceps-r'],emoji:'💪',tip:'Pushdown, Skull Crusher'},
   'Forearms':  {front:['f-forearms-l','f-forearms-r'],back:['b-forearms-l','b-forearms-r'],emoji:'🖐️',tip:'Wrist Curl, Farmer Walk'},
