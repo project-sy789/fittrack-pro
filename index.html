@@ -1642,7 +1642,6 @@ async function exportCSV(){
       });
     });
   });
-  });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='fittrack_'+new Date().toISOString().split('T')[0]+'.csv';
@@ -1671,7 +1670,11 @@ function startWorkout(){
     const m=Math.floor(s/60),sc=s%60;
     document.getElementById('activeTimer').textContent=(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc;
   },1000);
-  function renderExSuggestions(q){
+  renderExSuggestions('');
+  showToast('เริ่มแล้ว! 💪','🚀');
+}
+function filterExercises(q){renderExSuggestions(q);}
+function renderExSuggestions(q){
     const el=document.getElementById('exSuggestions');
     const lq=q.toLowerCase();
     const filtered=EXERCISES.filter(e=>!q||e.name.toLowerCase().includes(lq)||e.muscle.toLowerCase().includes(lq)).slice(0,16);
@@ -1683,157 +1686,157 @@ function startWorkout(){
       return `<div class="chip" role="button" tabindex="0" onclick="addExerciseToWorkout('${n}','${m}','${t}',this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();addExerciseToWorkout('${n}','${m}','${t}',this)}">${typeIcon} ${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`;
     }).join('');
   }
-  function addCustomExercise(){
-    const val=document.getElementById('exSearchInput').value.trim();
-    if(!val){showToast('พิมพ์ชื่อท่าก่อน','⚠️');return;}
-    addExerciseToWorkout(val,'Custom','weight',null);
-    document.getElementById('exSearchInput').value='';renderExSuggestions('');
+function addCustomExercise(){
+  const val=document.getElementById('exSearchInput').value.trim();
+  if(!val){showToast('พิมพ์ชื่อท่าก่อน','⚠️');return;}
+  addExerciseToWorkout(val,'Custom','weight',null);
+  document.getElementById('exSearchInput').value='';renderExSuggestions('');
+}
+function addExerciseToWorkout(name,muscle,type,chipEl){
+  if(chipEl){chipEl.classList.add('pop');setTimeout(()=>chipEl.classList.remove('pop'),400);}
+  currentWorkoutData.exercises.push({name,muscle,type:type||'weight',sets:[{weight:'',reps:'',done:false}]});
+  renderActiveExercises();
+  document.getElementById('exSearchInput').value='';renderExSuggestions('');
+  showToast('เพิ่ม '+name+' ✅','➕');
+  setTimeout(()=>document.getElementById('activeExercises').scrollIntoView({behavior:'smooth',block:'end'}),100);
+}
+function getExType(name){
+  const ex=EXERCISES.find(e=>e.name===name);
+  return ex?.type||'weight';
+}
+// ── VOLUME CALCULATION — supports all exercise types ──
+// weight: weight × reps
+// bodyweight: (bodyweight + extraWeight) × reps — uses stored bodyweight if available
+// assisted: (bodyweight - assist) × reps — lower assist = harder = more volume
+// band: weight × reps (treat band tension as weight)
+// cardio: duration (min) — volume = total minutes
+function calcSetVolume(set,exName){
+  if(!set.done)return 0;
+  const type=getExType(exName);
+  const w=parseFloat(set.weight)||0;
+  const r=parseInt(set.reps)||0;
+  const dur=parseFloat(set.duration)||0;
+  if(type==='cardio')return dur||0;
+  if(type==='bodyweight'){
+    const bw=parseFloat(localStorage.getItem('lastBodyWeight'))||0;
+    return ((bw||0)+w)*r;
   }
-  function addExerciseToWorkout(name,muscle,type,chipEl){
-    if(chipEl){chipEl.classList.add('pop');setTimeout(()=>chipEl.classList.remove('pop'),400);}
-    currentWorkoutData.exercises.push({name,muscle,type:type||'weight',sets:[{weight:'',reps:'',done:false}]});
-    renderActiveExercises();
-    document.getElementById('exSearchInput').value='';renderExSuggestions('');
-    showToast('เพิ่ม '+name+' ✅','➕');
-    setTimeout(()=>document.getElementById('activeExercises').scrollIntoView({behavior:'smooth',block:'end'}),100);
+  if(type==='assisted'){
+    const bw=parseFloat(localStorage.getItem('lastBodyWeight'))||0;
+    return Math.max(0,(bw-w))*r;
   }
-  function getExType(name){
-    const ex=EXERCISES.find(e=>e.name===name);
-    return ex?.type||'weight';
+  return w*r;
+}
+function calcWorkoutVolume(w){
+  return Math.round(w.exercises.reduce((s,ex)=>s+ex.sets.reduce((s2,st)=>s2+calcSetVolume(st,ex.name),0),0));
+}
+function fmtSetDisplay(st,exName){
+  const type=getExType(exName);
+  if(type==='cardio'){
+    const dur=st.duration||st.weight||'';
+    return `${dur}min ${st.distance?st.distance+'km':''}`;
   }
-  // ── VOLUME CALCULATION — supports all exercise types ──
-  // weight: weight × reps
-  // bodyweight: (bodyweight + extraWeight) × reps — uses stored bodyweight if available
-  // assisted: (bodyweight - assist) × reps — lower assist = harder = more volume
-  // band: weight × reps (treat band tension as weight)
-  // cardio: duration (min) — volume = total minutes
-  function calcSetVolume(set,exName){
-    if(!set.done)return 0;
-    const type=getExType(exName);
-    const w=parseFloat(set.weight)||0;
-    const r=parseInt(set.reps)||0;
-    const dur=parseFloat(set.duration)||0;
-    if(type==='cardio')return dur||0;
-    if(type==='bodyweight'){
-      const bw=parseFloat(localStorage.getItem('lastBodyWeight'))||0;
-      return ((bw||0)+w)*r;
+  if(type==='bodyweight'){
+    return `${st.reps||0}r${st.weight?' +'+st.weight+'kg':''}`;
+  }
+  if(type==='assisted'){
+    return `${st.weight||0}kg assist × ${st.reps||0}r`;
+  }
+  return `${st.weight||0}kg × ${st.reps||0}r`;
+}
+function renderActiveExercises(){
+  const cont=document.getElementById('activeExercises');
+  cont.innerHTML=currentWorkoutData.exercises.map((ex,ei)=>{
+    const type=ex.type||getExType(ex.name)||'weight';
+    const typeLabel={weight:'Weight',bodyweight:'Bodyweight',assisted:'Assisted',band:'Band',cardio:'Cardio'}[type]||type;
+    const typeIcon={weight:'🏋️',bodyweight:'🤸',assisted:'🦵',band:'🎯',cardio:'❤️'}[type]||'🏋️';
+    let hint='';
+    for(const w of allWorkouts){
+      const f=w.exercises.find(e=>e.name===ex.name);
+      if(f){const ls=f.sets.filter(s=>s.done);if(ls.length){
+        if(type==='cardio'){
+          const maxDur=Math.max(...ls.map(s=>parseFloat(s.duration)||0));
+          hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${maxDur}min × ${ls[0].reps||ls[0].duration}r</div>`;
+        }else if(type==='bodyweight'){
+          hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${ls[0].reps} reps</div>`;
+        }else{
+          const mw=Math.max(...ls.map(s=>parseFloat(s.weight)||0));
+          hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${mw}kg × ${ls[0].reps}r</div>`;
+        }
+      }break;}
     }
-    if(type==='assisted'){
-      const bw=parseFloat(localStorage.getItem('lastBodyWeight'))||0;
-      return Math.max(0,(bw-w))*r;
-    }
-    return w*r;
-  }
-  function calcWorkoutVolume(w){
-    return Math.round(w.exercises.reduce((s,ex)=>s+ex.sets.reduce((s2,st)=>s2+calcSetVolume(st,ex.name),0),0));
-  }
-  function fmtSetDisplay(st,exName){
-    const type=getExType(exName);
-    if(type==='cardio'){
-      const dur=st.duration||st.weight||'';
-      return `${dur}min ${st.distance?st.distance+'km':''}`;
-    }
-    if(type==='bodyweight'){
-      return `${st.reps||0}r${st.weight?' +'+st.weight+'kg':''}`;
-    }
-    if(type==='assisted'){
-      return `${st.weight||0}kg assist × ${st.reps||0}r`;
-    }
-    return `${st.weight||0}kg × ${st.reps||0}r`;
-  }
-  function renderActiveExercises(){
-    const cont=document.getElementById('activeExercises');
-    cont.innerHTML=currentWorkoutData.exercises.map((ex,ei)=>{
-      const type=ex.type||getExType(ex.name)||'weight';
-      const typeLabel={weight:'Weight',bodyweight:'Bodyweight',assisted:'Assisted',band:'Band',cardio:'Cardio'}[type]||type;
-      const typeIcon={weight:'🏋️',bodyweight:'🤸',assisted:'🦵',band:'🎯',cardio:'❤️'}[type]||'🏋️';
-      let hint='';
-      for(const w of allWorkouts){
-        const f=w.exercises.find(e=>e.name===ex.name);
-        if(f){const ls=f.sets.filter(s=>s.done);if(ls.length){
-          if(type==='cardio'){
-            const maxDur=Math.max(...ls.map(s=>parseFloat(s.duration)||0));
-            hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${maxDur}min × ${ls[0].reps||ls[0].duration}r</div>`;
-          }else if(type==='bodyweight'){
-            hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${ls[0].reps} reps</div>`;
-          }else{
-            const mw=Math.max(...ls.map(s=>parseFloat(s.weight)||0));
-            hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${mw}kg × ${ls[0].reps}r</div>`;
-          }
-        }break;}
-      }
-      const shtml=ex.sets.map((s,si)=>renderSetRow(s,si,ei,type)).join('');
-      const headerCols=renderSetHeader(type);
-      return `<div class="ex-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div><div class="ex-card-name">${typeIcon} ${ex.name}</div><div class="ex-card-muscle">${ex.muscle||''} · ${typeLabel}</div></div>
-          <div style="display:flex;gap:6px;">
-            <button class="btn btn-ghost btn-sm" onclick="openRestTimer()" style="padding:6px 10px;">⏱</button>
-            <button class="btn btn-ghost btn-sm" onclick="addSet(${ei})" style="padding:6px 10px;">+Set</button>
-            <button class="btn btn-r btn-sm" onclick="removeExercise(${ei})" style="padding:6px 10px;">✕</button>
-          </div>
+    const shtml=ex.sets.map((s,si)=>renderSetRow(s,si,ei,type)).join('');
+    const headerCols=renderSetHeader(type);
+    return `<div class="ex-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div><div class="ex-card-name">${typeIcon} ${ex.name}</div><div class="ex-card-muscle">${ex.muscle||''} · ${typeLabel}</div></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="openRestTimer()" style="padding:6px 10px;">⏱</button>
+          <button class="btn btn-ghost btn-sm" onclick="addSet(${ei})" style="padding:6px 10px;">+Set</button>
+          <button class="btn btn-r btn-sm" onclick="removeExercise(${ei})" style="padding:6px 10px;">✕</button>
         </div>
-        ${hint}
-        ${headerCols}
-        ${shtml}
-      </div>`;
-    }).join('');
-  }
-  function renderSetHeader(type){
-    if(type==='cardio'){
-      return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
-        <span style="text-align:center;">#</span><span style="text-align:center;">MIN</span><span style="text-align:center;">DIST/KM</span><span></span>
-      </div>`;
-    }
-    if(type==='bodyweight'){
-      return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
-        <span style="text-align:center;">#</span><span style="text-align:center;">REPS</span><span style="text-align:center;">+KG</span><span></span>
-      </div>`;
-    }
-    if(type==='assisted'){
-      return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
-        <span style="text-align:center;">#</span><span style="text-align:center;">ASSIST</span><span style="text-align:center;">REPS</span><span></span>
-      </div>`;
-    }
-    // weight + band
+      </div>
+      ${hint}
+      ${headerCols}
+      ${shtml}
+    </div>`;
+  }).join('');
+}
+function renderSetHeader(type){
+  if(type==='cardio'){
     return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
-      <span style="text-align:center;">#</span><span style="text-align:center;">KG</span><span style="text-align:center;">REPS</span><span></span>
+      <span style="text-align:center;">#</span><span style="text-align:center;">MIN</span><span style="text-align:center;">DIST/KM</span><span></span>
     </div>`;
   }
-  function renderSetRow(s,si,ei,type){
-    const doneBtn=`<button class="set-done${s.done?' done':''}" onclick="togSetDone(${ei},${si})">${s.done?'✓':'○'}</button>`;
-    if(type==='cardio'){
-      return `<div class="set-row">
-        <span class="set-num">${si+1}</span>
-        <input type="number" class="set-inp" placeholder="min" value="${s.duration??s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'duration',this.value)" inputmode="decimal">
-        <input type="number" class="set-inp" placeholder="km" value="${s.distance??''}" step="0.1" oninput="updSet(${ei},${si},'distance',this.value)" inputmode="decimal">
-        ${doneBtn}
-      </div>`;
-    }
-    if(type==='bodyweight'){
-      return `<div class="set-row">
-        <span class="set-num">${si+1}</span>
-        <input type="number" class="set-inp" placeholder="reps" value="${s.reps??''}" oninput="updSet(${ei},${si},'reps',this.value)" inputmode="numeric">
-        <input type="number" class="set-inp" placeholder="+kg" value="${s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
-        ${doneBtn}
-      </div>`;
-    }
-    if(type==='assisted'){
-      return `<div class="set-row">
-        <span class="set-num">${si+1}</span>
-        <input type="number" class="set-inp" placeholder="assist kg" value="${s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
-        <input type="number" class="set-inp" placeholder="reps" value="${s.reps??''}" oninput="updSet(${ei},${si},'reps',this.value)" inputmode="numeric">
-        ${doneBtn}
-      </div>`;
-    }
-    // weight + band
+  if(type==='bodyweight'){
+    return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
+      <span style="text-align:center;">#</span><span style="text-align:center;">REPS</span><span style="text-align:center;">+KG</span><span></span>
+    </div>`;
+  }
+  if(type==='assisted'){
+    return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
+      <span style="text-align:center;">#</span><span style="text-align:center;">ASSIST</span><span style="text-align:center;">REPS</span><span></span>
+    </div>`;
+  }
+  // weight + band
+  return `<div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
+    <span style="text-align:center;">#</span><span style="text-align:center;">KG</span><span style="text-align:center;">REPS</span><span></span>
+  </div>`;
+}
+function renderSetRow(s,si,ei,type){
+  const doneBtn=`<button class="set-done${s.done?' done':''}" onclick="togSetDone(${ei},${si})">${s.done?'✓':'○'}</button>`;
+  if(type==='cardio'){
     return `<div class="set-row">
       <span class="set-num">${si+1}</span>
-      <input type="number" class="set-inp" placeholder="kg" value="${s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
+      <input type="number" class="set-inp" placeholder="min" value="${s.duration??s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'duration',this.value)" inputmode="decimal">
+      <input type="number" class="set-inp" placeholder="km" value="${s.distance??''}" step="0.1" oninput="updSet(${ei},${si},'distance',this.value)" inputmode="decimal">
+      ${doneBtn}
+    </div>`;
+  }
+  if(type==='bodyweight'){
+    return `<div class="set-row">
+      <span class="set-num">${si+1}</span>
+      <input type="number" class="set-inp" placeholder="reps" value="${s.reps??''}" oninput="updSet(${ei},${si},'reps',this.value)" inputmode="numeric">
+      <input type="number" class="set-inp" placeholder="+kg" value="${s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
+      ${doneBtn}
+    </div>`;
+  }
+  if(type==='assisted'){
+    return `<div class="set-row">
+      <span class="set-num">${si+1}</span>
+      <input type="number" class="set-inp" placeholder="assist kg" value="${s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
       <input type="number" class="set-inp" placeholder="reps" value="${s.reps??''}" oninput="updSet(${ei},${si},'reps',this.value)" inputmode="numeric">
       ${doneBtn}
     </div>`;
   }
+  // weight + band
+  return `<div class="set-row">
+    <span class="set-num">${si+1}</span>
+    <input type="number" class="set-inp" placeholder="kg" value="${s.weight??''}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
+    <input type="number" class="set-inp" placeholder="reps" value="${s.reps??''}" oninput="updSet(${ei},${si},'reps',this.value)" inputmode="numeric">
+    ${doneBtn}
+  </div>`;
+}
 function updSet(ei,si,field,val){currentWorkoutData.exercises[ei].sets[si][field]=val;}
 function togSetDone(ei,si){
   const s=currentWorkoutData.exercises[ei].sets[si];
