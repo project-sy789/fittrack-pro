@@ -224,12 +224,25 @@ select.inp{cursor:pointer;}
   color:var(--t3);font-size:12px;font-weight:700;
   padding:6px 14px;border-radius:100px;
   cursor:pointer;transition:var(--tr);
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.chip:hover{
+  background:rgba(124,95,255,.12);
+  border-color:var(--p2);color:var(--p2);
+  transform:translateY(-1px);
 }
 .chip.active{
   background:rgba(124,95,255,.2);
   border-color:var(--p2);color:var(--p2);
 }
 .chip:active{transform:scale(.94);}
+.chip.pop{animation:chipPop .4s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes chipPop{0%{transform:scale(1);}40%{transform:scale(1.18);background:rgba(0,212,170,.25);border-color:var(--g);color:var(--g2);}100%{transform:scale(1);}}
+.ex-card{animation:slideIn .35s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 
 /* ── PROGRESS BAR ── */
 .pb-bg{background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;}
@@ -1459,19 +1472,20 @@ function renderExSuggestions(q){
   const el=document.getElementById('exSuggestions');
   const lq=q.toLowerCase();
   const filtered=EXERCISES.filter(e=>!q||e.name.toLowerCase().includes(lq)||e.muscle.toLowerCase().includes(lq)).slice(0,16);
-  el.innerHTML=filtered.map(e=>`<div class="chip" onclick="addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')})">${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`).join('');
+  el.innerHTML=filtered.map(e=>`<div class="chip" role="button" tabindex="0" onclick="addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')},this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')},this)}">${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`).join('');
 }
 function addCustomExercise(){
   const val=document.getElementById('exSearchInput').value.trim();
   if(!val){showToast('พิมพ์ชื่อท่าก่อน','⚠️');return;}
-  addExerciseToWorkout(val,'Custom');
+  addExerciseToWorkout(val,'Custom',null);
   document.getElementById('exSearchInput').value='';renderExSuggestions('');
 }
-function addExerciseToWorkout(name,muscle){
+function addExerciseToWorkout(name,muscle,chipEl){
+  if(chipEl){chipEl.classList.add('pop');setTimeout(()=>chipEl.classList.remove('pop'),400);}
   currentWorkoutData.exercises.push({name,muscle,sets:[{weight:'',reps:'',done:false}]});
   renderActiveExercises();
   document.getElementById('exSearchInput').value='';renderExSuggestions('');
-  showToast('เพิ่ม '+name,'➕');
+  showToast('เพิ่ม '+name+' ✅','➕');
   setTimeout(()=>document.getElementById('activeExercises').scrollIntoView({behavior:'smooth',block:'end'}),100);
 }
 function renderActiveExercises(){
@@ -1523,10 +1537,21 @@ async function finishWorkout(){
   if(done===0&&!confirm('ยังไม่มี set ที่เสร็จ บันทึกเลยไหม?'))return;
   clearInterval(workoutTimer);
   const duration=Math.floor((Date.now()-workoutStart)/1000);
-  await dbPut('workouts',{...currentWorkoutData,date:new Date().toISOString(),duration});
+  const saved={...currentWorkoutData,date:new Date().toISOString(),duration};
+  await dbPut('workouts',saved);
+  allWorkouts.push(saved); // update in-memory cache
   workoutActive=false;resetWorkoutUI();confetti();
   showToast('บันทึก Workout แล้ว! 🎉','🏆');
+  // Refresh body map in background so it's ready when user visits Progress
+  renderBodyMap().catch(()=>{});
   navTo('home');
+  // Show body map prompt after 1.5s
+  setTimeout(()=>{
+    const musclesHit=[...new Set(currentWorkoutData.exercises.map(e=>getMuscleName(e.name)).filter(Boolean))];
+    if(musclesHit.length){
+      showToast('🔥 '+musclesHit.join(', ')+' อัปเดต Body Map แล้ว!','💪');
+    }
+  },1500);
 }
 function cancelWorkout(){
   if(!confirm('ยกเลิก Workout ใช่ไหม?'))return;
@@ -1897,10 +1922,23 @@ function showMuscleInfo(muscle) {
   });
   const topEx = Object.entries(exCounts).sort((a,b)=>b[1]-a[1])[0];
   const period = bodyViewPeriod === 'week' ? 'สัปดาห์' : bodyViewPeriod === 'month' ? 'เดือน' : 'ทั้งหมด';
-  const msg = totalSets
-    ? `${info.emoji||'💪'} ${muscle}: ${totalSets} sets (${period})${topEx ? ' · '+topEx[0] : ''}`
+
+  // Build toast with action button
+  const toastEl = document.createElement('div');
+  toastEl.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--surface2);border:1.5px solid var(--border2);border-radius:16px;padding:14px 18px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:slideUp .3s cubic-bezier(.175,.885,.32,1.275);';
+  const head = totalSets
+    ? `${info.emoji||'💪'} <b>${muscle}</b>: ${totalSets} sets (${period})${topEx ? ' · '+topEx[0] : ''}`
     : `${muscle} — ยังไม่ได้ train ${period}`;
-  showToast(msg, '');
+  const tipEx = info.tip || 'ดูท่าแนะนำในหน้า Workout';
+  toastEl.innerHTML = `
+    <div style="font-size:13px;color:var(--t);line-height:1.4;">${head}</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px;">${tipEx}</div>
+    <button onclick="this.parentElement.remove();navTo('workout');setTimeout(()=>{const s=document.getElementById('exSearchInput');if(s){s.value='${muscle}';filterExercises('${muscle}');}},200)"
+      style="margin-top:8px;width:100%;padding:7px;border-radius:8px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:800;font-size:12px;border:none;cursor:pointer;">
+      🏋️ ไป train ${muscle} →
+    </button>`;
+  document.body.appendChild(toastEl);
+  setTimeout(() => toastEl.remove(), 6000);
 }
 </script>
 
