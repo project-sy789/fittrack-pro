@@ -1134,53 +1134,101 @@ function dbGetAll(store){return dbGet(store);}
 const EXERCISES=[
   // Chest
   {name:'Bench Press',muscle:'Chest',type:'weight'},{name:'Incline Bench Press',muscle:'Chest',type:'weight'},
-  {name:'Dumbbell Fly',muscle:'Chest',type:'weight'},{name:'Push-Up',muscle:'Chest',type:'bodyweight'},{name:'Dip',muscle:'Chest',type:'bodyweight'},
-  {name:'Assisted Dip',muscle:'Chest',type:'assisted'},{name:'Cable Fly',muscle:'Chest',type:'weight'},{name:'Chest Press Machine',muscle:'Chest',type:'weight'},
-  {name:'Pec Deck',muscle:'Chest',type:'weight'},
+  {name:'Decline Bench Press',muscle:'Chest',type:'weight'},{name:'Dumbbell Press',muscle:'Chest',type:'weight'},
+  {name:'Incline Dumbbell Press',muscle:'Chest',type:'weight'},{name:'Dumbbell Fly',muscle:'Chest',type:'weight'},
+  {name:'Incline Dumbbell Fly',muscle:'Chest',type:'weight'},{name:'Push-Up',muscle:'Chest',type:'bodyweight'},
+  {name:'Dip',muscle:'Chest',type:'bodyweight'},{name:'Assisted Dip',muscle:'Chest',type:'assisted'},
+  {name:'Cable Fly',muscle:'Chest',type:'weight'},{name:'High Cable Fly',muscle:'Chest',type:'weight'},
+  {name:'Low Cable Fly',muscle:'Chest',type:'weight'},{name:'Chest Press Machine',muscle:'Chest',type:'weight'},
+  {name:'Incline Chest Press Machine',muscle:'Chest',type:'weight'},{name:'Pec Deck',muscle:'Chest',type:'weight'},
+  {name:'Machine Fly',muscle:'Chest',type:'weight'},{name:'Smith Bench Press',muscle:'Chest',type:'weight'},
+  {name:'Smith Incline Press',muscle:'Chest',type:'weight'},{name:'Cable Crossover',muscle:'Chest',type:'weight'},
   // Quads
-  {name:'Squat',muscle:'Quads',type:'weight'},{name:'Leg Press',muscle:'Quads',type:'weight'},{name:'Leg Extension',muscle:'Quads',type:'weight'},
+  {name:'Squat',muscle:'Quads',type:'weight'},{name:'Front Squat',muscle:'Quads',type:'weight'},
+  {name:'Leg Press',muscle:'Quads',type:'weight'},{name:'Leg Extension',muscle:'Quads',type:'weight'},
   {name:'Lunge',muscle:'Quads',type:'bodyweight'},{name:'Bulgarian Split Squat',muscle:'Quads',type:'weight'},
   {name:'Goblet Squat',muscle:'Quads',type:'weight'},{name:'Hack Squat',muscle:'Quads',type:'weight'},
+  {name:'Smith Squat',muscle:'Quads',type:'weight'},{name:'Sissy Squat',muscle:'Quads',type:'bodyweight'},
+  {name:'Leg Press Machine',muscle:'Quads',type:'weight'},{name:'Pendulum Squat',muscle:'Quads',type:'weight'},
   // Hamstrings
-  {name:'Romanian Deadlift',muscle:'Hamstrings',type:'weight'},{name:'RDL',muscle:'Hamstrings',type:'weight'},{name:'Leg Curl',muscle:'Hamstrings',type:'weight'},
-  {name:'Nordic Curl',muscle:'Hamstrings',type:'bodyweight'},
+  {name:'Romanian Deadlift',muscle:'Hamstrings',type:'weight'},{name:'RDL',muscle:'Hamstrings',type:'weight'},
+  {name:'Leg Curl',muscle:'Hamstrings',type:'weight'},{name:'Lying Leg Curl',muscle:'Hamstrings',type:'weight'},
+  {name:'Seated Leg Curl',muscle:'Hamstrings',type:'weight'},{name:'Nordic Curl',muscle:'Hamstrings',type:'bodyweight'},
+  {name:'Stiff Leg Deadlift',muscle:'Hamstrings',type:'weight'},{name:'Good Morning',muscle:'Hamstrings',type:'weight'},
   // Back
-  {name:'Deadlift',muscle:'Back',type:'weight'},{name:'Pull-Up',muscle:'Back',type:'bodyweight'},{name:'Chin-Up',muscle:'Back',type:'bodyweight'},
-  {name:'Assisted Pull-Up',muscle:'Back',type:'assisted'},{name:'Lat Pulldown',muscle:'Back',type:'weight'},{name:'Seated Row',muscle:'Back',type:'weight'},
-  {name:'Barbell Row',muscle:'Back',type:'weight'},{name:'Dumbbell Row',muscle:'Back',type:'weight'},{name:'Cable Row',muscle:'Back',type:'weight'},{name:'T-Bar Row',muscle:'Back',type:'weight'},
+  {name:'Deadlift',muscle:'Back',type:'weight'},{name:'Pull-Up',muscle:'Back',type:'bodyweight'},
+  {name:'Chin-Up',muscle:'Back',type:'bodyweight'},{name:'Assisted Pull-Up',muscle:'Back',type:'assisted'},
+  {name:'Lat Pulldown',muscle:'Back',type:'weight'},{name:'Wide Grip Lat Pulldown',muscle:'Back',type:'weight'},
+  {name:'Close Grip Lat Pulldown',muscle:'Back',type:'weight'},{name:'Seated Row',muscle:'Back',type:'weight'},
+  {name:'Seated Cable Row',muscle:'Back',type:'weight'},{name:'Barbell Row',muscle:'Back',type:'weight'},
+  {name:'Dumbbell Row',muscle:'Back',type:'weight'},{name:'Cable Row',muscle:'Back',type:'weight'},
+  {name:'T-Bar Row',muscle:'Back',type:'weight'},{name:'Pendlay Row',muscle:'Back',type:'weight'},
+  {name:'Machine Row',muscle:'Back',type:'weight'},{name:'Straight Arm Pulldown',muscle:'Back',type:'weight'},
+  {name:'Single Arm Lat Pulldown',muscle:'Back',type:'weight'},{name:'Meadows Row',muscle:'Back',type:'weight'},
   // Rear Delt
-  {name:'Face Pull',muscle:'Rear Delt',type:'weight'},{name:'Reverse Fly',muscle:'Rear Delt',type:'weight'},{name:'Band Pull Apart',muscle:'Rear Delt',type:'band'},
+  {name:'Face Pull',muscle:'Rear Delt',type:'weight'},{name:'Reverse Fly',muscle:'Rear Delt',type:'weight'},
+  {name:'Reverse Pec Deck',muscle:'Rear Delt',type:'weight'},{name:'Band Pull Apart',muscle:'Rear Delt',type:'band'},
+  {name:'Cable Reverse Fly',muscle:'Rear Delt',type:'weight'},
   // Shoulders
   {name:'Overhead Press',muscle:'Shoulders',type:'weight'},{name:'Arnold Press',muscle:'Shoulders',type:'weight'},
-  {name:'Lateral Raise',muscle:'Shoulders',type:'weight'},{name:'Front Raise',muscle:'Shoulders',type:'weight'},
-  {name:'Shoulder Press Machine',muscle:'Shoulders',type:'weight'},
+  {name:'Military Press',muscle:'Shoulders',type:'weight'},{name:'Lateral Raise',muscle:'Shoulders',type:'weight'},
+  {name:'Front Raise',muscle:'Shoulders',type:'weight'},{name:'Shoulder Press Machine',muscle:'Shoulders',type:'weight'},
+  {name:'Cable Lateral Raise',muscle:'Shoulders',type:'weight'},{name:'Machine Lateral Raise',muscle:'Shoulders',type:'weight'},
+  {name:'Smith Overhead Press',muscle:'Shoulders',type:'weight'},{name:'Dumbbell Shoulder Press',muscle:'Shoulders',type:'weight'},
+  {name:'Machine Shoulder Press',muscle:'Shoulders',type:'weight'},
   // Biceps
-  {name:'Bicep Curl',muscle:'Biceps',type:'weight'},{name:'Barbell Curl',muscle:'Biceps',type:'weight'},{name:'Dumbbell Curl',muscle:'Biceps',type:'weight'},
-  {name:'Hammer Curl',muscle:'Biceps',type:'weight'},{name:'Preacher Curl',muscle:'Biceps',type:'weight'},{name:'Cable Curl',muscle:'Biceps',type:'weight'},
+  {name:'Bicep Curl',muscle:'Biceps',type:'weight'},{name:'Barbell Curl',muscle:'Biceps',type:'weight'},
+  {name:'Dumbbell Curl',muscle:'Biceps',type:'weight'},{name:'Hammer Curl',muscle:'Biceps',type:'weight'},
+  {name:'Preacher Curl',muscle:'Biceps',type:'weight'},{name:'Cable Curl',muscle:'Biceps',type:'weight'},
+  {name:'Machine Preacher Curl',muscle:'Biceps',type:'weight'},{name:'Concentration Curl',muscle:'Biceps',type:'weight'},
+  {name:'Incline Dumbbell Curl',muscle:'Biceps',type:'weight'},{name:'EZ Bar Curl',muscle:'Biceps',type:'weight'},
+  {name:'Cable Hammer Curl',muscle:'Biceps',type:'weight'},{name:'Rope Curl',muscle:'Biceps',type:'weight'},
   // Triceps
-  {name:'Tricep Pushdown',muscle:'Triceps',type:'weight'},{name:'Skull Crusher',muscle:'Triceps',type:'weight'},
-  {name:'Overhead Tricep Extension',muscle:'Triceps',type:'weight'},{name:'Close Grip Bench',muscle:'Triceps',type:'weight'},
+  {name:'Tricep Pushdown',muscle:'Triceps',type:'weight'},{name:'Rope Pushdown',muscle:'Triceps',type:'weight'},
+  {name:'Skull Crusher',muscle:'Triceps',type:'weight'},{name:'Overhead Tricep Extension',muscle:'Triceps',type:'weight'},
+  {name:'Cable Overhead Extension',muscle:'Triceps',type:'weight'},{name:'Close Grip Bench',muscle:'Triceps',type:'weight'},
   {name:'Tricep Dip',muscle:'Triceps',type:'bodyweight'},{name:'Assisted Tricep Dip',muscle:'Triceps',type:'assisted'},
+  {name:'Machine Tricep Extension',muscle:'Triceps',type:'weight'},{name:'V-Bar Pushdown',muscle:'Triceps',type:'weight'},
+  {name:'Single Arm Pushdown',muscle:'Triceps',type:'weight'},{name:'Kickback',muscle:'Triceps',type:'weight'},
   // Traps
   {name:'Barbell Shrug',muscle:'Traps',type:'weight'},{name:'Dumbbell Shrug',muscle:'Traps',type:'weight'},
+  {name:'Smith Shrug',muscle:'Traps',type:'weight'},{name:'Cable Shrug',muscle:'Traps',type:'weight'},
+  {name:'Machine Shrug',muscle:'Traps',type:'weight'},{name:'Trap Bar Deadlift',muscle:'Traps',type:'weight'},
+  {name:'Farmer Carry',muscle:'Traps',type:'weight'},
   // Glutes
   {name:'Hip Thrust',muscle:'Glutes',type:'weight'},{name:'Glute Bridge',muscle:'Glutes',type:'weight'},
   {name:'Cable Kickback',muscle:'Glutes',type:'weight'},{name:'Sumo Deadlift',muscle:'Glutes',type:'weight'},
+  {name:'Hip Abductor Machine',muscle:'Glutes',type:'weight'},{name:'Hip Adductor Machine',muscle:'Glutes',type:'weight'},
+  {name:'Cable Hip Abduction',muscle:'Glutes',type:'weight'},{name:'Glute Drive Machine',muscle:'Glutes',type:'weight'},
+  {name:'Bulgarian Deadlift',muscle:'Glutes',type:'weight'},
   // Calves
   {name:'Calf Raise',muscle:'Calves',type:'bodyweight'},{name:'Seated Calf Raise',muscle:'Calves',type:'weight'},
-  {name:'Standing Calf Raise',muscle:'Calves',type:'weight'},
+  {name:'Standing Calf Raise',muscle:'Calves',type:'weight'},{name:'Leg Press Calf Raise',muscle:'Calves',type:'weight'},
+  {name:'Donkey Calf Raise',muscle:'Calves',type:'weight'},
   // Core
-  {name:'Plank',muscle:'Core',type:'bodyweight'},{name:'Crunch',muscle:'Core',type:'bodyweight'},{name:'Cable Crunch',muscle:'Core',type:'weight'},
-  {name:'Ab Wheel',muscle:'Core',type:'bodyweight'},{name:'Leg Raise',muscle:'Core',type:'bodyweight'},
-  {name:'Hanging Knee Raise',muscle:'Core',type:'bodyweight'},
+  {name:'Plank',muscle:'Core',type:'bodyweight'},{name:'Crunch',muscle:'Core',type:'bodyweight'},
+  {name:'Cable Crunch',muscle:'Core',type:'weight'},{name:'Ab Wheel',muscle:'Core',type:'bodyweight'},
+  {name:'Leg Raise',muscle:'Core',type:'bodyweight'},{name:'Hanging Knee Raise',muscle:'Core',type:'bodyweight'},
+  {name:'Hanging Leg Raise',muscle:'Core',type:'bodyweight'},{name:'Machine Crunch',muscle:'Core',type:'weight'},
+  {name:'Decline Crunch',muscle:'Core',type:'bodyweight'},{name:'Cable Woodchop',muscle:'Core',type:'weight'},
+  {name:'Captain Chair Leg Raise',muscle:'Core',type:'bodyweight'},{name:'Toes To Bar',muscle:'Core',type:'bodyweight'},
+  {name:'Standing Cable Crunch',muscle:'Core',type:'weight'},{name:'Fitball Crunch',muscle:'Core',type:'bodyweight'},
   // Obliques
   {name:'Russian Twist',muscle:'Obliques',type:'bodyweight'},{name:'Side Plank',muscle:'Obliques',type:'bodyweight'},
-  {name:'Woodchop',muscle:'Obliques',type:'weight'},
+  {name:'Woodchop',muscle:'Obliques',type:'weight'},{name:'Side Bend',muscle:'Obliques',type:'weight'},
+  {name:'Cable Side Bend',muscle:'Obliques',type:'weight'},{name:'Oblique Crunch',muscle:'Obliques',type:'bodyweight'},
+  {name:'Hanging Side Raise',muscle:'Obliques',type:'bodyweight'},
   // Forearms
-  {name:'Wrist Curl',muscle:'Forearms',type:'weight'},{name:'Farmer Walk',muscle:'Forearms',type:'weight'},
+  {name:'Wrist Curl',muscle:'Forearms',type:'weight'},{name:'Reverse Curl',muscle:'Forearms',type:'weight'},
+  {name:'Reverse Wrist Curl',muscle:'Forearms',type:'weight'},{name:'Farmer Walk',muscle:'Forearms',type:'weight'},
+  {name:'Plate Pinch',muscle:'Forearms',type:'weight'},
   // Cardio
-  {name:'Running',muscle:'Cardio',type:'cardio'},{name:'Cycling',muscle:'Cardio',type:'cardio'},{name:'Jump Rope',muscle:'Calves',type:'cardio'},
-  {name:'Rowing',muscle:'Cardio',type:'cardio'},{name:'HIIT',muscle:'Cardio',type:'cardio'},{name:'Swimming',muscle:'Cardio',type:'cardio'},{name:'Burpee',muscle:'Cardio',type:'cardio'},
+  {name:'Running',muscle:'Cardio',type:'cardio'},{name:'Cycling',muscle:'Cardio',type:'cardio'},
+  {name:'Jump Rope',muscle:'Calves',type:'cardio'},{name:'Rowing',muscle:'Cardio',type:'cardio'},
+  {name:'HIIT',muscle:'Cardio',type:'cardio'},{name:'Swimming',muscle:'Cardio',type:'cardio'},
+  {name:'Burpee',muscle:'Cardio',type:'cardio'},{name:'Elliptical',muscle:'Cardio',type:'cardio'},
+  {name:'Stair Climber',muscle:'Cardio',type:'cardio'},{name:'Treadmill',muscle:'Cardio',type:'cardio'},
+  {name:'Assault Bike',muscle:'Cardio',type:'cardio'},{name:'Sled Push',muscle:'Cardio',type:'cardio'},
 ];
 
 // ── MUSCLE MAPS ──
@@ -1202,25 +1250,32 @@ const MUSCLE_MAP={
   'Cardio':    {front:[],back:[],emoji:'❤️',tip:'Running, Cycling, HIIT'},
 };
 const EX_TO_MUSCLE={
-  'Bench Press':'Chest','Incline Bench Press':'Chest','Dumbbell Fly':'Chest','Push-Up':'Chest','Dip':'Chest','Assisted Dip':'Chest','Cable Fly':'Chest','Chest Press':'Chest','Chest Press Machine':'Chest','Pec Deck':'Chest',
-  'Overhead Press':'Shoulders','Arnold Press':'Shoulders','Military Press':'Shoulders','Lateral Raise':'Shoulders','Front Raise':'Shoulders','Shoulder Press':'Shoulders','Shoulder Press Machine':'Shoulders',
-  'Face Pull':'Rear Delt','Reverse Fly':'Rear Delt','Band Pull Apart':'Rear Delt',
-  'Deadlift':'Back','Pull-Up':'Back','Assisted Pull-Up':'Back','Chin-Up':'Back','Lat Pulldown':'Back','Seated Row':'Back','Barbell Row':'Back','Dumbbell Row':'Back','Cable Row':'Back','T-Bar Row':'Back',
-  'Barbell Shrug':'Traps','Dumbbell Shrug':'Traps','Shrug':'Traps',
-  'Bicep Curl':'Biceps','Barbell Curl':'Biceps','Dumbbell Curl':'Biceps','Hammer Curl':'Biceps','Preacher Curl':'Biceps','Cable Curl':'Biceps',
-  'Tricep Pushdown':'Triceps','Skull Crusher':'Triceps','Overhead Tricep Extension':'Triceps','Close Grip Bench':'Triceps','Tricep Extension':'Triceps','Tricep Dip':'Triceps','Assisted Tricep Dip':'Triceps',
-  'Wrist Curl':'Forearms','Farmer Walk':'Forearms','Farmer Carry':'Forearms','Reverse Curl':'Forearms',
-  'Plank':'Core','Crunch':'Core','Cable Crunch':'Core','Ab Wheel':'Core','Leg Raise':'Core','Sit-Up':'Core','Hanging Knee Raise':'Core',
-  'Russian Twist':'Obliques','Side Plank':'Obliques','Woodchop':'Obliques','Oblique Crunch':'Obliques',
-  'Squat':'Quads','Front Squat':'Quads','Leg Press':'Quads','Leg Extension':'Quads','Lunge':'Quads','Bulgarian Split Squat':'Quads','Hack Squat':'Quads','Goblet Squat':'Quads',
-  'Romanian Deadlift':'Hamstrings','RDL':'Hamstrings','Leg Curl':'Hamstrings','Nordic Curl':'Hamstrings','Good Morning':'Hamstrings',
-  'Hip Thrust':'Glutes','Glute Bridge':'Glutes','Cable Kickback':'Glutes','Sumo Deadlift':'Glutes',
-  'Calf Raise':'Calves','Seated Calf Raise':'Calves','Standing Calf Raise':'Calves','Jump Rope':'Calves',
-  'Running':'Cardio','Cycling':'Cardio','Rowing':'Cardio','HIIT':'Cardio','Elliptical':'Cardio','Swimming':'Cardio','Burpee':'Cardio',
+  'Chest':     ['Bench Press','Incline Bench Press','Decline Bench Press','Dumbbell Press','Incline Dumbbell Press','Dumbbell Fly','Incline Dumbbell Fly','Push-Up','Dip','Assisted Dip','Cable Fly','High Cable Fly','Low Cable Fly','Chest Press Machine','Incline Chest Press Machine','Pec Deck','Machine Fly','Smith Bench Press','Smith Incline Press','Cable Crossover'],
+  'Shoulders': ['Overhead Press','Arnold Press','Military Press','Lateral Raise','Front Raise','Shoulder Press Machine','Cable Lateral Raise','Machine Lateral Raise','Smith Overhead Press','Dumbbell Shoulder Press','Machine Shoulder Press'],
+  'Rear Delt': ['Face Pull','Reverse Fly','Reverse Pec Deck','Band Pull Apart','Cable Reverse Fly'],
+  'Back':      ['Deadlift','Pull-Up','Assisted Pull-Up','Chin-Up','Lat Pulldown','Wide Grip Lat Pulldown','Close Grip Lat Pulldown','Seated Row','Seated Cable Row','Barbell Row','Dumbbell Row','Cable Row','T-Bar Row','Pendlay Row','Machine Row','Straight Arm Pulldown','Single Arm Lat Pulldown','Meadows Row'],
+  'Traps':     ['Barbell Shrug','Dumbbell Shrug','Smith Shrug','Cable Shrug','Machine Shrug','Trap Bar Deadlift','Farmer Carry','Shrug'],
+  'Biceps':    ['Bicep Curl','Barbell Curl','Dumbbell Curl','Hammer Curl','Preacher Curl','Cable Curl','Machine Preacher Curl','Concentration Curl','Incline Dumbbell Curl','EZ Bar Curl','Cable Hammer Curl','Rope Curl'],
+  'Triceps':   ['Tricep Pushdown','Rope Pushdown','Skull Crusher','Overhead Tricep Extension','Cable Overhead Extension','Close Grip Bench','Tricep Extension','Tricep Dip','Assisted Tricep Dip','Machine Tricep Extension','V-Bar Pushdown','Single Arm Pushdown','Kickback'],
+  'Forearms':  ['Wrist Curl','Reverse Wrist Curl','Reverse Curl','Farmer Walk','Farmer Carry','Plate Pinch'],
+  'Core':      ['Plank','Crunch','Cable Crunch','Ab Wheel','Leg Raise','Hanging Knee Raise','Hanging Leg Raise','Machine Crunch','Decline Crunch','Cable Woodchop','Captain Chair Leg Raise','Toes To Bar','Standing Cable Crunch','Fitball Crunch','Sit-Up'],
+  'Obliques':  ['Russian Twist','Side Plank','Woodchop','Side Bend','Cable Side Bend','Oblique Crunch','Hanging Side Raise'],
+  'Quads':     ['Squat','Front Squat','Leg Press','Leg Extension','Lunge','Bulgarian Split Squat','Hack Squat','Goblet Squat','Smith Squat','Sissy Squat','Leg Press Machine','Pendulum Squat'],
+  'Hamstrings':['Romanian Deadlift','RDL','Leg Curl','Lying Leg Curl','Seated Leg Curl','Nordic Curl','Stiff Leg Deadlift','Good Morning'],
+  'Glutes':    ['Hip Thrust','Glute Bridge','Cable Kickback','Sumo Deadlift','Hip Abductor Machine','Hip Adductor Machine','Cable Hip Abduction','Glute Drive Machine','Bulgarian Deadlift'],
+  'Calves':    ['Calf Raise','Seated Calf Raise','Standing Calf Raise','Leg Press Calf Raise','Donkey Calf Raise','Jump Rope'],
+  'Cardio':    ['Running','Cycling','Rowing','HIIT','Swimming','Burpee','Elliptical','Stair Climber','Treadmill','Assault Bike','Sled Push'],
 };
 function getMuscleName(exName){
-  for(const[k,v] of Object.entries(EX_TO_MUSCLE)){if(exName===k)return v;}
-  for(const[k,v] of Object.entries(EX_TO_MUSCLE)){if(exName.toLowerCase().includes(k.toLowerCase()))return v;}
+  for(const[muscle,exList] of Object.entries(EX_TO_MUSCLE)){
+    if(exList.includes(exName))return muscle;
+  }
+  // Fallback: partial match
+  for(const[muscle,exList] of Object.entries(EX_TO_MUSCLE)){
+    for(const ex of exList){
+      if(exName.toLowerCase().includes(ex.toLowerCase()))return muscle;
+    }
+  }
   return null;
 }
 
