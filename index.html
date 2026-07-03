@@ -567,6 +567,9 @@ canvas.chart{width:100%!important;height:180px!important;}
       <button class="btn btn-p btn-full" onclick="startWorkout()" style="font-size:16px;padding:16px;">
         🚀 เริ่ม Workout!
       </button>
+      <button class="btn btn-ghost btn-full" onclick="openLogPastModal()" style="padding:12px;font-size:13px;">
+        📅 บันทึกย้อนหลัง
+      </button>
     </div>
 
     <!-- Active panel -->
@@ -1063,6 +1066,12 @@ canvas.chart{width:100%!important;height:180px!important;}
     </div>
   </div>
 </div>
+<div class="moverlay" id="logPastModal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto;">
+    <div class="mhdr"><div class="mtitle">📅 บันทึกย้อนหลัง</div><button class="mclose" onclick="closeModal('logPastModal')">✕</button></div>
+    <div id="logPastBody"></div>
+  </div>
+</div>
 <div id="toast">✅ บันทึกแล้ว!</div>
 
 <script>
@@ -1502,6 +1511,93 @@ async function saveWorkoutEdits(){
   document.getElementById('modalEditBtn').classList.add('btn-ghost');
   document.getElementById('modalEditBtn').classList.remove('btn-p');
   openWorkoutDetail(currentModalWorkoutId); // refresh view
+  if(currentPage==='home')renderHome();
+  if(currentPage==='history')renderHistory('all');
+}
+
+// ── LOG PAST WORKOUT ──
+let pastData={date:'',name:'',exercises:[]};
+function openLogPastModal(){
+  const today=new Date().toISOString().split('T')[0];
+  pastData={date:today,name:'',exercises:[]};
+  renderLogPastBody();
+  openModal('logPastModal');
+}
+function renderLogPastBody(){
+  const el=document.getElementById('logPastBody');
+  const name=pastData.name.replace(/'/g,"&#39;");
+  const date=pastData.date;
+  let html=`<div style="margin-bottom:14px;">
+    <label class="inp-label">วันที่</label>
+    <input type="date" class="inp" value="${date}" onchange="pastData.date=this.value" style="width:100%;margin-top:4px;">
+  </div>`;
+  html+=`<div style="margin-bottom:14px;">
+    <label class="inp-label">ชื่อ Workout</label>
+    <input type="text" class="inp" value="${name}" placeholder="Push Day / Leg Day…" oninput="pastData.name=this.value" style="width:100%;margin-top:4px;">
+  </div>`;
+  // Quick templates
+  html+=`<div class="chip-row" style="margin-bottom:14px;">
+    ${['Push Day','Pull Day','Leg Day','Full Body','Cardio','Upper','Lower'].map(t=>`<div class="chip${pastData.name===t?' active':''}" onclick="pastData.name='${t}';renderLogPastBody()">${t}</div>`).join('')}
+  </div>`;
+  // Exercises
+  if(pastData.exercises.length){
+    html+=`<div style="margin-bottom:10px;font-size:11px;color:var(--t3);font-weight:800;text-transform:uppercase;">ท่าที่เพิ่ม (${pastData.exercises.length})</div>`;
+    pastData.exercises.forEach((ex,ei)=>{
+      html+=`<div style="margin-bottom:12px;padding:12px;background:rgba(255,255,255,.03);border-radius:12px;">`;
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:14px;font-weight:800;color:var(--t);">${ex.name}</div>
+        <button class="btn btn-r btn-sm" onclick="pastData.exercises.splice(${ei},1);renderLogPastBody()" style="padding:3px 8px;font-size:10px;">✕</button>
+      </div>`;
+      ex.sets.forEach((s,si)=>{
+        html+=`<div style="display:grid;grid-template-columns:24px 1fr 1fr 30px;gap:8px;align-items:center;margin-bottom:6px;">
+          <span style="color:var(--t3);font-size:12px;font-weight:700;">${si+1}</span>
+          <input type="number" class="set-inp" value="${s.weight??''}" placeholder="kg" step="0.5" oninput="pastData.exercises[${ei}].sets[${si}].weight=this.value" inputmode="decimal">
+          <input type="number" class="set-inp" value="${s.reps??''}" placeholder="reps" oninput="pastData.exercises[${ei}].sets[${si}].reps=this.value" inputmode="numeric">
+          <input type="checkbox" ${s.done?'checked':''} onchange="pastData.exercises[${ei}].sets[${si}].done=this.checked" style="width:20px;height:20px;accent-color:var(--g);">
+        </div>`;
+      });
+      html+=`<button class="btn btn-ghost btn-sm" onclick="pastData.exercises[${ei}].sets.push({weight:'',reps:'',done:true});renderLogPastBody()" style="margin-top:4px;padding:4px 10px;font-size:11px;">+ Set</button>`;
+      html+=`</div>`;
+    });
+  }
+  // Add exercise
+  html+=`<div style="margin-bottom:8px;">
+    <input type="text" class="inp" id="pastExSearch" placeholder="ค้นหาท่า…" oninput="renderPastExSuggestions(this.value)" style="width:100%;">
+  </div>`;
+  html+=`<div id="pastExSuggestions" class="chip-row" style="max-height:120px;overflow-y:auto;gap:6px;margin-bottom:14px;"></div>`;
+  html+=`<button class="btn btn-p btn-full" onclick="savePastWorkout()" style="padding:14px;font-size:15px;">💾 บันทึก</button>`;
+  el.innerHTML=html;
+  renderPastExSuggestions('');
+}
+function renderPastExSuggestions(q){
+  const el2=document.getElementById('pastExSuggestions');
+  if(!el2)return;
+  const lq=q.toLowerCase();
+  const filtered=EXERCISES.filter(e=>!q||e.name.toLowerCase().includes(lq)||e.muscle.toLowerCase().includes(lq)).slice(0,12);
+  el2.innerHTML=filtered.map(e=>{
+    const n=e.name.replace(/'/g,"\\'");
+    const m=(e.muscle||'').replace(/'/g,"\\'");
+    return `<div class="chip" onclick="addPastExercise('${n}','${m}')">${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`;
+  }).join('');
+}
+function addPastExercise(name,muscle){
+  pastData.exercises.push({name,muscle,sets:[{weight:'',reps:'',done:true}]});
+  const s=document.getElementById('pastExSearch');
+  if(s){s.value='';}
+  renderLogPastBody();
+}
+async function savePastWorkout(){
+  if(!pastData.exercises.length){showToast('เพิ่มท่าก่อน','⚠️');return;}
+  if(!pastData.name.trim())pastData.name='Workout';
+  // Build date with time
+  const dateStr=pastData.date+'T'+new Date().toTimeString().split(' ')[0];
+  const saved={name:pastData.name.trim(),exercises:pastData.exercises,date:dateStr,duration:0};
+  await dbPut('workouts',saved);
+  allWorkouts.push(saved);
+  closeModal('logPastModal');
+  confetti();
+  showToast('บันทึกย้อนหลังแล้ว! 📅','✅');
+  renderBodyMap().catch(()=>{});
   if(currentPage==='home')renderHome();
   if(currentPage==='history')renderHistory('all');
 }
