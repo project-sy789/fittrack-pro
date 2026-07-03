@@ -2,521 +2,1043 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0d0d1a">
+<meta name="theme-color" content="#080810">
 <title>FitTrack Pro</title>
 <link rel="manifest" href="manifest.json">
 <style>
-:root{--bg:#0d0d1a;--bg2:#141428;--bg3:#1a1a35;--card:#1e1e3a;--card2:#242448;--border:rgba(130,100,255,0.15);--purple:#7c5fff;--purple2:#a78bfa;--green:#22d3a4;--green2:#34eba8;--red:#ff5b7f;--orange:#ff8c42;--yellow:#ffd166;--text:#f0f0ff;--text2:#9090c0;--text3:#5a5a8a;--radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,.4);--glow-p:0 0 20px rgba(124,95,255,.35);--glow-g:0 0 20px rgba(34,211,164,.35);--tr:all .28s cubic-bezier(.4,0,.2,1);}
+/* ═══════════════════════════════
+   DESIGN SYSTEM — FitTrack Pro
+   Target: Nike Training / Apple Health vibe
+═══════════════════════════════ */
+:root {
+  /* Core palette */
+  --bg:       #080810;
+  --bg1:      #0e0e1c;
+  --bg2:      #131325;
+  --bg3:      #191932;
+  --surface:  #1c1c38;
+  --surface2: #222244;
+  --border:   rgba(120,100,255,.12);
+  --border2:  rgba(120,100,255,.22);
+
+  /* Brand */
+  --p:   #7c5fff;
+  --p2:  #9d7fff;
+  --p3:  #c4b2ff;
+  --g:   #00d4aa;
+  --g2:  #00f5c4;
+  --r:   #ff4d7e;
+  --o:   #ff8534;
+  --y:   #ffd166;
+
+  /* Text */
+  --t:   #f4f4ff;
+  --t2:  #8888bb;
+  --t3:  #4a4a7a;
+
+  /* Glow */
+  --gp: 0 0 30px rgba(124,95,255,.4);
+  --gg: 0 0 30px rgba(0,212,170,.4);
+  --gr: 0 0 30px rgba(255,77,126,.35);
+
+  /* Radius */
+  --r1: 20px;
+  --r2: 14px;
+  --r3: 10px;
+  --tr: all .26s cubic-bezier(.4,0,.2,1);
+}
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;}
-#app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;}
-.page{position:absolute;inset:0;bottom:72px;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;display:none;flex-direction:column;gap:16px;scrollbar-width:none;}
+
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+
+/* Ambient background mesh */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(124,95,255,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 85%, rgba(0,212,170,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 70% 30%, rgba(255,77,126,.06) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+#app{
+  position:relative;z-index:1;
+  height:100%;display:flex;flex-direction:column;
+  max-width:430px;margin:0 auto;
+}
+
+/* ── PAGES ── */
+.page{
+  position:absolute;inset:0;bottom:70px;
+  overflow-y:auto;overflow-x:hidden;
+  padding:0 0 28px;
+  display:none;flex-direction:column;
+  scrollbar-width:none;
+}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:flex;}
-.page.slide-in{animation:slideIn .32s cubic-bezier(.4,0,.2,1) both;}
-@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes bounceIn{0%{opacity:0;transform:scale(.85)}60%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.page.in{animation:pageIn .3s cubic-bezier(.4,0,.2,1) both;}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
-@keyframes spinAnim{to{transform:rotate(360deg)}}
-@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(60px) rotate(360deg);opacity:0}}
+@keyframes floatIn{0%{opacity:0;transform:translateY(20px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes confettiDrop{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(80px) rotate(720deg)}}
 
-/* NAV */
-#nav{position:absolute;bottom:0;left:0;right:0;height:72px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom,0);}
-.nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--text3);cursor:pointer;padding:8px 12px;border-radius:12px;transition:var(--tr);min-width:56px;}
-.nav-btn .ni{font-size:22px;transition:var(--tr);}
-.nav-btn .nl{font-size:10px;font-weight:600;letter-spacing:.5px;}
-.nav-btn.active{color:var(--purple2);}
-.nav-btn.active .ni{transform:translateY(-3px);}
-.nav-btn.active::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--purple);border-radius:2px;}
-.nav-btn{position:relative;}
-.nav-center{background:linear-gradient(135deg,var(--purple),var(--green));border:none;color:#fff;width:52px;height:52px;border-radius:50%;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-p);transition:var(--tr);margin-top:-20px;}
-.nav-center:active{transform:scale(.93);}
+/* ── NAV ── */
+#nav{
+  position:absolute;bottom:0;left:0;right:0;height:70px;
+  background:rgba(13,13,25,.92);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.nb{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;color:var(--t3);
+  cursor:pointer;padding:6px 10px;border-radius:14px;
+  transition:var(--tr);min-width:52px;position:relative;
+}
+.nb .ni{font-size:22px;transition:var(--tr);}
+.nb .nl{font-size:10px;font-weight:700;letter-spacing:.4px;transition:var(--tr);}
+.nb.active{color:var(--p2);}
+.nb.active .ni{transform:translateY(-2px);}
+.nb.active::after{
+  content:'';position:absolute;bottom:-1px;left:50%;
+  transform:translateX(-50%);
+  width:20px;height:3px;
+  background:linear-gradient(90deg,var(--p),var(--p2));
+  border-radius:2px;
+}
+.nb-center{
+  background:linear-gradient(135deg,var(--p) 0%,var(--g) 100%);
+  border:none;color:#fff;
+  width:54px;height:54px;border-radius:50%;
+  font-size:24px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(124,95,255,.5);
+  transition:var(--tr);margin-top:-18px;
+}
+.nb-center:active{transform:scale(.92);}
 
-/* CARDS */
-.card{background:var(--card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);animation:fadeIn .3s ease both;}
-.card-g{background:linear-gradient(135deg,var(--card),var(--card2));border-radius:var(--radius);padding:18px;border:1px solid var(--border);}
-.page-title{font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.page-sub{font-size:13px;color:var(--text3);margin-top:2px;}
+/* ── PAGE HEADER ── */
+.ph{padding:20px 20px 0;}
+.ph-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.ph-title{
+  font-size:26px;font-weight:900;letter-spacing:-.5px;
+  background:linear-gradient(135deg,var(--t) 30%,var(--p3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.ph-sub{font-size:13px;color:var(--t3);margin-top:3px;font-weight:500;}
 
-/* STATS */
-.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.stat-card{background:var(--card);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);display:flex;flex-direction:column;gap:6px;animation:bounceIn .4s ease both;}
-.stat-v{font-size:26px;font-weight:800;}.stat-l{font-size:12px;color:var(--text3);font-weight:500;}
-.stat-card.p .stat-v{color:var(--purple2);}.stat-card.g .stat-v{color:var(--green2);}
-.stat-card.o .stat-v{color:var(--orange);}.stat-card.r .stat-v{color:var(--red);}
+/* ── SCROLL CONTENT ── */
+.sc{padding:16px 16px 0;display:flex;flex-direction:column;gap:14px;}
 
-/* BUTTONS */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;padding:14px 20px;transition:var(--tr);position:relative;overflow:hidden;}
-.btn-p{background:linear-gradient(135deg,var(--purple),#6b3fa0);color:#fff;box-shadow:var(--glow-p);}
-.btn-s{background:linear-gradient(135deg,var(--green),#1aaa84);color:#111;}
-.btn-d{background:linear-gradient(135deg,var(--red),#c0395a);color:#fff;}
-.btn-g{background:var(--card2);color:var(--text2);border:1px solid var(--border);}
-.btn-full{width:100%;}.btn:active{transform:scale(.97);}
+/* ── CARDS ── */
+.card{
+  background:rgba(28,28,56,.75);
+  backdrop-filter:blur(12px);
+  border-radius:var(--r1);
+  border:1px solid var(--border);
+  padding:18px;
+  animation:fadeUp .3s ease both;
+}
+.card-glow{
+  background:linear-gradient(135deg,rgba(28,28,56,.9),rgba(34,34,68,.8));
+  border-radius:var(--r1);border:1px solid var(--border2);padding:18px;
+}
+.card-hero{
+  background:linear-gradient(135deg,rgba(124,95,255,.18) 0%,rgba(0,212,170,.1) 100%);
+  border-radius:var(--r1);border:1px solid rgba(124,95,255,.3);
+  padding:20px;position:relative;overflow:hidden;
+}
+.card-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 20%,rgba(124,95,255,.15),transparent 60%);
+  pointer-events:none;
+}
 
-/* INPUTS */
-.il{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
-.inp{background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:var(--tr);width:100%;}
-.inp:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,95,255,.2);}
-.inp::placeholder{color:var(--text3);}
-select.inp{cursor:pointer;appearance:auto;}
+/* ── SECTION TITLE ── */
+.stitle{font-size:12px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:1px;}
 
-/* CHIPS */
-.chip-row{display:flex;gap:8px;flex-wrap:wrap;}
-.chip{background:var(--card2);border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;transition:var(--tr);}
-.chip.active{background:rgba(124,95,255,.2);border-color:var(--purple);color:var(--purple2);}
-.chip:active{transform:scale(.95);}
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-box{
+  background:rgba(28,28,56,.8);border-radius:var(--r2);
+  padding:14px;border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:4px;
+  animation:floatIn .4s ease both;
+}
+.stat-box.sp{border-color:rgba(124,95,255,.3);background:rgba(124,95,255,.08);}
+.stat-box.sg{border-color:rgba(0,212,170,.3);background:rgba(0,212,170,.07);}
+.stat-box.so{border-color:rgba(255,133,52,.3);background:rgba(255,133,52,.07);}
+.stat-box.sr{border-color:rgba(255,77,126,.3);background:rgba(255,77,126,.07);}
+.sval{font-size:28px;font-weight:900;letter-spacing:-.5px;color:var(--t);}
+.sp .sval{color:var(--p2);} .sg .sval{color:var(--g2);}
+.so .sval{color:var(--o);} .sr .sval{color:var(--r);}
+.slabel{font-size:11px;color:var(--t3);font-weight:600;}
 
-/* PROGRESS */
-.pb-bg{background:var(--bg3);border-radius:100px;height:8px;overflow:hidden;}
-.pb-fill{height:100%;border-radius:100px;transition:width .6s cubic-bezier(.4,0,.2,1);background:linear-gradient(90deg,var(--purple),var(--purple2));}
-.pb-fill.g{background:linear-gradient(90deg,var(--green),var(--green2));}
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;border-radius:var(--r2);
+  font-size:15px;font-weight:700;cursor:pointer;
+  padding:14px 20px;transition:var(--tr);
+}
+.btn-p{background:linear-gradient(135deg,var(--p),#5c3fd4);color:#fff;box-shadow:0 4px 16px rgba(124,95,255,.4);}
+.btn-g{background:linear-gradient(135deg,var(--g),#009980);color:#000;}
+.btn-r{background:linear-gradient(135deg,var(--r),#cc2255);color:#fff;}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--t2);border:1px solid var(--border);}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:var(--r3);}
+.btn-full{width:100%;}
+.btn:active{transform:scale(.96);}
 
-/* TAGS */
-.tag{display:inline-flex;align-items:center;gap:4px;background:rgba(124,95,255,.15);color:var(--purple2);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(124,95,255,.25);}
-.tag.g{background:rgba(34,211,164,.12);color:var(--green2);border-color:rgba(34,211,164,.25);}
-.tag.r{background:rgba(255,91,127,.12);color:var(--red);border-color:rgba(255,91,127,.25);}
-.tag.o{background:rgba(255,140,66,.12);color:var(--orange);border-color:rgba(255,140,66,.25);}
+/* ── INPUTS ── */
+.inp{
+  background:rgba(255,255,255,.05);
+  border:1.5px solid var(--border);
+  border-radius:var(--r3);
+  padding:13px 14px;color:var(--t);
+  font-size:15px;outline:none;
+  transition:var(--tr);width:100%;
+  font-family:inherit;
+}
+.inp:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,95,255,.18);}
+.inp::placeholder{color:var(--t3);}
+select.inp{cursor:pointer;}
+.inp-label{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;display:block;}
 
-/* SECTION */
-.sec-t{font-size:14px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;}
-.divider{height:1px;background:var(--border);margin:8px 0;}
-.empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px;color:var(--text3);text-align:center;}
-.empty-i{font-size:48px;opacity:.5;}.empty-t{font-size:14px;line-height:1.5;}
+/* ── CHIPS ── */
+.chip-row{display:flex;gap:7px;flex-wrap:wrap;}
+.chip{
+  background:rgba(255,255,255,.05);
+  border:1.5px solid var(--border);
+  color:var(--t3);font-size:12px;font-weight:700;
+  padding:6px 14px;border-radius:100px;
+  cursor:pointer;transition:var(--tr);
+}
+.chip.active{
+  background:rgba(124,95,255,.2);
+  border-color:var(--p2);color:var(--p2);
+}
+.chip:active{transform:scale(.94);}
 
-/* MODAL */
-.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-end;justify-content:center;padding:16px;}
-.moverlay.open{display:flex;animation:fadeIn .2s ease;}
-.modal{background:var(--bg2);border-radius:24px 24px 20px 20px;width:100%;max-width:480px;padding:24px;max-height:85vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.4,0,.2,1);}
+/* ── PROGRESS BAR ── */
+.pb-bg{background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;}
+.pb-fill{height:6px;border-radius:100px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.pb-p{background:linear-gradient(90deg,var(--p),var(--p2));}
+.pb-g{background:linear-gradient(90deg,var(--g),var(--g2));}
+.pb-o{background:linear-gradient(90deg,var(--o),var(--y));}
+
+/* ── TAG ── */
+.tag{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:800;padding:4px 10px;
+  border-radius:100px;letter-spacing:.3px;
+}
+.tag-p{background:rgba(124,95,255,.18);color:var(--p2);border:1px solid rgba(124,95,255,.3);}
+.tag-g{background:rgba(0,212,170,.15);color:var(--g2);border:1px solid rgba(0,212,170,.25);}
+.tag-r{background:rgba(255,77,126,.15);color:var(--r);border:1px solid rgba(255,77,126,.25);}
+.tag-o{background:rgba(255,133,52,.15);color:var(--o);border:1px solid rgba(255,133,52,.25);}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--border);margin:12px 0;}
+
+/* ── EMPTY STATE ── */
+.empty{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:44px 20px;color:var(--t3);text-align:center;
+}
+.empty .ei{font-size:44px;opacity:.4;}
+.empty .et{font-size:14px;line-height:1.6;}
+
+/* ── MODAL ── */
+.moverlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(8px);
+  display:none;align-items:flex-end;justify-content:center;
+  padding:12px;
+}
+.moverlay.open{display:flex;animation:fadeUp .2s ease;}
+.modal{
+  background:var(--bg2);border-radius:28px 28px 20px 20px;
+  width:100%;max-width:430px;
+  padding:24px;max-height:88vh;overflow-y:auto;
+  border:1px solid var(--border2);
+  animation:slideUp .3s cubic-bezier(.4,0,.2,1);
+}
 .mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.mtitle{font-size:18px;font-weight:800;}
-.mclose{background:var(--card2);border:none;color:var(--text2);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.mtitle{font-size:18px;font-weight:800;color:var(--t);}
+.mclose{
+  background:rgba(255,255,255,.07);border:none;
+  color:var(--t2);width:32px;height:32px;border-radius:50%;
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
 
-/* TOAST */
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;font-weight:600;padding:12px 20px;border-radius:100px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:var(--shadow);}
+/* ── TOAST ── */
+#toast{
+  position:fixed;top:16px;left:50%;
+  transform:translateX(-50%) translateY(-90px);
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--t);font-size:14px;font-weight:700;
+  padding:11px 20px;border-radius:100px;
+  z-index:999;white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
 #toast.show{transform:translateX(-50%) translateY(0);}
 
-/* SET ROW */
-.set-row{display:grid;grid-template-columns:28px 1fr 1fr 36px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
-.set-num{font-size:12px;font-weight:700;color:var(--text3);text-align:center;}
-.set-inp{background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:8px 6px;color:var(--text);font-size:16px;font-weight:700;text-align:center;outline:none;width:100%;transition:var(--tr);}
-.set-inp:focus{border-color:var(--purple);}
-.set-done{background:none;border:2px solid var(--border);border-radius:50%;width:30px;height:30px;color:var(--text3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);}
-.set-done.done{background:var(--green);border-color:var(--green);color:#111;}
+/* ── HISTORY ITEM ── */
+.hist-item{
+  background:rgba(28,28,56,.7);border-radius:var(--r2);
+  padding:14px 16px;border:1px solid var(--border);
+  cursor:pointer;transition:var(--tr);
+  animation:fadeUp .3s ease both;
+}
+.hist-item:active{transform:scale(.98);border-color:var(--border2);}
+.hist-date{font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.hist-name{font-size:16px;font-weight:800;color:var(--t);margin:4px 0 8px;}
 
-/* EX CARD */
-.ex-card{background:var(--card);border-radius:var(--radius);padding:14px;border:1px solid var(--border);animation:fadeIn .3s ease both;}
-.ex-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.ex-name{font-size:16px;font-weight:700;}.ex-muscle{font-size:11px;color:var(--purple2);font-weight:600;}
+/* ── SET ROW ── */
+.set-row{
+  display:grid;grid-template-columns:26px 1fr 1fr 34px;
+  gap:8px;align-items:center;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.set-num{font-size:12px;font-weight:800;color:var(--t3);text-align:center;}
+.set-inp{
+  background:rgba(255,255,255,.05);
+  border:1.5px solid var(--border);border-radius:8px;
+  padding:9px 6px;color:var(--t);
+  font-size:16px;font-weight:800;text-align:center;
+  outline:none;width:100%;transition:var(--tr);font-family:inherit;
+}
+.set-inp:focus{border-color:var(--p);}
+.set-done{
+  background:none;border:2px solid var(--border);
+  border-radius:50%;width:30px;height:30px;
+  color:var(--t3);font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:var(--tr);
+}
+.set-done.done{background:var(--g);border-color:var(--g);color:#000;}
 
-/* HISTORY */
-.hist-item{background:var(--card);border-radius:var(--radius);padding:14px;border:1px solid var(--border);cursor:pointer;transition:var(--tr);animation:fadeIn .3s ease both;}
-.hist-item:active{transform:scale(.98);}
-.hist-date{font-size:12px;color:var(--text3);font-weight:600;}
-.hist-name{font-size:16px;font-weight:700;margin:4px 0;}
-.hist-meta{display:flex;gap:10px;flex-wrap:wrap;}
+/* ── EXERCISE CARD ── */
+.ex-card{
+  background:rgba(28,28,56,.8);border-radius:var(--r2);
+  padding:16px;border:1px solid var(--border);
+  animation:floatIn .3s ease both;
+}
+.ex-card-name{font-size:16px;font-weight:800;color:var(--t);}
+.ex-card-muscle{font-size:11px;color:var(--p2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 
-/* CHART */
+/* ── TIMER ── */
+.timer-big{
+  font-size:52px;font-weight:900;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,var(--p2),var(--g2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-align:center;letter-spacing:2px;
+}
+
+/* ── CHART ── */
 .chart-wrap{position:relative;width:100%;height:180px;}
 canvas.chart{width:100%!important;height:180px!important;}
 
-/* TIMER */
-.timer-d{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--purple2);text-align:center;letter-spacing:2px;}
-.rest-tv{font-size:32px;font-weight:800;color:var(--purple2);font-variant-numeric:tabular-nums;}
+/* ── CALC RESULT ── */
+.calc-result{
+  background:linear-gradient(135deg,rgba(124,95,255,.15),rgba(0,212,170,.1));
+  border:1px solid rgba(124,95,255,.3);
+  border-radius:var(--r2);padding:20px;
+  animation:scaleIn .3s ease;
+}
+.calc-big{font-size:40px;font-weight:900;color:var(--p2);}
+.calc-lbl{font-size:13px;color:var(--t3);margin-top:2px;}
 
-/* CALC */
-.calc-r{background:linear-gradient(135deg,rgba(124,95,255,.12),rgba(34,211,164,.08));border:1px solid rgba(124,95,255,.25);border-radius:var(--radius);padding:20px;}
-.calc-v{font-size:36px;font-weight:800;color:var(--purple2);}.calc-l{font-size:13px;color:var(--text3);margin-top:4px;}
+/* ── BODY MAP SPECIFIC ── */
+.body-wrap{display:flex;gap:8px;justify-content:center;align-items:flex-start;}
+.body-side{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.body-side-lbl{font-size:10px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;}
+.muscle{
+  transition:fill .5s cubic-bezier(.4,0,.2,1),filter .5s ease,opacity .3s ease;
+  cursor:pointer;
+}
+.muscle.cold{fill:rgba(80,80,130,.22);}
+.muscle.warm{fill:rgba(124,95,255,.55);filter:drop-shadow(0 0 5px rgba(124,95,255,.5));}
+.muscle.hot{fill:rgba(0,212,170,.65);filter:drop-shadow(0 0 8px rgba(0,212,170,.6));}
+.muscle.fire{
+  fill:rgba(255,133,52,.8);
+  filter:drop-shadow(0 0 12px rgba(255,133,52,.8));
+  animation:pulse 1s ease infinite;
+}
+.body-outline{fill:rgba(255,255,255,.03);stroke:rgba(120,100,255,.18);stroke-width:.8;}
+.body-detail{fill:none;stroke:rgba(255,255,255,.06);stroke-width:.6;}
 
-/* TREND */
-.trend-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+/* ── BODY LEGEND ── */
+.body-legend{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:8px 0;}
+.legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);font-weight:600;}
 
-/* PR */
-.pr-badge{background:linear-gradient(135deg,#ffd166,#ff8c42);color:#111;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;}
+/* ── WEIGHT TRACKER ── */
+.wt-quick-input{
+  background:linear-gradient(135deg,rgba(124,95,255,.12),rgba(0,212,170,.07));
+  border:1px solid rgba(124,95,255,.25);
+  border-radius:var(--r1);padding:20px;
+}
+.wt-big{
+  font-size:56px;font-weight:900;letter-spacing:-2px;
+  font-variant-numeric:tabular-nums;color:var(--p2);
+  line-height:1;
+}
+.wt-unit{font-size:18px;font-weight:700;color:var(--t3);margin-left:4px;}
+.wt-hist-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
 
-/* CONFETTI */
-.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:999;animation:confetti .8s ease forwards;}
+/* ── RECOVERY ── */
+.recovery-bar-bg{background:rgba(255,255,255,.06);border-radius:100px;height:5px;margin-top:5px;}
+.recovery-bar-fill{height:5px;border-radius:100px;transition:width .8s ease;}
 
-@media(min-width:480px){#app{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+/* ── CONFETTI ── */
+.cfp{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:999;animation:confettiDrop .9s ease forwards;}
+
+@media(min-width:430px){
+  #app{border-left:1px solid var(--border);border-right:1px solid var(--border);}
+}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ═══ PAGES ═══ -->
+<!-- ═══ PAGE: HOME ═══ -->
 <div class="page active" id="page-home">
-  <div class="page-hdr">
-    <div><div class="page-title">FitTrack Pro 💪</div><div class="page-sub" id="greeting">สวัสดี!</div></div>
-    <span id="streakFlame" style="font-size:32px;animation:pulse 1.5s ease infinite;">🔥</span>
-  </div>
-  <div class="stat-row">
-    <div class="stat-card p"><span style="font-size:22px;">🏋️</span><span class="stat-v" id="statWorkouts">0</span><span class="stat-l">Workouts ทั้งหมด</span></div>
-    <div class="stat-card g" style="animation-delay:.1s"><span style="font-size:22px;">🔥</span><span class="stat-v" id="statStreak">0</span><span class="stat-l">Day Streak</span></div>
-    <div class="stat-card o" style="animation-delay:.2s"><span style="font-size:22px;">⚖️</span><span class="stat-v" id="statBodyWeight">—</span><span class="stat-l">น้ำหนักล่าสุด kg</span></div>
-    <div class="stat-card r" style="animation-delay:.3s"><span style="font-size:22px;">🏆</span><span class="stat-v" id="statPRs">0</span><span class="stat-l">Personal Records</span></div>
-  </div>
-
-  <!-- Body summary card — weight + volume + BMI combined -->
-  <div class="card" id="homeBodyCard" style="display:none;">
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:120px;">
-        <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">ร่างกายวันนี้</div>
-        <div style="display:flex;align-items:baseline;gap:6px;">
-          <span style="font-size:32px;font-weight:900;color:var(--purple2);" id="homeWeightBig">—</span>
-          <span style="font-size:14px;color:var(--text3);">kg</span>
-          <span style="font-size:13px;font-weight:700;margin-left:4px;" id="homeWeightDiff"></span>
-        </div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px;" id="homeWeightDate">ยังไม่มีข้อมูลน้ำหนัก</div>
+  <div class="ph">
+    <div class="ph-top">
+      <div>
+        <div class="ph-title">FitTrack Pro</div>
+        <div class="ph-sub" id="greeting">สวัสดี!</div>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:800;" id="homeBMI" style="color:var(--green2);">—</div>
-          <div style="font-size:10px;color:var(--text3);">BMI</div>
-        </div>
-        <div style="width:1px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:800;color:var(--orange);" id="homeVolume">0</div>
-          <div style="font-size:10px;color:var(--text3);">Vol/สัปดาห์</div>
-        </div>
-      </div>
-      <button class="btn btn-g" onclick="navTo('progress');setTimeout(()=>switchProgressTab('weight',document.querySelector('#progressTabs .chip:nth-child(2)')),100)"
-        style="padding:8px 14px;font-size:12px;flex-shrink:0;">⚖️ บันทึก</button>
-    </div>
-    <!-- Mini weight trend spark line -->
-    <div style="margin-top:12px;height:50px;position:relative;">
-      <canvas id="homeSparkChart" style="width:100%!important;height:50px!important;"></canvas>
+      <span id="streakFlame" style="font-size:34px;line-height:1;">🔥</span>
     </div>
   </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><span class="sec-t">Volume รายสัปดาห์</span><span class="tag g">7 วัน</span></div>
-    <div class="chart-wrap"><canvas id="weeklyChart" class="chart"></canvas></div>
-  </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><span class="sec-t">Progressive Overload</span><button class="btn btn-g" style="padding:6px 12px;font-size:12px;" onclick="navTo('progress')">ดูทั้งหมด</button></div>
-    <div id="overloadSnapshot"><div class="empty"><div class="empty-i">📈</div><div class="empty-t">เริ่ม Workout แรกเลย!</div></div></div>
-  </div>
-  <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span class="sec-t">Workouts ล่าสุด</span><button class="btn btn-g" style="padding:6px 12px;font-size:12px;" onclick="navTo('history')">ดูทั้งหมด</button></div>
-    <div id="recentWorkouts" style="display:flex;flex-direction:column;gap:10px;"><div class="empty"><div class="empty-i">🏟️</div><div class="empty-t">ยังไม่มี workout</div></div></div>
-  </div>
-</div>
+  <div class="sc">
+    <!-- Body summary hero -->
+    <div class="card-hero" id="homeBodyCard" style="display:none;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="stitle" style="margin-bottom:8px;">น้ำหนักล่าสุด</div>
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <span class="wt-big" id="homeWeightBig">—</span>
+            <span class="wt-unit">kg</span>
+            <span id="homeWeightDiff" style="font-size:14px;font-weight:800;margin-left:6px;"></span>
+          </div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px;" id="homeWeightDate"></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <div style="text-align:center;">
+            <div style="font-size:24px;font-weight:900;" id="homeBMI">—</div>
+            <div style="font-size:10px;color:var(--t3);font-weight:700;margin-top:2px;">BMI</div>
+          </div>
+          <div style="width:1px;height:36px;background:var(--border);"></div>
+          <div style="text-align:center;">
+            <div style="font-size:24px;font-weight:900;color:var(--o);" id="homeVolume">0</div>
+            <div style="font-size:10px;color:var(--t3);font-weight:700;margin-top:2px;">vol/wk</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;height:48px;position:relative;">
+        <canvas id="homeSparkChart" style="width:100%!important;height:48px!important;"></canvas>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="navTo('progress');setTimeout(()=>switchProgressTab('weight',document.querySelector('#progressTabs .chip:nth-child(2)')),150)"
+        style="margin-top:12px;width:100%;">⚖️ บันทึกน้ำหนัก</button>
+    </div>
 
-<div class="page" id="page-workout">
-  <div class="page-hdr"><div><div class="page-title">🏋️ Workout</div><div class="page-sub" id="workoutStatusLabel">ยังไม่ได้เริ่ม</div></div></div>
-  <div id="workoutStartPanel" style="display:flex;flex-direction:column;gap:14px;">
+    <!-- Stats -->
+    <div class="stat-grid">
+      <div class="stat-box sp" style="animation-delay:0s">
+        <span style="font-size:20px;">🏋️</span>
+        <span class="sval" id="statWorkouts">0</span>
+        <span class="slabel">Workouts</span>
+      </div>
+      <div class="stat-box sg" style="animation-delay:.08s">
+        <span style="font-size:20px;">🔥</span>
+        <span class="sval" id="statStreak">0</span>
+        <span class="slabel">Day Streak</span>
+      </div>
+      <div class="stat-box so" style="animation-delay:.16s">
+        <span style="font-size:20px;">⚖️</span>
+        <span class="sval" id="statBodyWeight">—</span>
+        <span class="slabel">น้ำหนัก kg</span>
+      </div>
+      <div class="stat-box sr" style="animation-delay:.24s">
+        <span style="font-size:20px;">🏆</span>
+        <span class="sval" id="statPRs">0</span>
+        <span class="slabel">PRs</span>
+      </div>
+    </div>
+
+    <!-- Weekly chart -->
     <div class="card">
-      <label class="il">ชื่อ Workout</label>
-      <input type="text" class="inp" id="workoutNameInput" placeholder="Push Day, Leg Day, Full Body..." style="margin-bottom:14px;">
-      <div class="chip-row" id="templateChips">
-        <div class="chip" onclick="setTemplate(this,'Push Day')">Push Day</div>
-        <div class="chip" onclick="setTemplate(this,'Pull Day')">Pull Day</div>
-        <div class="chip" onclick="setTemplate(this,'Leg Day')">Leg Day</div>
-        <div class="chip" onclick="setTemplate(this,'Full Body')">Full Body</div>
-        <div class="chip" onclick="setTemplate(this,'Cardio')">Cardio</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span class="stitle">Volume รายสัปดาห์</span>
+        <span class="tag tag-g">7 วัน</span>
+      </div>
+      <div class="chart-wrap"><canvas id="weeklyChart" class="chart"></canvas></div>
+    </div>
+
+    <!-- Overload snapshot -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span class="stitle">Progressive Overload</span>
+        <button class="btn btn-ghost btn-sm" onclick="navTo('progress')">ดูทั้งหมด →</button>
+      </div>
+      <div id="overloadSnapshot">
+        <div class="empty"><div class="ei">📈</div><div class="et">เริ่ม Workout แรกเลย!</div></div>
       </div>
     </div>
-    <button class="btn btn-p btn-full" onclick="startWorkout()">🚀 เริ่ม Workout!</button>
-  </div>
-  <div id="workoutActivePanel" style="display:none;flex-direction:column;gap:14px;">
-    <div class="card-g" style="text-align:center;padding:14px;border-radius:var(--radius);">
-      <div class="timer-d" id="activeTimer">00:00</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px;" id="activeWorkoutName">Workout</div>
-    </div>
-    <div class="card" id="addExCard">
-      <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:12px;">➕ เพิ่มท่าออกกำลังกาย</div>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
-        <input type="text" class="inp" id="exSearchInput" placeholder="ค้นหาท่า..." oninput="filterExercises(this.value)" autocomplete="off">
-        <button class="btn btn-p" onclick="addCustomExercise()" style="padding:12px 16px;">✚</button>
+
+    <!-- Recent workouts -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="stitle">Workouts ล่าสุด</span>
+        <button class="btn btn-ghost btn-sm" onclick="navTo('history')">ดูทั้งหมด →</button>
       </div>
-      <div id="exSuggestions" class="chip-row" style="max-height:120px;overflow-y:auto;flex-wrap:wrap;gap:6px;"></div>
+      <div id="recentWorkouts" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="empty"><div class="ei">🏟️</div><div class="et">ยังไม่มี workout</div></div>
+      </div>
     </div>
-    <div id="activeExercises" style="display:flex;flex-direction:column;gap:12px;"></div>
-    <button class="btn btn-s btn-full" onclick="finishWorkout()">✅ จบ Workout</button>
-    <button class="btn btn-g btn-full" onclick="cancelWorkout()" style="margin-top:-4px;">ยกเลิก</button>
   </div>
 </div>
 
+<!-- ═══ PAGE: WORKOUT ═══ -->
+<div class="page" id="page-workout">
+  <div class="ph">
+    <div class="ph-top">
+      <div>
+        <div class="ph-title">💪 Workout</div>
+        <div class="ph-sub" id="workoutStatusLabel">ยังไม่ได้เริ่ม</div>
+      </div>
+    </div>
+  </div>
+  <div class="sc">
+    <!-- Start panel -->
+    <div id="workoutStartPanel" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card-glow">
+        <label class="inp-label">ชื่อ Workout</label>
+        <input type="text" class="inp" id="workoutNameInput" placeholder="Push Day / Leg Day / Full Body…" style="margin-bottom:14px;">
+        <div class="chip-row" id="templateChips">
+          <div class="chip active" onclick="setTemplate(this,'Push Day')">Push Day</div>
+          <div class="chip" onclick="setTemplate(this,'Pull Day')">Pull Day</div>
+          <div class="chip" onclick="setTemplate(this,'Leg Day')">Leg Day</div>
+          <div class="chip" onclick="setTemplate(this,'Full Body')">Full Body</div>
+          <div class="chip" onclick="setTemplate(this,'Cardio')">Cardio</div>
+          <div class="chip" onclick="setTemplate(this,'Upper Body')">Upper</div>
+          <div class="chip" onclick="setTemplate(this,'Lower Body')">Lower</div>
+        </div>
+      </div>
+      <button class="btn btn-p btn-full" onclick="startWorkout()" style="font-size:16px;padding:16px;">
+        🚀 เริ่ม Workout!
+      </button>
+    </div>
+
+    <!-- Active panel -->
+    <div id="workoutActivePanel" style="display:none;flex-direction:column;gap:14px;">
+      <!-- Timer hero -->
+      <div class="card-hero" style="text-align:center;padding:22px;">
+        <div class="timer-big" id="activeTimer">00:00</div>
+        <div style="font-size:14px;color:var(--t3);margin-top:6px;font-weight:600;" id="activeWorkoutName">Workout</div>
+      </div>
+
+      <!-- Add exercise -->
+      <div class="card">
+        <div style="font-size:13px;font-weight:800;color:var(--t2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">➕ เพิ่มท่า</div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
+          <input type="text" class="inp" id="exSearchInput" placeholder="ค้นหาท่า…" oninput="filterExercises(this.value)" autocomplete="off">
+          <button class="btn btn-p btn-sm" onclick="addCustomExercise()" style="padding:13px 16px;">✚</button>
+        </div>
+        <div id="exSuggestions" class="chip-row" style="max-height:110px;overflow-y:auto;gap:6px;"></div>
+      </div>
+
+      <div id="activeExercises" style="display:flex;flex-direction:column;gap:12px;"></div>
+
+      <button class="btn btn-g btn-full" onclick="finishWorkout()" style="font-size:16px;padding:16px;">✅ จบ Workout</button>
+      <button class="btn btn-ghost btn-full" onclick="cancelWorkout()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: HISTORY ═══ -->
 <div class="page" id="page-history">
-  <div class="page-hdr">
-    <div><div class="page-title">📋 ประวัติ</div><div class="page-sub">Workout ทั้งหมด</div></div>
-    <button class="btn btn-g" style="padding:8px 14px;font-size:13px;" onclick="exportCSV()">📥 Export</button>
+  <div class="ph">
+    <div class="ph-top">
+      <div><div class="ph-title">📋 ประวัติ</div><div class="ph-sub">Workout ทั้งหมด</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Export</button>
+    </div>
   </div>
-  <div class="chip-row">
-    <div class="chip active" onclick="filterHistory('all',this)">ทั้งหมด</div>
-    <div class="chip" onclick="filterHistory('week',this)">สัปดาห์นี้</div>
-    <div class="chip" onclick="filterHistory('month',this)">เดือนนี้</div>
+  <div class="sc">
+    <div class="chip-row">
+      <div class="chip active" onclick="filterHistory('all',this)">ทั้งหมด</div>
+      <div class="chip" onclick="filterHistory('week',this)">สัปดาห์นี้</div>
+      <div class="chip" onclick="filterHistory('month',this)">เดือนนี้</div>
+    </div>
+    <div id="historyList" style="display:flex;flex-direction:column;gap:10px;"></div>
   </div>
-  <div id="historyList" style="display:flex;flex-direction:column;gap:10px;"></div>
 </div>
 
+<!-- ═══ PAGE: PROGRESS ═══ -->
 <div class="page" id="page-progress">
-  <div class="page-hdr"><div><div class="page-title">📈 Progress</div><div class="page-sub">Overload + Body Map</div></div></div>
-  <div class="chip-row" id="progressTabs">
-    <div class="chip active" onclick="switchProgressTab('overload',this)">📈 Overload</div>
-    <div class="chip" onclick="switchProgressTab('weight',this)">⚖️ น้ำหนัก</div>
-    <div class="chip" onclick="switchProgressTab('body',this)">🫀 Body Map</div>
+  <div class="ph">
+    <div class="ph-top"><div><div class="ph-title">📈 Progress</div><div class="ph-sub">Track everything</div></div></div>
   </div>
-  <div id="progressTabOverload" style="display:flex;flex-direction:column;gap:16px;">
-  <div class="card">
-    <label class="il">เลือกท่าออกกำลังกาย</label>
-    <select class="inp" id="progressExSelect" onchange="loadProgressChart()"><option value="">-- เลือกท่า --</option></select>
-  </div>
-  <div class="card" id="progressChartCard" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-      <span class="sec-t" id="progressChartTitle">Weight Progress</span>
-      <div class="chip-row">
-        <div class="chip active" onclick="switchProgressMetric('weight',this)" style="padding:5px 12px;font-size:12px;">Weight</div>
-        <div class="chip" onclick="switchProgressMetric('volume',this)" style="padding:5px 12px;font-size:12px;">Volume</div>
-        <div class="chip" onclick="switchProgressMetric('reps',this)" style="padding:5px 12px;font-size:12px;">Reps</div>
+  <div class="sc">
+    <div class="chip-row" id="progressTabs">
+      <div class="chip active" onclick="switchProgressTab('overload',this)">📈 Overload</div>
+      <div class="chip" onclick="switchProgressTab('weight',this)">⚖️ น้ำหนัก</div>
+      <div class="chip" onclick="switchProgressTab('body',this)">🫀 Body Map</div>
+    </div>
+
+    <!-- ── TAB: OVERLOAD ── -->
+    <div id="progressTabOverload" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <label class="inp-label">เลือกท่าออกกำลังกาย</label>
+        <select class="inp" id="progressExSelect" onchange="loadProgressChart()">
+          <option value="">— เลือกท่า —</option>
+        </select>
       </div>
-    </div>
-    <div class="chart-wrap"><canvas id="progressChart" class="chart"></canvas></div>
-  </div>
-  <div class="card" id="prBanner" style="display:none;">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-size:36px;">🏆</span>
-      <div><div style="font-size:14px;color:var(--text3);">Personal Record</div><div style="font-size:24px;font-weight:800;color:var(--yellow);" id="prValue">--</div></div>
-    </div>
-  </div>
-  <div class="card"><div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;">Overload Summary ทุกท่า</div><div id="overloadTable"></div></div>
-  </div><!-- /progressTabOverload -->
-  <div id="progressTabBody" style="display:none;flex-direction:column;gap:16px;">
-    <div id="bodyWeekBadge" class="tag g">7 วัน</div>
-  </div>
-
-  <!-- Body stats -->
-  <div class="body-stats-row">
-    <div class="body-stat"><div class="body-stat-v" id="bodySetsWeek">0</div><div class="body-stat-l">Sets/สัปดาห์</div></div>
-    <div class="body-stat"><div class="body-stat-v" id="bodyMusclesHit">0</div><div class="body-stat-l">กลุ่มกล้ามเนื้อ</div></div>
-    <div class="body-stat"><div class="body-stat-v" id="bodyTopMuscle">—</div><div class="body-stat-l">ท่าที่ train มากสุด</div></div>
-  </div>
-
-  <!-- SVG Body Map card -->
-  <div class="card" style="position:relative;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <span class="sec-t">Muscle Activation Map</span>
-      <div class="chip-row">
-        <div class="chip active" onclick="switchBodyView('week',this)" style="padding:5px 12px;font-size:12px;">สัปดาห์</div>
-        <div class="chip" onclick="switchBodyView('month',this)" style="padding:5px 12px;font-size:12px;">เดือน</div>
-        <div class="chip" onclick="switchBodyView('all',this)" style="padding:5px 12px;font-size:12px;">ทั้งหมด</div>
+      <div class="card" id="progressChartCard" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <span class="stitle" id="progressChartTitle">Weight</span>
+          <div class="chip-row">
+            <div class="chip active" onclick="switchProgressMetric('weight',this)" style="padding:5px 12px;font-size:11px;">Weight</div>
+            <div class="chip" onclick="switchProgressMetric('volume',this)" style="padding:5px 12px;font-size:11px;">Volume</div>
+            <div class="chip" onclick="switchProgressMetric('reps',this)" style="padding:5px 12px;font-size:11px;">Reps</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="progressChart" class="chart"></canvas></div>
+      </div>
+      <div class="card" id="prBanner" style="display:none;">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <span style="font-size:40px;">🏆</span>
+          <div>
+            <div style="font-size:12px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Personal Record</div>
+            <div style="font-size:28px;font-weight:900;color:var(--y);" id="prValue">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="stitle" style="margin-bottom:14px;">Overload ทุกท่า</div>
+        <div id="overloadTable"></div>
       </div>
     </div>
 
-    <div class="body-map-wrap">
-      <!-- FRONT -->
-      <div class="body-svg-side">
-        <div class="body-svg-label">ด้านหน้า</div>
-        <svg viewBox="0 0 120 240" width="130" style="overflow:visible;">
-          <!-- Head -->
-          <ellipse cx="60" cy="18" rx="14" ry="16" fill="rgba(90,90,138,.2)" stroke="rgba(130,100,255,.2)" stroke-width="1"/>
-          <!-- Neck -->
-          <rect x="54" y="32" width="12" height="10" rx="4" fill="rgba(90,90,138,.15)"/>
-          <!-- Shoulders -->
-          <ellipse id="f-shoulders" cx="60" cy="50" rx="38" ry="10" class="muscle-group cold" data-muscle="Shoulders" onclick="showMuscleInfo('Shoulders')"/>
-          <!-- Chest -->
-          <path id="f-chest" d="M28 52 Q40 44 52 50 Q60 56 68 50 Q80 44 92 52 L90 75 Q75 82 60 80 Q45 82 30 75 Z" class="muscle-group cold" data-muscle="Chest" onclick="showMuscleInfo('Chest')"/>
-          <!-- Biceps L -->
-          <ellipse id="f-biceps-l" cx="20" cy="75" rx="9" ry="20" class="muscle-group cold" data-muscle="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(-8,20,75)"/>
-          <!-- Biceps R -->
-          <ellipse id="f-biceps-r" cx="100" cy="75" rx="9" ry="20" class="muscle-group cold" data-muscle="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(8,100,75)"/>
-          <!-- Forearm L -->
-          <ellipse cx="15" cy="108" rx="7" ry="18" fill="rgba(90,90,138,.15)" stroke="rgba(130,100,255,.15)" stroke-width="1" transform="rotate(-5,15,108)"/>
-          <!-- Forearm R -->
-          <ellipse cx="105" cy="108" rx="7" ry="18" fill="rgba(90,90,138,.15)" stroke="rgba(130,100,255,.15)" stroke-width="1" transform="rotate(5,105,108)"/>
-          <!-- Abs -->
-          <path id="f-abs" d="M42 80 Q52 78 60 80 Q68 78 78 80 L76 130 Q68 135 60 133 Q52 135 44 130 Z" class="muscle-group cold" data-muscle="Core" onclick="showMuscleInfo('Core')"/>
-          <!-- Abs lines -->
-          <line x1="60" y1="82" x2="60" y2="132" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>
-          <line x1="44" y1="100" x2="76" y2="100" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
-          <line x1="44" y1="116" x2="76" y2="116" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
-          <!-- Quads L -->
-          <ellipse id="f-quads-l" cx="47" cy="165" rx="14" ry="28" class="muscle-group cold" data-muscle="Quads" onclick="showMuscleInfo('Quads')" transform="rotate(4,47,165)"/>
-          <!-- Quads R -->
-          <ellipse id="f-quads-r" cx="73" cy="165" rx="14" ry="28" class="muscle-group cold" data-muscle="Quads" onclick="showMuscleInfo('Quads')" transform="rotate(-4,73,165)"/>
-          <!-- Calves L front -->
-          <ellipse id="f-calves-l" cx="45" cy="207" rx="9" ry="18" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(3,45,207)"/>
-          <!-- Calves R front -->
-          <ellipse id="f-calves-r" cx="75" cy="207" rx="9" ry="18" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(-3,75,207)"/>
-        </svg>
+    <!-- ── TAB: WEIGHT ── -->
+    <div id="progressTabWeight" style="display:none;flex-direction:column;gap:14px;">
+      <div class="wt-quick-input">
+        <div class="stitle" style="margin-bottom:12px;">บันทึกวันนี้</div>
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:flex-end;">
+          <div>
+            <label class="inp-label">น้ำหนัก</label>
+            <div style="position:relative;">
+              <input type="number" class="inp" id="wtInput" placeholder="70.0" step="0.1" inputmode="decimal"
+                style="font-size:26px;font-weight:900;padding:14px 46px 14px 14px;color:var(--p2);text-align:center;">
+              <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--t3);font-weight:700;">kg</span>
+            </div>
+          </div>
+          <div>
+            <label class="inp-label">เวลา</label>
+            <input type="time" class="inp" id="wtTime" style="width:100px;padding:14px 8px;text-align:center;">
+          </div>
+          <button class="btn btn-p" onclick="logWeight()" style="padding:14px 18px;font-size:20px;align-self:flex-end;">+</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);align-items:center;">
+          <span style="font-size:12px;color:var(--t3);font-weight:700;flex-shrink:0;">🎯 Goal:</span>
+          <input type="number" class="inp" id="wtGoal" placeholder="เป้าหมาย kg" step="0.1" style="flex:1;" oninput="saveGoalWeight()">
+          <span style="font-size:13px;color:var(--t3);font-weight:700;">kg</span>
+        </div>
       </div>
-      <!-- BACK -->
-      <div class="body-svg-side">
-        <div class="body-svg-label">ด้านหลัง</div>
-        <svg viewBox="0 0 120 240" width="130" style="overflow:visible;">
-          <!-- Head back -->
-          <ellipse cx="60" cy="18" rx="14" ry="16" fill="rgba(90,90,138,.2)" stroke="rgba(130,100,255,.2)" stroke-width="1"/>
-          <!-- Neck back -->
-          <rect x="54" y="32" width="12" height="10" rx="4" fill="rgba(90,90,138,.15)"/>
-          <!-- Traps -->
-          <path id="b-traps" d="M34 46 Q48 36 60 42 Q72 36 86 46 L82 60 Q70 54 60 56 Q50 54 38 60 Z" class="muscle-group cold" data-muscle="Traps" onclick="showMuscleInfo('Traps')"/>
-          <!-- Rear delts — separate from shoulder front -->
-          <ellipse id="b-rdelt-l" cx="24" cy="58" rx="10" ry="9" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(-25,24,58)"/>
-          <ellipse id="b-rdelt-r" cx="96" cy="58" rx="10" ry="9" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(25,96,58)"/>
-          <!-- Back forearms -->
-          <ellipse id="b-forearms-l" cx="14" cy="108" rx="7" ry="17" class="muscle-group cold" data-muscle="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(-8,14,108)"/>
-          <ellipse id="b-forearms-r" cx="106" cy="108" rx="7" ry="17" class="muscle-group cold" data-muscle="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(8,106,108)"/>
-          <!-- Rear Delt R -->
-          <ellipse id="b-rdelt-r" cx="96" cy="60" rx="11" ry="10" class="muscle-group cold" data-muscle="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(20,96,60)"/>
-          <!-- Lats -->
-          <path id="b-lats" d="M28 58 Q24 70 28 90 Q36 105 48 108 L52 80 Q38 72 35 60Z" class="muscle-group cold" data-muscle="Back" onclick="showMuscleInfo('Back')"/>
-          <path d="M92 58 Q96 70 92 90 Q84 105 72 108 L68 80 Q82 72 85 60Z" class="muscle-group cold" data-muscle="Back" onclick="showMuscleInfo('Back')" id="b-lats-r"/>
-          <!-- Mid Back -->
-          <path id="b-midback" d="M48 62 Q54 60 60 62 Q66 60 72 62 L72 108 Q66 115 60 113 Q54 115 48 108 Z" class="muscle-group cold" data-muscle="Back" onclick="showMuscleInfo('Back')"/>
-          <!-- Triceps L -->
-          <ellipse id="b-triceps-l" cx="18" cy="78" rx="8" ry="19" class="muscle-group cold" data-muscle="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(-10,18,78)"/>
-          <!-- Triceps R -->
-          <ellipse id="b-triceps-r" cx="102" cy="78" rx="8" ry="19" class="muscle-group cold" data-muscle="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(10,102,78)"/>
-          <!-- Glutes -->
-          <path id="b-glutes" d="M40 130 Q52 120 60 124 Q68 120 80 130 L78 158 Q68 166 60 163 Q52 166 42 158 Z" class="muscle-group cold" data-muscle="Glutes" onclick="showMuscleInfo('Glutes')"/>
-          <!-- Hamstrings L -->
-          <ellipse id="b-hams-l" cx="47" cy="183" rx="13" ry="24" class="muscle-group cold" data-muscle="Hamstrings" onclick="showMuscleInfo('Hamstrings')" transform="rotate(4,47,183)"/>
-          <!-- Hamstrings R -->
-          <ellipse id="b-hams-r" cx="73" cy="183" rx="13" ry="24" class="muscle-group cold" data-muscle="Hamstrings" onclick="showMuscleInfo('Hamstrings')" transform="rotate(-4,73,183)"/>
-          <!-- Calves L back -->
-          <ellipse id="b-calves-l" cx="45" cy="215" rx="9" ry="16" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(3,45,215)"/>
-          <!-- Calves R back -->
-          <ellipse id="b-calves-r" cx="75" cy="215" rx="9" ry="16" class="muscle-group cold" data-muscle="Calves" onclick="showMuscleInfo('Calves')" transform="rotate(-3,75,215)"/>
-        </svg>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <div class="stat-box sp"><span class="sval" style="font-size:20px;" id="wtCurrent">—</span><span class="slabel">ปัจจุบัน</span></div>
+        <div class="stat-box" style="animation-delay:.06s"><span class="sval" style="font-size:16px;" id="wtChange">—</span><span class="slabel">เปลี่ยน</span></div>
+        <div class="stat-box sg" style="animation-delay:.12s"><span class="sval" style="font-size:20px;" id="wtMin">—</span><span class="slabel">ต่ำสุด</span></div>
+        <div class="stat-box sr" style="animation-delay:.18s"><span class="sval" style="font-size:20px;" id="wtMax">—</span><span class="slabel">สูงสุด</span></div>
+      </div>
+      <div class="card" id="wtGoalCard" style="display:none;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span class="stitle">เป้าหมาย</span>
+          <span style="font-size:14px;font-weight:900;color:var(--g2);" id="wtGoalPct">0%</span>
+        </div>
+        <div class="pb-bg" style="height:8px;"><div class="pb-fill pb-g" id="wtGoalBar" style="height:8px;width:0%;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--t3);">
+          <span id="wtGoalStart">—</span><span id="wtGoalTarget">—</span>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <span class="stitle">Weight Trend</span>
+          <div class="chip-row" id="wtRangeChips">
+            <div class="chip" onclick="switchWtRange(7,this)" style="padding:5px 10px;font-size:11px;">7d</div>
+            <div class="chip active" onclick="switchWtRange(30,this)" style="padding:5px 10px;font-size:11px;">30d</div>
+            <div class="chip" onclick="switchWtRange(90,this)" style="padding:5px 10px;font-size:11px;">90d</div>
+            <div class="chip" onclick="switchWtRange(0,this)" style="padding:5px 10px;font-size:11px;">All</div>
+          </div>
+        </div>
+        <div style="height:200px;position:relative;"><canvas id="wtChart" style="width:100%!important;height:200px!important;"></canvas></div>
+      </div>
+      <!-- BMI -->
+      <div class="card" id="wtBMICard">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span class="stitle">BMI</span>
+          <button class="btn btn-ghost btn-sm" onclick="toggleHeightInput()">ตั้งส่วนสูง</button>
+        </div>
+        <div id="wtHeightRow" style="display:none;margin-bottom:12px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="number" class="inp" id="wtHeight" placeholder="175" style="flex:1;" oninput="recalcBMI()">
+            <span style="color:var(--t3);font-weight:700;">cm</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="font-size:52px;font-weight:900;" id="wtBMIVal">—</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:var(--t);" id="wtBMILabel">ตั้งส่วนสูงเพื่อดู BMI</div>
+            <div class="pb-bg" style="margin-top:8px;height:8px;">
+              <div class="pb-fill" id="wtBMIBar" style="height:8px;width:0%;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:4px;">
+              <span>Under</span><span>Normal</span><span>Over</span><span>Obese</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- History -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;">
+          <span class="stitle">บันทึกล่าสุด</span>
+          <span style="font-size:11px;color:var(--t3);" id="wtTotalEntries">0 entries</span>
+        </div>
+        <div id="wtHistoryList"></div>
       </div>
     </div>
 
-    <!-- Legend -->
-    <div class="body-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(90,90,138,.4);"></div>ยังไม่ได้ train</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(124,95,255,.7);"></div>น้อย</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(34,211,164,.8);"></div>ปกติ</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,140,66,.9);"></div>🔥 หนักมาก</div>
-    </div>
+    <!-- ── TAB: BODY MAP ── -->
+    <div id="progressTabBody" style="display:none;flex-direction:column;gap:14px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div class="stat-box sp"><span class="sval" style="font-size:20px;" id="bodySetsWeek">0</span><span class="slabel">Sets</span></div>
+        <div class="stat-box sg"><span class="sval" style="font-size:20px;" id="bodyMusclesHit">0</span><span class="slabel">Muscle Groups</span></div>
+        <div class="stat-box so"><span class="sval" style="font-size:14px;" id="bodyTopMuscle">—</span><span class="slabel">Top Muscle</span></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <span class="stitle">Muscle Heatmap</span>
+          <div class="chip-row" id="bodyViewChips">
+            <div class="chip active" onclick="switchBodyView('week',this)" style="padding:5px 10px;font-size:11px;">สัปดาห์</div>
+            <div class="chip" onclick="switchBodyView('month',this)" style="padding:5px 10px;font-size:11px;">เดือน</div>
+            <div class="chip" onclick="switchBodyView('all',this)" style="padding:5px 10px;font-size:11px;">ทั้งหมด</div>
+          </div>
+        </div>
 
-    <!-- Muscle tooltip -->
-    <div class="muscle-tooltip" id="muscleTooltip"></div>
-  </div>
+        <!-- BODY MAP SVG — detailed anatomical -->
+        <div class="body-wrap">
+          <!-- FRONT -->
+          <div class="body-side">
+            <div class="body-side-lbl">ด้านหน้า</div>
+            <svg viewBox="0 0 100 220" width="145" style="overflow:visible;">
+              <!-- body outline -->
+              <ellipse cx="50" cy="15" rx="12" ry="13" class="body-outline"/>
+              <rect x="38" y="26" width="24" height="8" rx="4" class="body-outline"/>
+              <!-- torso -->
+              <path d="M28 42 Q50 36 72 42 L74 100 Q62 106 50 104 Q38 106 26 100 Z" class="body-outline"/>
+              <!-- pelvis -->
+              <path d="M30 100 Q50 108 70 100 L68 120 Q50 128 32 120 Z" class="body-outline"/>
 
-  <!-- Muscle breakdown -->
-  <div class="card">
-    <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;">Volume per Muscle Group</div>
-    <div id="muscleBreakdown" style="display:flex;flex-direction:column;gap:10px;"></div>
-  </div>
+              <!-- SHOULDERS -->
+              <ellipse id="f-shoulders-l" cx="22" cy="46" rx="9" ry="10" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')" transform="rotate(-10,22,46)"/>
+              <ellipse id="f-shoulders-r" cx="78" cy="46" rx="9" ry="10" class="muscle cold" data-m="Shoulders" onclick="showMuscleInfo('Shoulders')" transform="rotate(10,78,46)"/>
 
-  <!-- Recovery status -->
-  <div class="card">
-    <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;">🛌 Recovery Status</div>
-    <div id="recoveryStatus" style="display:flex;flex-direction:column;gap:10px;"></div>
-  </div>
-  </div><!-- /progressTabBody -->
-</div><!-- /page-progress -->
+              <!-- CHEST — two pecs -->
+              <path id="f-chest-l" d="M30 44 Q40 40 50 44 L50 66 Q40 70 30 66 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
+              <path id="f-chest-r" d="M70 44 Q60 40 50 44 L50 66 Q60 70 70 66 Z" class="muscle cold" data-m="Chest" onclick="showMuscleInfo('Chest')"/>
+              <!-- chest line -->
+              <line x1="50" y1="44" x2="50" y2="66" class="body-detail"/>
 
-<div class="page" id="page-calc">
-  <div class="page-hdr"><div><div class="page-title">🧮 Calculator</div><div class="page-sub">คำนวณการออกกำลังกาย</div></div></div>
-  <div class="chip-row">
-    <div class="chip active" onclick="switchCalc('1rm',this)">1RM</div>
-    <div class="chip" onclick="switchCalc('plate',this)">Plate</div>
-    <div class="chip" onclick="switchCalc('bmi',this)">BMI</div>
-    <div class="chip" onclick="switchCalc('tdee',this)">TDEE</div>
-    <div class="chip" onclick="switchCalc('macro',this)">Macro</div>
-  </div>
-  <div id="calc-1rm" class="calc-panel card">
-    <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text2);">🏆 One Rep Max (1RM)</div>
-    <label class="il">น้ำหนัก (kg)</label><input type="number" class="inp" id="rm_weight" placeholder="100" oninput="calc1RM()" style="margin-bottom:12px;">
-    <label class="il">จำนวน Reps</label><input type="number" class="inp" id="rm_reps" placeholder="5" oninput="calc1RM()" style="margin-bottom:12px;">
-    <label class="il">สูตรคำนวณ</label>
-    <select class="inp" id="rm_formula" onchange="calc1RM()" style="margin-bottom:16px;">
-      <option value="epley">Epley (แนะนำ)</option><option value="brzycki">Brzycki</option><option value="lander">Lander</option>
-    </select>
-    <div class="calc-r" id="rmResult" style="display:none;">
-      <div class="calc-v" id="rmValue">--</div><div class="calc-l">Estimated 1RM (kg)</div>
-      <div class="divider"></div>
-      <div id="rmPercentages" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+              <!-- BICEPS -->
+              <ellipse id="f-biceps-l" cx="17" cy="68" rx="7" ry="15" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(-6,17,68)"/>
+              <ellipse id="f-biceps-r" cx="83" cy="68" rx="7" ry="15" class="muscle cold" data-m="Biceps" onclick="showMuscleInfo('Biceps')" transform="rotate(6,83,68)"/>
+
+              <!-- FOREARMS -->
+              <ellipse id="f-forearms-l" cx="13" cy="94" rx="5.5" ry="14" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(-4,13,94)"/>
+              <ellipse id="f-forearms-r" cx="87" cy="94" rx="5.5" ry="14" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(4,87,94)"/>
+
+              <!-- OBLIQUES -->
+              <path id="f-obliques-l" d="M28 66 Q24 78 26 96 L32 100 Q30 84 34 68Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
+              <path id="f-obliques-r" d="M72 66 Q76 78 74 96 L68 100 Q70 84 66 68Z" class="muscle cold" data-m="Obliques" onclick="showMuscleInfo('Obliques')"/>
+
+              <!-- ABS — 6 blocks -->
+              <path id="f-abs-1l" d="M34 68 Q42 66 50 68 L50 78 Q42 80 34 78Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-1r" d="M66 68 Q58 66 50 68 L50 78 Q58 80 66 78Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-2l" d="M33 80 Q41 78 50 80 L50 90 Q41 92 33 90Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-2r" d="M67 80 Q59 78 50 80 L50 90 Q59 92 67 90Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-3l" d="M32 92 Q41 90 50 92 L50 100 Q41 102 32 100Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <path id="f-abs-3r" d="M68 92 Q59 90 50 92 L50 100 Q59 102 68 100Z" class="muscle cold" data-m="Core" onclick="showMuscleInfo('Core')"/>
+              <!-- abs grid lines -->
+              <line x1="50" y1="68" x2="50" y2="100" class="body-detail"/>
+              <line x1="33" y1="79" x2="67" y2="79" class="body-detail"/>
+              <line x1="33" y1="91" x2="67" y2="91" class="body-detail"/>
+
+              <!-- QUADS — four heads suggestion -->
+              <path id="f-quads-l" d="M32 122 Q40 118 48 122 L46 158 Q38 162 30 158Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
+              <path id="f-quads-r" d="M68 122 Q60 118 52 122 L54 158 Q62 162 70 158Z" class="muscle cold" data-m="Quads" onclick="showMuscleInfo('Quads')"/>
+              <!-- VMO detail -->
+              <ellipse cx="46" cy="156" rx="5" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
+              <ellipse cx="54" cy="156" rx="5" ry="4" class="body-detail" style="fill:rgba(255,255,255,.03)"/>
+
+              <!-- TIBIALIS ANTERIOR (shins) -->
+              <path id="f-tibialis-l" d="M32 162 Q38 160 42 164 L40 190 Q35 192 31 188Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <path id="f-tibialis-r" d="M68 162 Q62 160 58 164 L60 190 Q65 192 69 188Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+
+              <!-- CALVES front -->
+              <ellipse id="f-calves-l" cx="37" cy="200" rx="7" ry="14" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <ellipse id="f-calves-r" cx="63" cy="200" rx="7" ry="14" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+            </svg>
+          </div>
+
+          <!-- BACK -->
+          <div class="body-side">
+            <div class="body-side-lbl">ด้านหลัง</div>
+            <svg viewBox="0 0 100 220" width="145" style="overflow:visible;">
+              <!-- body outline -->
+              <ellipse cx="50" cy="15" rx="12" ry="13" class="body-outline"/>
+              <rect x="38" y="26" width="24" height="8" rx="4" class="body-outline"/>
+              <path d="M28 42 Q50 36 72 42 L74 100 Q62 106 50 104 Q38 106 26 100 Z" class="body-outline"/>
+              <path d="M30 100 Q50 108 70 100 L68 120 Q50 128 32 120 Z" class="body-outline"/>
+
+              <!-- TRAPS — upper + mid -->
+              <path id="b-traps-upper" d="M32 36 Q50 30 68 36 L64 50 Q50 46 36 50Z" class="muscle cold" data-m="Traps" onclick="showMuscleInfo('Traps')"/>
+              <!-- spine line -->
+              <line x1="50" y1="42" x2="50" y2="104" class="body-detail"/>
+
+              <!-- REAR DELTS -->
+              <ellipse id="b-rdelt-l" cx="22" cy="48" rx="8" ry="8" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(-20,22,48)"/>
+              <ellipse id="b-rdelt-r" cx="78" cy="48" rx="8" ry="8" class="muscle cold" data-m="Rear Delt" onclick="showMuscleInfo('Rear Delt')" transform="rotate(20,78,48)"/>
+
+              <!-- INFRASPINATUS / TERES -->
+              <path id="b-infra-l" d="M30 50 Q40 46 50 50 L50 64 Q40 68 30 64Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-infra-r" d="M70 50 Q60 46 50 50 L50 64 Q60 68 70 64Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+
+              <!-- LATS -->
+              <path id="b-lats-l" d="M26 54 Q22 68 24 88 Q30 102 42 106 L44 80 Q34 72 30 56Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-lats-r" d="M74 54 Q78 68 76 88 Q70 102 58 106 L56 80 Q66 72 70 56Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+
+              <!-- MID / LOWER BACK (Erectors) -->
+              <path id="b-erector-l" d="M44 64 Q48 62 50 64 L50 104 Q46 108 42 104 Q40 90 40 76Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+              <path id="b-erector-r" d="M56 64 Q52 62 50 64 L50 104 Q54 108 58 104 Q60 90 60 76Z" class="muscle cold" data-m="Back" onclick="showMuscleInfo('Back')"/>
+
+              <!-- TRICEPS -->
+              <ellipse id="b-triceps-l" cx="15" cy="68" rx="6.5" ry="16" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(-8,15,68)"/>
+              <ellipse id="b-triceps-r" cx="85" cy="68" rx="6.5" ry="16" class="muscle cold" data-m="Triceps" onclick="showMuscleInfo('Triceps')" transform="rotate(8,85,68)"/>
+
+              <!-- BACK FOREARMS -->
+              <ellipse id="b-forearms-l" cx="12" cy="94" rx="5" ry="13" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(-6,12,94)"/>
+              <ellipse id="b-forearms-r" cx="88" cy="94" rx="5" ry="13" class="muscle cold" data-m="Forearms" onclick="showMuscleInfo('Forearms')" transform="rotate(6,88,94)"/>
+
+              <!-- GLUTES -->
+              <path id="b-glutes-l" d="M32 120 Q42 116 50 120 L50 150 Q42 158 32 152Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
+              <path id="b-glutes-r" d="M68 120 Q58 116 50 120 L50 150 Q58 158 68 152Z" class="muscle cold" data-m="Glutes" onclick="showMuscleInfo('Glutes')"/>
+              <!-- glute crease -->
+              <line x1="50" y1="120" x2="50" y2="152" class="body-detail"/>
+
+              <!-- HAMSTRINGS — biceps femoris / semitendinosus -->
+              <path id="b-hams-l" d="M32 154 Q40 150 48 154 L46 186 Q38 190 30 186Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
+              <path id="b-hams-r" d="M68 154 Q60 150 52 154 L54 186 Q62 190 70 186Z" class="muscle cold" data-m="Hamstrings" onclick="showMuscleInfo('Hamstrings')"/>
+              <!-- ham detail line -->
+              <line x1="40" y1="154" x2="38" y2="186" class="body-detail"/>
+              <line x1="60" y1="154" x2="62" y2="186" class="body-detail"/>
+
+              <!-- CALVES back — gastrocnemius -->
+              <path id="b-calves-l" d="M30 188 Q38 184 44 190 L42 212 Q36 216 30 210Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <path id="b-calves-r" d="M70 188 Q62 184 56 190 L58 212 Q64 216 70 210Z" class="muscle cold" data-m="Calves" onclick="showMuscleInfo('Calves')"/>
+              <!-- soleus line -->
+              <line x1="37" y1="192" x2="36" y2="212" class="body-detail"/>
+              <line x1="63" y1="192" x2="64" y2="212" class="body-detail"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="body-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(80,80,130,.5);border-radius:3px;"></div>ยังไม่ได้ train</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--p);border-radius:3px;"></div>เล็กน้อย</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--g);border-radius:3px;"></div>ปกติ</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--o);border-radius:3px;"></div>🔥 หนักมาก</div>
+        </div>
+      </div>
+
+      <!-- Volume per muscle -->
+      <div class="card">
+        <div class="stitle" style="margin-bottom:14px;">Volume per Muscle</div>
+        <div id="muscleBreakdown" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="empty"><div class="ei">💪</div><div class="et">บันทึก workout เพื่อดู heatmap</div></div>
+        </div>
+      </div>
+
+      <!-- Recovery -->
+      <div class="card">
+        <div class="stitle" style="margin-bottom:14px;">🛌 Recovery Status</div>
+        <div id="recoveryStatus" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
     </div>
-  </div>
-  <div id="calc-plate" class="calc-panel card" style="display:none;">
-    <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text2);">🔩 Plate Calculator</div>
-    <label class="il">น้ำหนักเป้าหมาย (kg)</label><input type="number" class="inp" id="plate_target" placeholder="100" oninput="calcPlate()" style="margin-bottom:12px;">
-    <label class="il">บาร์</label>
-    <select class="inp" id="plate_bar" onchange="calcPlate()" style="margin-bottom:16px;">
-      <option value="20">Olympic 20kg</option><option value="15">15kg</option><option value="10">10kg</option><option value="7.5">EZ 7.5kg</option>
-    </select>
-    <div class="calc-r" id="plateResult" style="display:none;">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:10px;">ต่อข้าง (per side):</div>
-      <div id="plateList" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-      <div style="margin-top:12px;font-size:13px;color:var(--text3);" id="plateNote"></div>
-    </div>
-  </div>
-  <div id="calc-bmi" class="calc-panel card" style="display:none;">
-    <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text2);">⚖️ BMI</div>
-    <label class="il">น้ำหนัก (kg)</label><input type="number" class="inp" id="bmi_weight" placeholder="70" oninput="calcBMI()" style="margin-bottom:12px;">
-    <label class="il">ส่วนสูง (cm)</label><input type="number" class="inp" id="bmi_height" placeholder="175" oninput="calcBMI()" style="margin-bottom:16px;">
-    <div class="calc-r" id="bmiResult" style="display:none;">
-      <div class="calc-v" id="bmiValue">--</div><div class="calc-l" id="bmiLabel">--</div>
-      <div class="pb-bg" style="margin-top:14px;"><div class="pb-fill" id="bmiBar" style="width:0%;"></div></div>
-    </div>
-  </div>
-  <div id="calc-tdee" class="calc-panel card" style="display:none;">
-    <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text2);">🔥 TDEE</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div><label class="il">น้ำหนัก (kg)</label><input type="number" class="inp" id="tdee_weight" placeholder="70" oninput="calcTDEE()"></div>
-      <div><label class="il">ส่วนสูง (cm)</label><input type="number" class="inp" id="tdee_height" placeholder="175" oninput="calcTDEE()"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div><label class="il">อายุ</label><input type="number" class="inp" id="tdee_age" placeholder="25" oninput="calcTDEE()"></div>
-      <div><label class="il">เพศ</label><select class="inp" id="tdee_gender" onchange="calcTDEE()"><option value="male">ชาย</option><option value="female">หญิง</option></select></div>
-    </div>
-    <label class="il">กิจกรรม</label>
-    <select class="inp" id="tdee_activity" onchange="calcTDEE()" style="margin-bottom:16px;">
-      <option value="1.2">นั่งทำงาน</option><option value="1.375">ออกกำลังกายเบา 1-3 วัน</option>
-      <option value="1.55" selected>ออกกำลังกาย 3-5 วัน</option><option value="1.725">ออกกำลังกายหนัก 6-7 วัน</option><option value="1.9">นักกีฬาอาชีพ</option>
-    </select>
-    <div class="calc-r" id="tdeeResult" style="display:none;">
-      <div class="calc-v" id="tdeeValue">--</div><div class="calc-l">TDEE (kcal/วัน)</div>
-      <div class="divider"></div>
-      <div id="tdeeGoals" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;"></div>
-    </div>
-  </div>
-  <div id="calc-macro" class="calc-panel card" style="display:none;">
-    <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text2);">🥗 Macro</div>
-    <label class="il">Calories เป้าหมาย</label><input type="number" class="inp" id="macro_cal" placeholder="2500" oninput="calcMacro()" style="margin-bottom:12px;">
-    <label class="il">เป้าหมาย</label>
-    <select class="inp" id="macro_goal" onchange="calcMacro()" style="margin-bottom:16px;">
-      <option value="bulk">Bulk (เพิ่มกล้ามเนื้อ)</option><option value="cut">Cut (ลดไขมัน)</option><option value="maintain">Maintain</option><option value="recomp">Recomp</option>
-    </select>
-    <div class="calc-r" id="macroResult" style="display:none;"><div id="macroBreakdown" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;"></div></div>
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- ═══ PAGE: CALCULATOR ═══ -->
+<div class="page" id="page-calc">
+  <div class="ph">
+    <div class="ph-top"><div><div class="ph-title">🧮 Calculator</div><div class="ph-sub">คำนวณการออกกำลังกาย</div></div></div>
+  </div>
+  <div class="sc">
+    <div class="chip-row" id="calcTabs">
+      <div class="chip active" onclick="switchCalc('1rm',this)">1RM</div>
+      <div class="chip" onclick="switchCalc('plate',this)">Plate</div>
+      <div class="chip" onclick="switchCalc('bmi',this)">BMI</div>
+      <div class="chip" onclick="switchCalc('tdee',this)">TDEE</div>
+      <div class="chip" onclick="switchCalc('macro',this)">Macro</div>
+    </div>
+
+    <!-- 1RM -->
+    <div id="calc-1rm" class="calc-panel card">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">🏆 One Rep Max (1RM)</div>
+      <label class="inp-label">น้ำหนัก (kg)</label>
+      <input type="number" class="inp" id="rm_weight" placeholder="100" oninput="calc1RM()" style="margin-bottom:12px;">
+      <label class="inp-label">Reps</label>
+      <input type="number" class="inp" id="rm_reps" placeholder="5" oninput="calc1RM()" style="margin-bottom:12px;">
+      <label class="inp-label">สูตร</label>
+      <select class="inp" id="rm_formula" onchange="calc1RM()" style="margin-bottom:16px;">
+        <option value="epley">Epley (แนะนำ)</option>
+        <option value="brzycki">Brzycki</option>
+        <option value="lander">Lander</option>
+      </select>
+      <div class="calc-result" id="rmResult" style="display:none;">
+        <div class="calc-big" id="rmValue">—</div>
+        <div class="calc-lbl">Estimated 1RM (kg)</div>
+        <div class="div"></div>
+        <div id="rmPercentages" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+      </div>
+    </div>
+
+    <!-- Plate -->
+    <div id="calc-plate" class="calc-panel card" style="display:none;">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">🔩 Plate Calculator</div>
+      <label class="inp-label">น้ำหนักเป้าหมาย (kg)</label>
+      <input type="number" class="inp" id="plate_target" placeholder="100" oninput="calcPlate()" style="margin-bottom:12px;">
+      <label class="inp-label">Bar</label>
+      <select class="inp" id="plate_bar" onchange="calcPlate()" style="margin-bottom:16px;">
+        <option value="20">Olympic 20kg</option><option value="15">15kg</option>
+        <option value="10">10kg</option><option value="7.5">EZ 7.5kg</option>
+      </select>
+      <div class="calc-result" id="plateResult" style="display:none;">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:10px;font-weight:700;">ต่อข้าง (per side):</div>
+        <div id="plateList" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--t3);" id="plateNote"></div>
+      </div>
+    </div>
+
+    <!-- BMI -->
+    <div id="calc-bmi" class="calc-panel card" style="display:none;">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">⚖️ BMI</div>
+      <label class="inp-label">น้ำหนัก (kg)</label>
+      <input type="number" class="inp" id="bmi_weight" placeholder="70" oninput="calcBMI()" style="margin-bottom:12px;">
+      <label class="inp-label">ส่วนสูง (cm)</label>
+      <input type="number" class="inp" id="bmi_height" placeholder="175" oninput="calcBMI()" style="margin-bottom:16px;">
+      <div class="calc-result" id="bmiResult" style="display:none;">
+        <div class="calc-big" id="bmiValue">—</div>
+        <div class="calc-lbl" id="bmiLabel">—</div>
+        <div class="pb-bg" style="margin-top:12px;height:8px;"><div class="pb-fill" id="bmiBar" style="height:8px;width:0%;"></div></div>
+      </div>
+    </div>
+
+    <!-- TDEE -->
+    <div id="calc-tdee" class="calc-panel card" style="display:none;">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">🔥 TDEE</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div><label class="inp-label">น้ำหนัก (kg)</label><input type="number" class="inp" id="tdee_weight" placeholder="70" oninput="calcTDEE()"></div>
+        <div><label class="inp-label">ส่วนสูง (cm)</label><input type="number" class="inp" id="tdee_height" placeholder="175" oninput="calcTDEE()"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div><label class="inp-label">อายุ</label><input type="number" class="inp" id="tdee_age" placeholder="25" oninput="calcTDEE()"></div>
+        <div><label class="inp-label">เพศ</label><select class="inp" id="tdee_gender" onchange="calcTDEE()"><option value="male">ชาย</option><option value="female">หญิง</option></select></div>
+      </div>
+      <label class="inp-label">กิจกรรม</label>
+      <select class="inp" id="tdee_activity" onchange="calcTDEE()" style="margin-bottom:16px;">
+        <option value="1.2">นั่งทำงาน</option>
+        <option value="1.375">ออกกำลังกายเบา 1-3 วัน</option>
+        <option value="1.55" selected>ออกกำลังกาย 3-5 วัน</option>
+        <option value="1.725">ออกกำลังกายหนัก 6-7 วัน</option>
+        <option value="1.9">นักกีฬาอาชีพ</option>
+      </select>
+      <div class="calc-result" id="tdeeResult" style="display:none;">
+        <div class="calc-big" id="tdeeValue">—</div>
+        <div class="calc-lbl">TDEE (kcal/วัน)</div>
+        <div class="div"></div>
+        <div id="tdeeGoals" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;"></div>
+      </div>
+    </div>
+
+    <!-- Macro -->
+    <div id="calc-macro" class="calc-panel card" style="display:none;">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">🥗 Macro</div>
+      <label class="inp-label">Calories เป้าหมาย</label>
+      <input type="number" class="inp" id="macro_cal" placeholder="2500" oninput="calcMacro()" style="margin-bottom:12px;">
+      <label class="inp-label">เป้าหมาย</label>
+      <select class="inp" id="macro_goal" onchange="calcMacro()" style="margin-bottom:16px;">
+        <option value="bulk">Bulk (เพิ่มกล้ามเนื้อ)</option>
+        <option value="cut">Cut (ลดไขมัน)</option>
+        <option value="maintain">Maintain</option>
+        <option value="recomp">Recomp</option>
+      </select>
+      <div class="calc-result" id="macroResult" style="display:none;">
+        <div id="macroBreakdown" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
 <nav id="nav">
-  <button class="nav-btn active" onclick="navTo('home')" id="nav-home"><span class="ni">🏠</span><span class="nl">หน้าหลัก</span></button>
-  <button class="nav-btn" onclick="navTo('history')" id="nav-history"><span class="ni">📋</span><span class="nl">ประวัติ</span></button>
-  <button class="nav-center" onclick="navTo('workout')">💪</button>
-  <button class="nav-btn" onclick="navTo('progress')" id="nav-progress"><span class="ni">📈</span><span class="nl">Progress</span></button>
-  <button class="nav-btn" onclick="navTo('calc')" id="nav-calc"><span class="ni">🧮</span><span class="nl">Calc</span></button>
+  <button class="nb active" onclick="navTo('home')" id="nav-home"><span class="ni">🏠</span><span class="nl">หน้าหลัก</span></button>
+  <button class="nb" onclick="navTo('history')" id="nav-history"><span class="ni">📋</span><span class="nl">ประวัติ</span></button>
+  <button class="nb-center" onclick="navTo('workout')">💪</button>
+  <button class="nb" onclick="navTo('progress')" id="nav-progress"><span class="ni">📈</span><span class="nl">Progress</span></button>
+  <button class="nb" onclick="navTo('calc')" id="nav-calc"><span class="ni">🧮</span><span class="nl">Calc</span></button>
 </nav>
 
-<!-- DETAIL MODAL -->
+<!-- MODALS -->
 <div class="moverlay" id="workoutDetailModal">
   <div class="modal">
     <div class="mhdr"><div class="mtitle" id="modalTitle">Workout Detail</div><button class="mclose" onclick="closeModal('workoutDetailModal')">✕</button></div>
     <div id="modalBody"></div>
-    <div style="margin-top:16px;"><button class="btn btn-d btn-full" onclick="deleteWorkoutFromModal()">🗑 ลบ Workout</button></div>
+    <div style="margin-top:16px;"><button class="btn btn-r btn-full" onclick="deleteWorkoutFromModal()">🗑 ลบ Workout</button></div>
   </div>
 </div>
-<!-- REST MODAL -->
 <div class="moverlay" id="restModal">
-  <div class="modal" style="max-height:280px;">
+  <div class="modal" style="max-height:260px;">
     <div class="mhdr"><div class="mtitle">⏱ Rest Timer</div><button class="mclose" onclick="closeModal('restModal')">✕</button></div>
     <div style="text-align:center;">
-      <div class="rest-tv" id="restTimerVal">90</div>
-      <div style="font-size:13px;color:var(--text3);margin:8px 0 16px;">วินาที</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-        <button class="btn btn-g" onclick="setRestTimer(60)">60s</button>
+      <div style="font-size:52px;font-weight:900;color:var(--p2);font-variant-numeric:tabular-nums;" id="restTimerVal">90</div>
+      <div style="font-size:12px;color:var(--t3);margin:6px 0 16px;">วินาที</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <button class="btn btn-ghost" onclick="setRestTimer(60)">60s</button>
         <button class="btn btn-p" onclick="setRestTimer(90)">90s ⭐</button>
-        <button class="btn btn-g" onclick="setRestTimer(120)">120s</button>
+        <button class="btn btn-ghost" onclick="setRestTimer(120)">120s</button>
       </div>
     </div>
   </div>
@@ -524,1152 +1046,824 @@ canvas.chart{width:100%!important;height:180px!important;}
 <div id="toast">✅ บันทึกแล้ว!</div>
 
 <script>
-// ══════════════════════════════════════════
-// FITTRACK PRO — IndexedDB + Core Logic
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
+// FITTRACK PRO v3 — Complete JS
+// ══════════════════════════════════════
 
 // ── DB ──
-const DB_NAME = 'FitTrackPro', DB_VER = 2;
+const DB_NAME='FitTrackPro', DB_VER=2;
 let db;
-function openDB() {
-  return new Promise((res, rej) => {
-    const req = indexedDB.open(DB_NAME, DB_VER);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains('workouts')) {
-        const ws = d.createObjectStore('workouts', {keyPath:'id', autoIncrement:true});
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('workouts')){
+        const ws=d.createObjectStore('workouts',{keyPath:'id',autoIncrement:true});
         ws.createIndex('date','date',{unique:false});
       }
-      if (!d.objectStoreNames.contains('exercises')) {
-        d.createObjectStore('exercises', {keyPath:'name'});
-      }
-      if (!d.objectStoreNames.contains('weights')) {
-        const ws2 = d.createObjectStore('weights', {keyPath:'id', autoIncrement:true});
+      if(!d.objectStoreNames.contains('exercises'))
+        d.createObjectStore('exercises',{keyPath:'name'});
+      if(!d.objectStoreNames.contains('weights')){
+        const ws2=d.createObjectStore('weights',{keyPath:'id',autoIncrement:true});
         ws2.createIndex('date','date',{unique:false});
       }
     };
-    req.onsuccess = e => { db = e.target.result; res(db); };
-    req.onerror = e => rej(e);
+    req.onsuccess=e=>{db=e.target.result;res(db);};
+    req.onerror=e=>rej(e);
   });
 }
-function dbGet(store, key) {
+function dbGet(store,key){
   return new Promise((res,rej)=>{
-    const tx = db.transaction(store,'readonly');
-    const req = key !== undefined ? tx.objectStore(store).get(key) : tx.objectStore(store).getAll();
-    req.onsuccess = e => res(e.target.result);
-    req.onerror = e => rej(e);
+    const tx=db.transaction(store,'readonly');
+    const req=key!==undefined?tx.objectStore(store).get(key):tx.objectStore(store).getAll();
+    req.onsuccess=e=>res(e.target.result);
+    req.onerror=e=>rej(e);
   });
 }
-function dbPut(store, val) {
+function dbPut(store,val){
   return new Promise((res,rej)=>{
-    const tx = db.transaction(store,'readwrite');
-    const req = tx.objectStore(store).put(val);
-    req.onsuccess = e => res(e.target.result);
-    req.onerror = e => rej(e);
+    const tx=db.transaction(store,'readwrite');
+    const req=tx.objectStore(store).put(val);
+    req.onsuccess=e=>res(e.target.result);
+    req.onerror=e=>rej(e);
   });
 }
-function dbDelete(store, key) {
+function dbDelete(store,key){
   return new Promise((res,rej)=>{
-    const tx = db.transaction(store,'readwrite');
-    const req = tx.objectStore(store).delete(key);
-    req.onsuccess = e => res(e.target.result);
-    req.onerror = e => rej(e);
+    const tx=db.transaction(store,'readwrite');
+    const req=tx.objectStore(store).delete(key);
+    req.onsuccess=e=>res(e.target.result);
+    req.onerror=e=>rej(e);
   });
 }
-function dbGetAll(store) { return dbGet(store); }
+function dbGetAll(store){return dbGet(store);}
 
-// ── BUILT-IN EXERCISES ──
-const EXERCISES = [
-  {name:'Bench Press', muscle:'Chest', type:'strength'},
-  {name:'Incline Bench Press', muscle:'Chest', type:'strength'},
-  {name:'Dumbbell Fly', muscle:'Chest', type:'strength'},
-  {name:'Push-Up', muscle:'Chest', type:'bodyweight'},
-  {name:'Dip', muscle:'Chest/Triceps', type:'bodyweight'},
-  {name:'Squat', muscle:'Quads', type:'strength'},
-  {name:'Leg Press', muscle:'Quads', type:'strength'},
-  {name:'Romanian Deadlift', muscle:'Hamstrings', type:'strength'},
-  {name:'Leg Curl', muscle:'Hamstrings', type:'strength'},
-  {name:'Leg Extension', muscle:'Quads', type:'strength'},
-  {name:'Lunge', muscle:'Quads', type:'strength'},
-  {name:'Calf Raise', muscle:'Calves', type:'strength'},
-  {name:'Deadlift', muscle:'Back/Glutes', type:'strength'},
-  {name:'Pull-Up', muscle:'Back', type:'bodyweight'},
-  {name:'Lat Pulldown', muscle:'Back', type:'strength'},
-  {name:'Seated Row', muscle:'Back', type:'strength'},
-  {name:'Barbell Row', muscle:'Back', type:'strength'},
-  {name:'Face Pull', muscle:'Rear Delt', type:'strength'},
-  {name:'Overhead Press', muscle:'Shoulders', type:'strength'},
-  {name:'Lateral Raise', muscle:'Shoulders', type:'strength'},
-  {name:'Front Raise', muscle:'Shoulders', type:'strength'},
-  {name:'Bicep Curl', muscle:'Biceps', type:'strength'},
-  {name:'Hammer Curl', muscle:'Biceps', type:'strength'},
-  {name:'Preacher Curl', muscle:'Biceps', type:'strength'},
-  {name:'Tricep Pushdown', muscle:'Triceps', type:'strength'},
-  {name:'Skull Crusher', muscle:'Triceps', type:'strength'},
-  {name:'Plank', muscle:'Core', type:'bodyweight'},
-  {name:'Crunch', muscle:'Core', type:'bodyweight'},
-  {name:'Cable Crunch', muscle:'Core', type:'strength'},
-  {name:'Running', muscle:'Cardio', type:'cardio'},
-  {name:'Cycling', muscle:'Cardio', type:'cardio'},
-  {name:'Jump Rope', muscle:'Cardio', type:'cardio'},
+// ── EXERCISES LIST ──
+const EXERCISES=[
+  {name:'Bench Press',muscle:'Chest'},{name:'Incline Bench Press',muscle:'Chest'},
+  {name:'Dumbbell Fly',muscle:'Chest'},{name:'Push-Up',muscle:'Chest'},{name:'Dip',muscle:'Chest'},
+  {name:'Squat',muscle:'Quads'},{name:'Leg Press',muscle:'Quads'},{name:'Leg Extension',muscle:'Quads'},
+  {name:'Lunge',muscle:'Quads'},{name:'Bulgarian Split Squat',muscle:'Quads'},
+  {name:'Romanian Deadlift',muscle:'Hamstrings'},{name:'Leg Curl',muscle:'Hamstrings'},
+  {name:'Nordic Curl',muscle:'Hamstrings'},{name:'Deadlift',muscle:'Back'},
+  {name:'Pull-Up',muscle:'Back'},{name:'Chin-Up',muscle:'Back'},{name:'Lat Pulldown',muscle:'Back'},
+  {name:'Seated Row',muscle:'Back'},{name:'Barbell Row',muscle:'Back'},{name:'Dumbbell Row',muscle:'Back'},
+  {name:'Cable Row',muscle:'Back'},{name:'Face Pull',muscle:'Rear Delt'},
+  {name:'Overhead Press',muscle:'Shoulders'},{name:'Arnold Press',muscle:'Shoulders'},
+  {name:'Lateral Raise',muscle:'Shoulders'},{name:'Front Raise',muscle:'Shoulders'},
+  {name:'Bicep Curl',muscle:'Biceps'},{name:'Hammer Curl',muscle:'Biceps'},
+  {name:'Preacher Curl',muscle:'Biceps'},{name:'Cable Curl',muscle:'Biceps'},
+  {name:'Tricep Pushdown',muscle:'Triceps'},{name:'Skull Crusher',muscle:'Triceps'},
+  {name:'Overhead Tricep Extension',muscle:'Triceps'},{name:'Close Grip Bench',muscle:'Triceps'},
+  {name:'Barbell Shrug',muscle:'Traps'},{name:'Dumbbell Shrug',muscle:'Traps'},
+  {name:'Hip Thrust',muscle:'Glutes'},{name:'Glute Bridge',muscle:'Glutes'},
+  {name:'Calf Raise',muscle:'Calves'},{name:'Seated Calf Raise',muscle:'Calves'},
+  {name:'Plank',muscle:'Core'},{name:'Crunch',muscle:'Core'},{name:'Cable Crunch',muscle:'Core'},
+  {name:'Ab Wheel',muscle:'Core'},{name:'Leg Raise',muscle:'Core'},
+  {name:'Russian Twist',muscle:'Obliques'},{name:'Side Plank',muscle:'Obliques'},
+  {name:'Wrist Curl',muscle:'Forearms'},{name:'Farmer Walk',muscle:'Forearms'},
+  {name:'Running',muscle:'Cardio'},{name:'Cycling',muscle:'Cardio'},{name:'Jump Rope',muscle:'Calves'},
 ];
 
-// ── STATE ──
-let currentPage = 'home';
-let workoutActive = false;
-let workoutStart = null;
-let workoutTimer = null;
-let restTimer = null;
-let restRemaining = 0;
-let currentWorkoutData = { name:'', exercises:[] };
-let allWorkouts = [];
-let progressMetric = 'weight';
-let currentModalWorkoutId = null;
-let weeklyChartInst = null;
-let progressChartInst = null;
+// ── MUSCLE MAPS ──
+const MUSCLE_MAP={
+  'Chest':     {front:['f-chest-l','f-chest-r'],back:[],emoji:'🫁',tip:'Bench Press, Fly, Push-Up'},
+  'Shoulders': {front:['f-shoulders-l','f-shoulders-r'],back:[],emoji:'🔵',tip:'OHP, Lateral Raise'},
+  'Rear Delt': {front:[],back:['b-rdelt-l','b-rdelt-r'],emoji:'🔵',tip:'Face Pull, Reverse Fly'},
+  'Back':      {front:[],back:['b-lats-l','b-lats-r','b-infra-l','b-infra-r','b-erector-l','b-erector-r'],emoji:'🔷',tip:'Deadlift, Row, Pull-Up'},
+  'Traps':     {front:[],back:['b-traps-upper'],emoji:'🟣',tip:'Shrug, Face Pull'},
+  'Biceps':    {front:['f-biceps-l','f-biceps-r'],back:[],emoji:'💪',tip:'Curl, Hammer, Chin-Up'},
+  'Triceps':   {front:[],back:['b-triceps-l','b-triceps-r'],emoji:'💪',tip:'Pushdown, Skull Crusher'},
+  'Forearms':  {front:['f-forearms-l','f-forearms-r'],back:['b-forearms-l','b-forearms-r'],emoji:'🖐️',tip:'Wrist Curl, Farmer Walk'},
+  'Core':      {front:['f-abs-1l','f-abs-1r','f-abs-2l','f-abs-2r','f-abs-3l','f-abs-3r'],back:[],emoji:'🟡',tip:'Plank, Crunch, Ab Wheel'},
+  'Obliques':  {front:['f-obliques-l','f-obliques-r'],back:[],emoji:'🟡',tip:'Russian Twist, Side Plank'},
+  'Quads':     {front:['f-quads-l','f-quads-r'],back:[],emoji:'🦵',tip:'Squat, Leg Press, Extension'},
+  'Hamstrings':{front:[],back:['b-hams-l','b-hams-r'],emoji:'🦵',tip:'RDL, Leg Curl'},
+  'Glutes':    {front:[],back:['b-glutes-l','b-glutes-r'],emoji:'🍑',tip:'Hip Thrust, Squat, RDL'},
+  'Calves':    {front:['f-calves-l','f-calves-r','f-tibialis-l','f-tibialis-r'],back:['b-calves-l','b-calves-r'],emoji:'🦶',tip:'Calf Raise, Jump Rope'},
+  'Cardio':    {front:[],back:[],emoji:'❤️',tip:'Running, Cycling, HIIT'},
+};
+const EX_TO_MUSCLE={
+  'Bench Press':'Chest','Incline Bench Press':'Chest','Dumbbell Fly':'Chest','Push-Up':'Chest','Dip':'Chest','Cable Fly':'Chest','Chest Press':'Chest',
+  'Overhead Press':'Shoulders','Arnold Press':'Shoulders','Military Press':'Shoulders','Lateral Raise':'Shoulders','Front Raise':'Shoulders','Shoulder Press':'Shoulders',
+  'Face Pull':'Rear Delt','Reverse Fly':'Rear Delt','Band Pull Apart':'Rear Delt',
+  'Deadlift':'Back','Pull-Up':'Back','Chin-Up':'Back','Lat Pulldown':'Back','Seated Row':'Back','Barbell Row':'Back','Dumbbell Row':'Back','Cable Row':'Back','T-Bar Row':'Back',
+  'Barbell Shrug':'Traps','Dumbbell Shrug':'Traps','Shrug':'Traps',
+  'Bicep Curl':'Biceps','Barbell Curl':'Biceps','Dumbbell Curl':'Biceps','Hammer Curl':'Biceps','Preacher Curl':'Biceps','Cable Curl':'Biceps',
+  'Tricep Pushdown':'Triceps','Skull Crusher':'Triceps','Overhead Tricep Extension':'Triceps','Close Grip Bench':'Triceps','Tricep Extension':'Triceps',
+  'Wrist Curl':'Forearms','Farmer Walk':'Forearms','Farmer Carry':'Forearms','Reverse Curl':'Forearms',
+  'Plank':'Core','Crunch':'Core','Cable Crunch':'Core','Ab Wheel':'Core','Leg Raise':'Core','Sit-Up':'Core','Hanging Knee Raise':'Core',
+  'Russian Twist':'Obliques','Side Plank':'Obliques','Woodchop':'Obliques','Oblique Crunch':'Obliques',
+  'Squat':'Quads','Front Squat':'Quads','Leg Press':'Quads','Leg Extension':'Quads','Lunge':'Quads','Bulgarian Split Squat':'Quads','Hack Squat':'Quads',
+  'Romanian Deadlift':'Hamstrings','RDL':'Hamstrings','Leg Curl':'Hamstrings','Nordic Curl':'Hamstrings','Good Morning':'Hamstrings',
+  'Hip Thrust':'Glutes','Glute Bridge':'Glutes','Cable Kickback':'Glutes','Sumo Deadlift':'Glutes',
+  'Calf Raise':'Calves','Seated Calf Raise':'Calves','Standing Calf Raise':'Calves','Jump Rope':'Calves',
+  'Running':'Cardio','Cycling':'Cardio','Rowing':'Cardio','HIIT':'Cardio','Elliptical':'Cardio','Swimming':'Cardio','Burpee':'Cardio',
+};
+function getMuscleName(exName){
+  for(const[k,v] of Object.entries(EX_TO_MUSCLE)){if(exName===k)return v;}
+  for(const[k,v] of Object.entries(EX_TO_MUSCLE)){if(exName.toLowerCase().includes(k.toLowerCase()))return v;}
+  return null;
+}
 
-// ── NAVIGATION ──
-function navTo(page) {
-  if (workoutActive && page !== 'workout') {
-    if (!confirm('คุณกำลัง workout อยู่ ต้องการออกไปหน้าอื่นใช่ไหม? (workout จะยังทำงานอยู่)')) return;
+// ── STATE ──
+let currentPage='home',workoutActive=false,workoutStart=null;
+let workoutTimer=null,restTimer=null,restRemaining=0;
+let currentWorkoutData={name:'',exercises:[]};
+let allWorkouts=[],progressMetric='weight';
+let currentModalWorkoutId=null;
+let weeklyChartInst=null,progressChartInst=null,homeSparkInst=null,wtChartInst=null;
+let bodyViewPeriod='week',wtRange=30;
+
+// ── NAV ──
+function navTo(page){
+  if(workoutActive&&page!=='workout'){
+    if(!confirm('Workout กำลังดำเนินอยู่ — ต้องการออกไหม?'))return;
   }
-  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active','slide-in'); });
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const pg = document.getElementById('page-' + page);
-  if (pg) { pg.classList.add('active','slide-in'); }
-  const nb = document.getElementById('nav-' + page);
-  if (nb) nb.classList.add('active');
-  currentPage = page;
-  if (page === 'home') renderHome();
-  if (page === 'history') renderHistory('all');
-  if (page === 'progress') renderProgress();
-  if (page === 'body') renderBodyMap();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active','in'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg){pg.classList.add('active','in');}
+  const nb=document.getElementById('nav-'+page);
+  if(nb)nb.classList.add('active');
+  currentPage=page;
+  if(page==='home')renderHome();
+  if(page==='history')renderHistory('all');
+  if(page==='progress')renderProgress();
 }
 
 // ── TOAST ──
-let toastTimeout;
-function showToast(msg, icon='✅') {
-  const t = document.getElementById('toast');
-  t.textContent = icon + ' ' + msg;
+let toastTm;
+function showToast(msg,icon='✅'){
+  const t=document.getElementById('toast');
+  t.textContent=(icon?icon+' ':'')+msg;
   t.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+  clearTimeout(toastTm);
+  toastTm=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
 // ── MODAL ──
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 // ── GREETING ──
-function updateGreeting() {
-  const h = new Date().getHours();
-  const g = h < 12 ? 'สวัสดีตอนเช้า ☀️' : h < 17 ? 'สวัสดีตอนบ่าย 🌤' : 'สวัสดีตอนเย็น 🌙';
-  document.getElementById('greeting').textContent = g;
+function updateGreeting(){
+  const h=new Date().getHours();
+  const g=h<12?'สวัสดีตอนเช้า ☀️':h<17?'สวัสดีตอนบ่าย 🌤':'สวัสดีตอนเย็น 🌙';
+  document.getElementById('greeting').textContent=g;
 }
 
 // ── STREAK ──
-function calcStreak(workouts) {
-  if (!workouts.length) return 0;
-  const dates = [...new Set(workouts.map(w => w.date.split('T')[0]))].sort().reverse();
-  let streak = 0, today = new Date().toISOString().split('T')[0];
-  let check = today;
-  for (const d of dates) {
-    if (d === check) { streak++; check = new Date(new Date(check) - 86400000).toISOString().split('T')[0]; }
-    else if (d < check) break;
+function calcStreak(ws){
+  if(!ws.length)return 0;
+  const dates=[...new Set(ws.map(w=>w.date.split('T')[0]))].sort().reverse();
+  let streak=0,check=new Date().toISOString().split('T')[0];
+  for(const d of dates){
+    if(d===check){streak++;check=new Date(new Date(check)-86400000).toISOString().split('T')[0];}
+    else if(d<check)break;
   }
   return streak;
 }
 
 // ── VOLUME ──
-function weekVolume(workouts) {
-  const cutoff = Date.now() - 7*86400000;
-  return workouts.filter(w => new Date(w.date).getTime() > cutoff)
-    .reduce((sum, w) => sum + w.exercises.reduce((s2, ex) => s2 + ex.sets.reduce((s3, set) => s3 + (set.done ? (parseFloat(set.weight)||0) * (parseInt(set.reps)||0) : 0), 0), 0), 0);
+function weekVolume(ws){
+  const cut=Date.now()-7*86400000;
+  return ws.filter(w=>new Date(w.date).getTime()>cut)
+    .reduce((s,w)=>s+w.exercises.reduce((s2,ex)=>s2+ex.sets.reduce((s3,set)=>s3+(set.done?(parseFloat(set.weight)||0)*(parseInt(set.reps)||0):0),0),0),0);
 }
 
-// ── PERSONAL RECORDS ──
-function getPRs(workouts) {
-  const prs = {};
-  workouts.forEach(w => {
-    w.exercises.forEach(ex => {
-      ex.sets.forEach(set => {
-        if (!set.done) return;
-        const w2 = parseFloat(set.weight)||0;
-        const r = parseInt(set.reps)||0;
-        if (!prs[ex.name] || w2 > prs[ex.name]) prs[ex.name] = w2;
-      });
-    });
-  });
+// ── PRs ──
+function getPRs(ws){
+  const prs={};
+  ws.forEach(w=>w.exercises.forEach(ex=>ex.sets.forEach(set=>{
+    if(!set.done)return;
+    const wt=parseFloat(set.weight)||0;
+    if(!prs[ex.name]||wt>prs[ex.name])prs[ex.name]=wt;
+  })));
   return prs;
 }
 
 // ── HOME ──
-async function renderHome() {
-  // ── Load all data sources in parallel ──
-  const [workoutsRaw, weightsRaw] = await Promise.all([
-    dbGetAll('workouts'),
-    dbGetAll('weights'),
-  ]);
-  allWorkouts = workoutsRaw.sort((a,b) => new Date(b.date) - new Date(a.date));
-  const weightsSorted = weightsRaw.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-  // ── Workout stats ──
-  const streak = calcStreak(allWorkouts);
-  const vol    = weekVolume(allWorkouts);
-  const prs    = getPRs(allWorkouts);
-  document.getElementById('statWorkouts').textContent = allWorkouts.length;
-  document.getElementById('statStreak').textContent   = streak;
-  document.getElementById('statPRs').textContent      = Object.keys(prs).length;
-  document.getElementById('streakFlame').textContent  = streak >= 7 ? '🔥🔥' : streak >= 3 ? '🔥' : '💪';
-
-  // ── Weight integration ──
-  if (weightsSorted.length) {
-    const last  = weightsSorted[weightsSorted.length - 1];
-    const prev  = weightsSorted.length > 1 ? weightsSorted[weightsSorted.length - 2] : null;
-    const diff  = prev ? Math.round((last.weight - prev.weight) * 10) / 10 : null;
-    const diffStr  = diff !== null ? (diff > 0 ? '+' + diff : diff) + ' kg' : '';
-    const diffColor = diff === null ? '' : diff < 0 ? 'color:var(--green2)' : diff > 0 ? 'color:var(--red)' : 'color:var(--text3)';
-    const h = parseFloat(localStorage.getItem('wtHeight'));
-    const bmi = h ? Math.round(last.weight / ((h/100)**2) * 10) / 10 : null;
-
-    document.getElementById('statBodyWeight').textContent = last.weight;
-
-    // Show body summary card
-    const card = document.getElementById('homeBodyCard');
-    card.style.display = 'block';
-    document.getElementById('homeWeightBig').textContent = last.weight;
-    document.getElementById('homeWeightDiff').innerHTML  = diff !== null
-      ? `<span style="${diffColor}">${diffStr}</span>` : '';
-    const lastDate = new Date(last.date);
-    const isToday  = new Date().toDateString() === lastDate.toDateString();
-    document.getElementById('homeWeightDate').textContent = isToday
-      ? 'วันนี้ ' + lastDate.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})
-      : lastDate.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
-    document.getElementById('homeVolume').textContent = Math.round(vol).toLocaleString();
-
-    if (bmi) {
-      const bmiColor = bmi < 18.5 ? 'var(--orange)' : bmi < 25 ? 'var(--green2)' : bmi < 30 ? 'var(--yellow)' : 'var(--red)';
-      document.getElementById('homeBMI').textContent = bmi;
-      document.getElementById('homeBMI').style.color = bmiColor;
-    } else {
-      document.getElementById('homeBMI').textContent = '—';
+async function renderHome(){
+  const[workoutsRaw,weightsRaw]=await Promise.all([dbGetAll('workouts'),dbGetAll('weights')]);
+  allWorkouts=workoutsRaw.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const weightsSorted=weightsRaw.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const streak=calcStreak(allWorkouts),vol=weekVolume(allWorkouts),prs=getPRs(allWorkouts);
+  document.getElementById('statWorkouts').textContent=allWorkouts.length;
+  document.getElementById('statStreak').textContent=streak;
+  document.getElementById('statPRs').textContent=Object.keys(prs).length;
+  document.getElementById('streakFlame').textContent=streak>=7?'🔥🔥':streak>=3?'🔥':'💪';
+  if(weightsSorted.length){
+    const last=weightsSorted[weightsSorted.length-1];
+    const prev=weightsSorted.length>1?weightsSorted[weightsSorted.length-2]:null;
+    const diff=prev?Math.round((last.weight-prev.weight)*10)/10:null;
+    const h=parseFloat(localStorage.getItem('wtHeight'));
+    const bmi=h?Math.round(last.weight/((h/100)**2)*10)/10:null;
+    document.getElementById('statBodyWeight').textContent=last.weight;
+    const card=document.getElementById('homeBodyCard');
+    card.style.display='block';
+    document.getElementById('homeWeightBig').textContent=last.weight;
+    if(diff!==null){
+      const c=diff<0?'var(--g2)':diff>0?'var(--r)':'var(--t3)';
+      document.getElementById('homeWeightDiff').innerHTML=`<span style="color:${c}">${diff>0?'+':''}${diff}kg</span>`;
     }
-
-    // Spark line — last 14 weight entries
+    const ld=new Date(last.date);
+    const isToday=new Date().toDateString()===ld.toDateString();
+    document.getElementById('homeWeightDate').textContent=isToday
+      ?'วันนี้ '+ld.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})
+      :ld.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
+    document.getElementById('homeVolume').textContent=Math.round(vol).toLocaleString();
+    if(bmi){
+      const bc=bmi<18.5?'var(--o)':bmi<25?'var(--g2)':bmi<30?'var(--y)':'var(--r)';
+      document.getElementById('homeBMI').textContent=bmi;
+      document.getElementById('homeBMI').style.color=bc;
+    }
     renderHomeSparkLine(weightsSorted.slice(-14));
-  } else {
-    document.getElementById('statBodyWeight').textContent = '—';
-    document.getElementById('homeBodyCard').style.display = 'none';
+  }else{
+    document.getElementById('statBodyWeight').textContent='—';
+    document.getElementById('homeBodyCard').style.display='none';
   }
-
   renderWeeklyChart();
   renderOverloadSnapshot();
   renderRecentWorkouts();
 }
 
-// ── Home sparkline (tiny weight trend) ──
-let homeSparkInst = null;
-function renderHomeSparkLine(entries) {
-  const ctx = document.getElementById('homeSparkChart').getContext('2d');
-  if (homeSparkInst) homeSparkInst.destroy();
-  if (!entries.length) return;
-  const labels = entries.map(e => {
-    const d = new Date(e.date);
-    return d.getDate() + '/' + (d.getMonth()+1);
-  });
-  const data = entries.map(e => e.weight);
-  homeSparkInst = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data,
-        borderColor: 'rgba(124,95,255,.7)',
-        backgroundColor: 'rgba(124,95,255,.1)',
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: true,
-        tension: 0.4,
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: {
-        x: { display: false },
-        y: { display: false }
-      },
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: { duration: 600 }
-    }
+function renderHomeSparkLine(entries){
+  const ctx=document.getElementById('homeSparkChart').getContext('2d');
+  if(homeSparkInst)homeSparkInst.destroy();
+  if(!entries.length)return;
+  homeSparkInst=new Chart(ctx,{
+    type:'line',
+    data:{labels:entries.map(()=>''),datasets:[{data:entries.map(e=>e.weight),borderColor:'rgba(124,95,255,.6)',backgroundColor:'rgba(124,95,255,.1)',borderWidth:1.5,pointRadius:0,fill:true,tension:.4}]},
+    options:{plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},responsive:true,maintainAspectRatio:false,animation:{duration:600}}
   });
 }
 
-// ── WEEKLY CHART ──
-function renderWeeklyChart() {
-  const days = [];
-  const vols = [];
-  for (let i=6; i>=0; i--) {
-    const d = new Date(Date.now() - i*86400000);
-    const key = d.toISOString().split('T')[0];
+function renderWeeklyChart(){
+  const days=[],vols=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000);
+    const key=d.toISOString().split('T')[0];
     days.push(['อา','จ','อ','พ','พฤ','ศ','ส'][d.getDay()]);
-    const dw = allWorkouts.filter(w => w.date.startsWith(key));
-    const v = dw.reduce((sum, w) => sum + w.exercises.reduce((s2, ex) => s2 + ex.sets.reduce((s3, s) => s3 + (s.done ? (parseFloat(s.weight)||0)*(parseInt(s.reps)||0) : 0), 0), 0), 0);
+    const dw=allWorkouts.filter(w=>w.date.startsWith(key));
+    const v=dw.reduce((s,w)=>s+w.exercises.reduce((s2,ex)=>s2+ex.sets.reduce((s3,st)=>s3+(st.done?(parseFloat(st.weight)||0)*(parseInt(st.reps)||0):0),0),0),0);
     vols.push(Math.round(v));
   }
-  const ctx = document.getElementById('weeklyChart').getContext('2d');
-  if (weeklyChartInst) weeklyChartInst.destroy();
-  weeklyChartInst = new Chart(ctx, {
+  const ctx=document.getElementById('weeklyChart').getContext('2d');
+  if(weeklyChartInst)weeklyChartInst.destroy();
+  weeklyChartInst=new Chart(ctx,{
     type:'bar',
-    data:{labels:days, datasets:[{data:vols, backgroundColor: vols.map((v,i)=>i===6?'rgba(124,95,255,.9)':'rgba(124,95,255,.35)'), borderRadius:8, borderSkipped:false}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#9090c0'},grid:{display:false}}, y:{ticks:{color:'#9090c0', maxTicksLimit:4}, grid:{color:'rgba(130,100,255,.08)'}}}, responsive:true, maintainAspectRatio:false}
+    data:{labels:days,datasets:[{data:vols,backgroundColor:vols.map((_,i)=>i===6?'rgba(124,95,255,.9)':'rgba(124,95,255,.3)'),borderRadius:8,borderSkipped:false}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8888bb'},grid:{display:false}},y:{ticks:{color:'#8888bb',maxTicksLimit:4},grid:{color:'rgba(120,100,255,.06)'}}},responsive:true,maintainAspectRatio:false}
   });
 }
 
-// ── OVERLOAD SNAPSHOT (home) ──
-async function renderOverloadSnapshot() {
-  const snap = document.getElementById('overloadSnapshot');
-  if (allWorkouts.length < 2) { snap.innerHTML = '<div class="empty"><div class="empty-i">📈</div><div class="empty-t">ต้องมีอย่างน้อย 2 Workout เพื่อดู Overload</div></div>'; return; }
-  const trendMap = buildTrendMap(allWorkouts);
-  const entries = Object.entries(trendMap).slice(0, 4);
-  if (!entries.length) { snap.innerHTML = '<div class="empty"><div class="empty-i">📈</div><div class="empty-t">เริ่ม Workout แรกเลย!</div></div>'; return; }
-  snap.innerHTML = entries.map(([name, hist]) => {
-    if (hist.length < 2) return '';
-    const last = hist[hist.length-1], prev = hist[hist.length-2];
-    const diff = last.maxWeight - prev.maxWeight;
-    const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-    const cls = diff > 0 ? 'g' : diff < 0 ? 'r' : '';
-    return `<div class="trend-row"><div style="font-size:14px;font-weight:600;color:var(--text);flex:1;">${name}</div><div><span class="tag ${cls}">${arrow} ${Math.abs(diff)}kg</span></div></div>`;
-  }).join('') || '<div class="empty"><div class="empty-i">📈</div><div class="empty-t">ยังไม่มีข้อมูล overload</div></div>';
+function renderOverloadSnapshot(){
+  const snap=document.getElementById('overloadSnapshot');
+  if(allWorkouts.length<2){snap.innerHTML='<div class="empty"><div class="ei">📈</div><div class="et">ต้องมีอย่างน้อย 2 Workout</div></div>';return;}
+  const map=buildTrendMap(allWorkouts);
+  const entries=Object.entries(map).filter(([,h])=>h.length>=2).slice(0,5);
+  if(!entries.length){snap.innerHTML='<div class="empty"><div class="ei">📈</div><div class="et">ยังไม่มีข้อมูล overload</div></div>';return;}
+  snap.innerHTML=entries.map(([name,hist])=>{
+    const last=hist[hist.length-1],prev=hist[hist.length-2];
+    const diff=last.maxWeight-prev.maxWeight;
+    const cls=diff>0?'tag-g':diff<0?'tag-r':'';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:14px;font-weight:700;color:var(--t);">${name}</span>
+      <span class="tag ${cls}">${diff>0?'↑':diff<0?'↓':'→'} ${Math.abs(diff)}kg</span>
+    </div>`;
+  }).join('');
 }
 
-// ── RECENT WORKOUTS ──
-function renderRecentWorkouts() {
-  const el = document.getElementById('recentWorkouts');
-  const recent = allWorkouts.slice(0, 3);
-  if (!recent.length) { el.innerHTML = '<div class="empty"><div class="empty-i">🏟️</div><div class="empty-t">ยังไม่มี workout</div></div>'; return; }
-  el.innerHTML = recent.map(w => workoutCard(w)).join('');
+function renderRecentWorkouts(){
+  const el=document.getElementById('recentWorkouts');
+  const recent=allWorkouts.slice(0,3);
+  if(!recent.length){el.innerHTML='<div class="empty"><div class="ei">🏟️</div><div class="et">ยังไม่มี workout</div></div>';return;}
+  el.innerHTML=recent.map(w=>workoutCard(w)).join('');
 }
 
-function workoutCard(w) {
-  const sets = w.exercises.reduce((s, ex) => s + ex.sets.filter(s2=>s2.done).length, 0);
-  const vol = Math.round(w.exercises.reduce((s, ex) => s + ex.sets.reduce((s2, s3) => s2 + (s3.done ? (parseFloat(s3.weight)||0)*(parseInt(s3.reps)||0) : 0), 0), 0));
-  const dur = w.duration ? formatDur(w.duration) : '—';
-  const date = new Date(w.date).toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'});
+function fmtDur(s){const m=Math.floor(s/60);return m+'m '+(s%60)+'s';}
+function workoutCard(w){
+  const sets=w.exercises.reduce((s,ex)=>s+ex.sets.filter(s2=>s2.done).length,0);
+  const vol=Math.round(w.exercises.reduce((s,ex)=>s+ex.sets.reduce((s2,st)=>s2+(st.done?(parseFloat(st.weight)||0)*(parseInt(st.reps)||0):0),0),0));
+  const date=new Date(w.date).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
   return `<div class="hist-item" onclick="openWorkoutDetail(${w.id})">
     <div class="hist-date">${date}</div>
     <div class="hist-name">${w.name}</div>
-    <div class="hist-meta">
-      <span class="tag">🏋️ ${w.exercises.length} ท่า</span>
-      <span class="tag g">✅ ${sets} sets</span>
-      ${vol > 0 ? '<span class="tag o">⚖️ '+vol.toLocaleString()+' kg</span>' : ''}
-      <span class="tag" style="color:var(--text3);">⏱ ${dur}</span>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;">
+      <span class="tag tag-p">🏋️ ${w.exercises.length} ท่า</span>
+      <span class="tag tag-g">✅ ${sets} sets</span>
+      ${vol>0?`<span class="tag tag-o">⚖️ ${vol.toLocaleString()}kg</span>`:''}
+      ${w.duration?`<span class="tag" style="background:rgba(255,255,255,.06);color:var(--t3);">⏱ ${fmtDur(w.duration)}</span>`:''}
     </div>
   </div>`;
 }
 
-function formatDur(sec) {
-  const m = Math.floor(sec/60), s = sec%60;
-  return m+'m '+(s<10?'0':'')+s+'s';
-}
-
 // ── HISTORY ──
-async function renderHistory(filter) {
-  allWorkouts = await dbGetAll('workouts');
-  allWorkouts.sort((a,b) => new Date(b.date) - new Date(a.date));
-  let filtered = allWorkouts;
-  if (filter === 'week') { const cutoff = Date.now()-7*86400000; filtered = allWorkouts.filter(w => new Date(w.date).getTime() > cutoff); }
-  if (filter === 'month') { const cutoff = Date.now()-30*86400000; filtered = allWorkouts.filter(w => new Date(w.date).getTime() > cutoff); }
-  const el = document.getElementById('historyList');
-  if (!filtered.length) { el.innerHTML = '<div class="empty"><div class="empty-i">📋</div><div class="empty-t">ไม่มี workout ในช่วงนี้</div></div>'; return; }
-  el.innerHTML = filtered.map(w => workoutCard(w)).join('');
+async function renderHistory(filter){
+  allWorkouts=await dbGetAll('workouts');
+  allWorkouts.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let filtered=allWorkouts;
+  if(filter==='week'){const c=Date.now()-7*86400000;filtered=allWorkouts.filter(w=>new Date(w.date).getTime()>c);}
+  if(filter==='month'){const c=Date.now()-30*86400000;filtered=allWorkouts.filter(w=>new Date(w.date).getTime()>c);}
+  const el=document.getElementById('historyList');
+  if(!filtered.length){el.innerHTML='<div class="empty"><div class="ei">📋</div><div class="et">ไม่มี workout ในช่วงนี้</div></div>';return;}
+  el.innerHTML=filtered.map(w=>workoutCard(w)).join('');
+}
+function filterHistory(f,el){
+  document.querySelectorAll('#page-history .chip-row .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');renderHistory(f);
 }
 
-function filterHistory(f, el) {
-  document.querySelectorAll('#page-history .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderHistory(f);
-}
-
-// ── WORKOUT DETAIL MODAL ──
-async function openWorkoutDetail(id) {
-  currentModalWorkoutId = id;
-  const w = await dbGet('workouts', id);
-  document.getElementById('modalTitle').textContent = w.name;
-  const date = new Date(w.date).toLocaleString('th-TH');
-  const vol = Math.round(w.exercises.reduce((s,ex)=>s+ex.sets.reduce((s2,s3)=>s2+(s3.done?(parseFloat(s3.weight)||0)*(parseInt(s3.reps)||0):0),0),0));
-  let html = `<div style="font-size:13px;color:var(--text3);margin-bottom:14px;">${date} • ${w.duration ? formatDur(w.duration) : '—'}</div>`;
-  html += `<div class="hist-meta" style="margin-bottom:16px;"><span class="tag g">⚖️ Volume: ${vol.toLocaleString()} kg</span></div>`;
-  w.exercises.forEach(ex => {
-    html += `<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">${ex.name} <span style="font-size:11px;color:var(--purple2);">${ex.muscle||''}</span></div>`;
-    html += `<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;font-size:13px;color:var(--text3);margin-bottom:4px;"><span>#</span><span>น้ำหนัก</span><span>Reps</span></div>`;
-    ex.sets.forEach((s, i) => {
-      if (!s.done) return;
-      html += `<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text3);">${i+1}</span><span style="font-weight:700;">${s.weight} kg</span><span style="font-weight:700;">${s.reps} reps</span></div>`;
+// ── WORKOUT DETAIL ──
+async function openWorkoutDetail(id){
+  currentModalWorkoutId=id;
+  const w=await dbGet('workouts',id);
+  document.getElementById('modalTitle').textContent=w.name;
+  const vol=Math.round(w.exercises.reduce((s,ex)=>s+ex.sets.reduce((s2,st)=>s2+(st.done?(parseFloat(st.weight)||0)*(parseInt(st.reps)||0):0),0),0));
+  let html=`<div style="font-size:12px;color:var(--t3);margin-bottom:14px;">${new Date(w.date).toLocaleString('th-TH')}${w.duration?' • '+fmtDur(w.duration):''}</div>`;
+  html+=`<div style="margin-bottom:16px;"><span class="tag tag-g">⚖️ Volume: ${vol.toLocaleString()} kg</span></div>`;
+  w.exercises.forEach(ex=>{
+    html+=`<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:8px;">${ex.name} <span style="font-size:11px;color:var(--p2);font-weight:700;text-transform:uppercase;">${ex.muscle||''}</span></div>`;
+    html+=`<div style="display:grid;grid-template-columns:24px 1fr 1fr;gap:6px;font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px;text-transform:uppercase;"><span>#</span><span>Weight</span><span>Reps</span></div>`;
+    ex.sets.forEach((st,i)=>{
+      if(!st.done)return;
+      html+=`<div style="display:grid;grid-template-columns:24px 1fr 1fr;gap:6px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:14px;"><span style="color:var(--t3);">${i+1}</span><span style="font-weight:800;">${st.weight}kg</span><span style="font-weight:800;">${st.reps}r</span></div>`;
     });
-    html += '</div>';
+    html+='</div>';
   });
-  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalBody').innerHTML=html;
   openModal('workoutDetailModal');
 }
-
-async function deleteWorkoutFromModal() {
-  if (!currentModalWorkoutId) return;
-  if (!confirm('ลบ Workout นี้ใช่ไหม?')) return;
-  await dbDelete('workouts', currentModalWorkoutId);
+async function deleteWorkoutFromModal(){
+  if(!currentModalWorkoutId)return;
+  if(!confirm('ลบ Workout นี้ใช่ไหม?'))return;
+  await dbDelete('workouts',currentModalWorkoutId);
   closeModal('workoutDetailModal');
-  showToast('ลบแล้ว', '🗑');
-  if (currentPage === 'home') renderHome();
-  if (currentPage === 'history') renderHistory('all');
+  showToast('ลบแล้ว','🗑');
+  if(currentPage==='home')renderHome();
+  if(currentPage==='history')renderHistory('all');
 }
 
-// ── EXPORT CSV ──
-async function exportCSV() {
-  allWorkouts = await dbGetAll('workouts');
-  if (!allWorkouts.length) { showToast('ไม่มีข้อมูล', '⚠️'); return; }
-  let csv = 'Date,Workout,Exercise,Set,Weight(kg),Reps,Done\n';
-  allWorkouts.forEach(w => {
-    w.exercises.forEach(ex => {
-      ex.sets.forEach((s,i) => {
-        csv += [new Date(w.date).toLocaleString('th-TH'), w.name, ex.name, i+1, s.weight||'', s.reps||'', s.done?'yes':'no'].join(',') + '\n';
+// ── EXPORT ──
+async function exportCSV(){
+  allWorkouts=await dbGetAll('workouts');
+  if(!allWorkouts.length){showToast('ไม่มีข้อมูล','⚠️');return;}
+  let csv='Date,Workout,Exercise,Set,Weight(kg),Reps,Done\n';
+  allWorkouts.forEach(w=>{
+    w.exercises.forEach(ex=>{
+      ex.sets.forEach((st,i)=>{
+        csv+=[new Date(w.date).toLocaleString('th-TH'),w.name,ex.name,i+1,st.weight||'',st.reps||'',st.done?'yes':'no'].join(',')+'\n';
+
       });
     });
   });
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'fittrack_' + new Date().toISOString().split('T')[0] + '.csv';
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='fittrack_'+new Date().toISOString().split('T')[0]+'.csv';
   a.click();
-  showToast('Export เสร็จแล้ว', '📥');
+  showToast('Export เสร็จแล้ว','📥');
 }
 </script>
 
 <script>
 // ══ WORKOUT LOGIC ══
-
-function setTemplate(el, name) {
-  document.querySelectorAll('#templateChips .chip').forEach(c => c.classList.remove('active'));
+function setTemplate(el,name){
+  document.querySelectorAll('#templateChips .chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('workoutNameInput').value = name;
+  document.getElementById('workoutNameInput').value=name;
 }
-
-function startWorkout() {
-  const name = document.getElementById('workoutNameInput').value.trim() || 'Workout';
-  currentWorkoutData = { name, exercises: [] };
-  workoutActive = true;
-  workoutStart = Date.now();
-  document.getElementById('workoutStartPanel').style.display = 'none';
-  document.getElementById('workoutActivePanel').style.display = 'flex';
-  document.getElementById('activeWorkoutName').textContent = name;
-  document.getElementById('workoutStatusLabel').textContent = '⚡ กำลัง Workout';
-  startWorkoutTimer();
+function startWorkout(){
+  const name=document.getElementById('workoutNameInput').value.trim()||'Workout';
+  currentWorkoutData={name,exercises:[]};
+  workoutActive=true;workoutStart=Date.now();
+  document.getElementById('workoutStartPanel').style.display='none';
+  document.getElementById('workoutActivePanel').style.display='flex';
+  document.getElementById('activeWorkoutName').textContent=name;
+  document.getElementById('workoutStatusLabel').textContent='⚡ กำลัง Workout';
+  workoutTimer=setInterval(()=>{
+    const s=Math.floor((Date.now()-workoutStart)/1000);
+    const m=Math.floor(s/60),sc=s%60;
+    document.getElementById('activeTimer').textContent=(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc;
+  },1000);
   renderExSuggestions('');
-  showToast('เริ่ม Workout แล้ว! 💪', '🚀');
+  showToast('เริ่มแล้ว! 💪','🚀');
 }
-
-function startWorkoutTimer() {
-  workoutTimer = setInterval(() => {
-    const sec = Math.floor((Date.now() - workoutStart) / 1000);
-    document.getElementById('activeTimer').textContent = fmtTime(sec);
-  }, 1000);
+function filterExercises(q){renderExSuggestions(q);}
+function renderExSuggestions(q){
+  const el=document.getElementById('exSuggestions');
+  const lq=q.toLowerCase();
+  const filtered=EXERCISES.filter(e=>!q||e.name.toLowerCase().includes(lq)||e.muscle.toLowerCase().includes(lq)).slice(0,16);
+  el.innerHTML=filtered.map(e=>`<div class="chip" onclick="addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')})">${e.name} <span style="font-size:10px;color:var(--p2);">${e.muscle}</span></div>`).join('');
 }
-
-function fmtTime(sec) {
-  const m = Math.floor(sec/60), s = sec%60;
-  return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+function addCustomExercise(){
+  const val=document.getElementById('exSearchInput').value.trim();
+  if(!val){showToast('พิมพ์ชื่อท่าก่อน','⚠️');return;}
+  addExerciseToWorkout(val,'Custom');
+  document.getElementById('exSearchInput').value='';renderExSuggestions('');
 }
-
-function filterExercises(q) {
-  renderExSuggestions(q);
-}
-
-function renderExSuggestions(q) {
-  const el = document.getElementById('exSuggestions');
-  const lower = q.toLowerCase();
-  const filtered = EXERCISES.filter(e => !q || e.name.toLowerCase().includes(lower) || e.muscle.toLowerCase().includes(lower)).slice(0, 15);
-  el.innerHTML = filtered.map(e =>
-    `<div class="chip" onclick="addExerciseToWorkout(${JSON.stringify(e.name)},${JSON.stringify(e.muscle||'')})">` +
-    `${e.name} <span style="font-size:10px;color:var(--purple2);">${e.muscle}</span></div>`
-  ).join('');
-}
-
-function addCustomExercise() {
-  const val = document.getElementById('exSearchInput').value.trim();
-  if (!val) { showToast('พิมพ์ชื่อท่าก่อน', '⚠️'); return; }
-  addExerciseToWorkout(val, 'Custom');
-  document.getElementById('exSearchInput').value = '';
-  renderExSuggestions('');
-}
-
-function addExerciseToWorkout(name, muscle) {
-  const ex = { name, muscle, sets: [{ weight: '', reps: '', done: false }] };
-  currentWorkoutData.exercises.push(ex);
+function addExerciseToWorkout(name,muscle){
+  currentWorkoutData.exercises.push({name,muscle,sets:[{weight:'',reps:'',done:false}]});
   renderActiveExercises();
-  document.getElementById('exSearchInput').value = '';
-  renderExSuggestions('');
-  showToast('เพิ่ม ' + name + ' แล้ว', '➕');
-  setTimeout(() => {
-    const el = document.getElementById('activeExercises');
-    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, 100);
+  document.getElementById('exSearchInput').value='';renderExSuggestions('');
+  showToast('เพิ่ม '+name,'➕');
+  setTimeout(()=>document.getElementById('activeExercises').scrollIntoView({behavior:'smooth',block:'end'}),100);
 }
-
-function renderActiveExercises() {
-  const cont = document.getElementById('activeExercises');
-  cont.innerHTML = currentWorkoutData.exercises.map((ex, ei) => {
-    const setsHTML = ex.sets.map((s, si) =>
-      `<div class="set-row">
-        <span class="set-num">${si+1}</span>
-        <input type="number" class="set-inp" placeholder="kg" value="${s.weight}" step="0.5"
-          oninput="updateSet(${ei},${si},'weight',this.value)" inputmode="decimal">
-        <input type="number" class="set-inp" placeholder="reps" value="${s.reps}"
-          oninput="updateSet(${ei},${si},'reps',this.value)" inputmode="numeric">
-        <button class="set-done ${s.done?'done':''}" onclick="toggleSetDone(${ei},${si})">
-          ${s.done?'✓':'○'}
-        </button>
-      </div>`
-    ).join('');
-    // last workout hint
-    let hint = '';
-    if (allWorkouts.length) {
-      for (const w of allWorkouts) {
-        const found = w.exercises.find(e => e.name === ex.name);
-        if (found) {
-          const last = found.sets.filter(s=>s.done);
-          if (last.length) {
-            const maxW = Math.max(...last.map(s=>parseFloat(s.weight)||0));
-            hint = `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">ครั้งล่าสุด: ${maxW}kg × ${last[0].reps} reps</div>`;
-          }
-          break;
-        }
-      }
+function renderActiveExercises(){
+  const cont=document.getElementById('activeExercises');
+  cont.innerHTML=currentWorkoutData.exercises.map((ex,ei)=>{
+    let hint='';
+    for(const w of allWorkouts){
+      const f=w.exercises.find(e=>e.name===ex.name);
+      if(f){const ls=f.sets.filter(s=>s.done);if(ls.length){const mw=Math.max(...ls.map(s=>parseFloat(s.weight)||0));hint=`<div style="font-size:11px;color:var(--t3);margin-bottom:8px;font-style:italic;">ครั้งล่าสุด: ${mw}kg × ${ls[0].reps}r</div>`;}break;}
     }
+    const shtml=ex.sets.map((s,si)=>`<div class="set-row">
+      <span class="set-num">${si+1}</span>
+      <input type="number" class="set-inp" placeholder="kg" value="${s.weight}" step="0.5" oninput="updSet(${ei},${si},'weight',this.value)" inputmode="decimal">
+      <input type="number" class="set-inp" placeholder="reps" value="${s.reps}" oninput="updSet(${ei},${si},'reps',this.value)" inputmode="numeric">
+      <button class="set-done${s.done?' done':''}" onclick="togSetDone(${ei},${si})">${s.done?'✓':'○'}</button>
+    </div>`).join('');
     return `<div class="ex-card">
-      <div class="ex-hdr">
-        <div><div class="ex-name">${ex.name}</div><div class="ex-muscle">${ex.muscle||''}</div></div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-g" onclick="openRestTimer()" style="padding:6px 10px;font-size:12px;">⏱ Rest</button>
-          <button class="btn btn-g" onclick="addSet(${ei})" style="padding:6px 10px;font-size:12px;">+ Set</button>
-          <button class="btn btn-d" onclick="removeExercise(${ei})" style="padding:6px 10px;font-size:12px;">✕</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div><div class="ex-card-name">${ex.name}</div><div class="ex-card-muscle">${ex.muscle||''}</div></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="openRestTimer()" style="padding:6px 10px;">⏱</button>
+          <button class="btn btn-ghost btn-sm" onclick="addSet(${ei})" style="padding:6px 10px;">+Set</button>
+          <button class="btn btn-r btn-sm" onclick="removeExercise(${ei})" style="padding:6px 10px;">✕</button>
         </div>
       </div>
       ${hint}
-      <div style="display:grid;grid-template-columns:28px 1fr 1fr 36px;gap:8px;font-size:11px;color:var(--text3);padding:0 0 6px;font-weight:700;letter-spacing:.5px;">
+      <div style="display:grid;grid-template-columns:26px 1fr 1fr 34px;gap:8px;font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;padding-bottom:6px;">
         <span style="text-align:center;">#</span><span style="text-align:center;">KG</span><span style="text-align:center;">REPS</span><span></span>
       </div>
-      ${setsHTML}
+      ${shtml}
     </div>`;
   }).join('');
 }
-
-function updateSet(ei, si, field, val) {
-  currentWorkoutData.exercises[ei].sets[si][field] = val;
-}
-
-function toggleSetDone(ei, si) {
-  const s = currentWorkoutData.exercises[ei].sets[si];
-  s.done = !s.done;
-  if (s.done) { triggerConfetti(); }
+function updSet(ei,si,field,val){currentWorkoutData.exercises[ei].sets[si][field]=val;}
+function togSetDone(ei,si){
+  const s=currentWorkoutData.exercises[ei].sets[si];
+  s.done=!s.done;
+  if(s.done)confetti();
   renderActiveExercises();
 }
-
-function addSet(ei) {
-  const lastSet = currentWorkoutData.exercises[ei].sets.slice(-1)[0];
-  currentWorkoutData.exercises[ei].sets.push({
-    weight: lastSet ? lastSet.weight : '',
-    reps: lastSet ? lastSet.reps : '',
-    done: false
-  });
+function addSet(ei){
+  const last=currentWorkoutData.exercises[ei].sets.slice(-1)[0];
+  currentWorkoutData.exercises[ei].sets.push({weight:last?last.weight:'',reps:last?last.reps:'',done:false});
   renderActiveExercises();
 }
-
-function removeExercise(ei) {
-  currentWorkoutData.exercises.splice(ei, 1);
-  renderActiveExercises();
-}
-
-async function finishWorkout() {
-  const doneSets = currentWorkoutData.exercises.reduce((s,ex) => s + ex.sets.filter(s2=>s2.done).length, 0);
-  if (doneSets === 0 && !confirm('ยังไม่มี set ที่เสร็จ ต้องการบันทึกใช่ไหม?')) return;
+function removeExercise(ei){currentWorkoutData.exercises.splice(ei,1);renderActiveExercises();}
+async function finishWorkout(){
+  const done=currentWorkoutData.exercises.reduce((s,ex)=>s+ex.sets.filter(s2=>s2.done).length,0);
+  if(done===0&&!confirm('ยังไม่มี set ที่เสร็จ บันทึกเลยไหม?'))return;
   clearInterval(workoutTimer);
-  const duration = Math.floor((Date.now() - workoutStart) / 1000);
-  const workout = { ...currentWorkoutData, date: new Date().toISOString(), duration };
-  await dbPut('workouts', workout);
-  checkPR(workout);
-  workoutActive = false;
-  resetWorkoutUI();
-  triggerConfetti();
-  showToast('บันทึก Workout แล้ว! 🎉', '🏆');
+  const duration=Math.floor((Date.now()-workoutStart)/1000);
+  await dbPut('workouts',{...currentWorkoutData,date:new Date().toISOString(),duration});
+  workoutActive=false;resetWorkoutUI();confetti();
+  showToast('บันทึก Workout แล้ว! 🎉','🏆');
   navTo('home');
 }
-
-function cancelWorkout() {
-  if (!confirm('ยกเลิก Workout ใช่ไหม?')) return;
-  clearInterval(workoutTimer);
-  workoutActive = false;
-  resetWorkoutUI();
-  showToast('ยกเลิก workout', '❌');
+function cancelWorkout(){
+  if(!confirm('ยกเลิก Workout ใช่ไหม?'))return;
+  clearInterval(workoutTimer);workoutActive=false;resetWorkoutUI();
+  showToast('ยกเลิก','❌');
 }
-
-function resetWorkoutUI() {
-  workoutStart = null;
-  currentWorkoutData = { name: '', exercises: [] };
-  document.getElementById('workoutStartPanel').style.display = 'flex';
-  document.getElementById('workoutActivePanel').style.display = 'none';
-  document.getElementById('workoutNameInput').value = '';
-  document.getElementById('workoutStatusLabel').textContent = 'ยังไม่ได้เริ่ม';
-  document.getElementById('activeExercises').innerHTML = '';
-  document.querySelectorAll('#templateChips .chip').forEach(c => c.classList.remove('active'));
-}
-
-function checkPR(workout) {
-  workout.exercises.forEach(async ex => {
-    const maxW = Math.max(...ex.sets.filter(s=>s.done).map(s=>parseFloat(s.weight)||0));
-    if (!maxW) return;
-    const prs = getPRs(allWorkouts);
-    if (!prs[ex.name] || maxW > prs[ex.name]) {
-      setTimeout(() => showToast('PR ใหม่! ' + ex.name + ' ' + maxW + 'kg 🏆', '🏆'), 1000);
-    }
-  });
+function resetWorkoutUI(){
+  workoutStart=null;currentWorkoutData={name:'',exercises:[]};
+  document.getElementById('workoutStartPanel').style.display='flex';
+  document.getElementById('workoutActivePanel').style.display='none';
+  document.getElementById('workoutNameInput').value='';
+  document.getElementById('workoutStatusLabel').textContent='ยังไม่ได้เริ่ม';
+  document.getElementById('activeExercises').innerHTML='';
+  document.querySelectorAll('#templateChips .chip').forEach(c=>c.classList.remove('active'));
 }
 
 // ── REST TIMER ──
-function openRestTimer() {
-  openModal('restModal');
-  if (!restTimer) startRestTimer(90);
-}
-
-function setRestTimer(sec) {
-  clearInterval(restTimer);
-  restTimer = null;
-  startRestTimer(sec);
-}
-
-function startRestTimer(sec) {
-  restRemaining = sec;
-  document.getElementById('restTimerVal').textContent = restRemaining;
-  restTimer = setInterval(() => {
+function openRestTimer(){openModal('restModal');if(!restTimer)startRestTimer(90);}
+function setRestTimer(s){clearInterval(restTimer);restTimer=null;startRestTimer(s);}
+function startRestTimer(sec){
+  restRemaining=sec;
+  document.getElementById('restTimerVal').textContent=restRemaining;
+  restTimer=setInterval(()=>{
     restRemaining--;
-    document.getElementById('restTimerVal').textContent = restRemaining;
-    if (restRemaining <= 0) {
-      clearInterval(restTimer);
-      restTimer = null;
-      document.getElementById('restTimerVal').textContent = '✓';
+    document.getElementById('restTimerVal').textContent=restRemaining;
+    if(restRemaining<=0){
+      clearInterval(restTimer);restTimer=null;
+      document.getElementById('restTimerVal').textContent='✓';
       closeModal('restModal');
-      if ('vibrate' in navigator) navigator.vibrate([200,100,200]);
-      showToast('หยุดพักครบแล้ว! 💪', '⏱');
+      if('vibrate'in navigator)navigator.vibrate([200,100,200]);
+      showToast('หยุดพักครบแล้ว! 💪','⏱');
     }
-  }, 1000);
+  },1000);
 }
 
 // ── CONFETTI ──
-function triggerConfetti() {
-  const colors = ['#7c5fff','#a78bfa','#22d3a4','#ffd166','#ff5b7f'];
-  for (let i=0; i<12; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    el.style.cssText = `left:${20+Math.random()*60}%;top:${30+Math.random()*30}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*.4}s;animation-duration:${.6+Math.random()*.4}s`;
+function confetti(){
+  const cols=['#7c5fff','#a78bfa','#00d4aa','#ffd166','#ff4d7e','#ff8534'];
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div');
+    el.className='cfp';
+    el.style.cssText=`left:${15+Math.random()*70}%;top:${20+Math.random()*40}%;background:${cols[i%cols.length]};animation-delay:${Math.random()*.3}s;animation-duration:${.7+Math.random()*.4}s`;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1200);
+    setTimeout(()=>el.remove(),1200);
   }
 }
 </script>
 
 <script>
-// ══ PROGRESS / OVERLOAD ══
-
-function buildTrendMap(workouts) {
-  const map = {};
-  const sorted = [...workouts].sort((a,b) => new Date(a.date)-new Date(b.date));
-  sorted.forEach(w => {
-    w.exercises.forEach(ex => {
-      if (!map[ex.name]) map[ex.name] = [];
-      const doneSets = ex.sets.filter(s => s.done);
-      if (!doneSets.length) return;
-      const maxWeight = Math.max(...doneSets.map(s => parseFloat(s.weight)||0));
-      const totalVol = doneSets.reduce((s,set) => s+(parseFloat(set.weight)||0)*(parseInt(set.reps)||0), 0);
-      const maxReps = Math.max(...doneSets.map(s => parseInt(s.reps)||0));
-      map[ex.name].push({ date: w.date, maxWeight, totalVol: Math.round(totalVol), maxReps, sets: doneSets.length });
+// ══ PROGRESS ══
+function buildTrendMap(ws){
+  const map={};
+  [...ws].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(w=>{
+    w.exercises.forEach(ex=>{
+      if(!map[ex.name])map[ex.name]=[];
+      const done=ex.sets.filter(s=>s.done);if(!done.length)return;
+      const maxWeight=Math.max(...done.map(s=>parseFloat(s.weight)||0));
+      const totalVol=done.reduce((s,st)=>s+(parseFloat(st.weight)||0)*(parseInt(st.reps)||0),0);
+      const maxReps=Math.max(...done.map(s=>parseInt(s.reps)||0));
+      map[ex.name].push({date:w.date,maxWeight,totalVol:Math.round(totalVol),maxReps,sets:done.length});
     });
   });
   return map;
 }
-
-async function renderProgress() {
-  allWorkouts = await dbGetAll('workouts');
-  allWorkouts.sort((a,b) => new Date(a.date)-new Date(b.date));
-  const trendMap = buildTrendMap(allWorkouts);
-  // Populate exercise select
-  const sel = document.getElementById('progressExSelect');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">-- เลือกท่า --</option>';
-  Object.keys(trendMap).filter(name => trendMap[name].length >= 1).forEach(name => {
-    const opt = document.createElement('option');
-    opt.value = name; opt.textContent = name + ' (' + trendMap[name].length + ' sessions)';
+async function renderProgress(){
+  allWorkouts=await dbGetAll('workouts');
+  allWorkouts.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const map=buildTrendMap(allWorkouts);
+  const sel=document.getElementById('progressExSelect');
+  const prev=sel.value;
+  sel.innerHTML='<option value="">— เลือกท่า —</option>';
+  Object.keys(map).filter(name=>map[name].length>=1).forEach(name=>{
+    const opt=document.createElement('option');
+    opt.value=name;opt.textContent=name+' ('+map[name].length+' sessions)';
     sel.appendChild(opt);
   });
-  if (prev) sel.value = prev;
-  // Overload table
-  renderOverloadTable(trendMap);
+  if(prev)sel.value=prev;
+  renderOverloadTable(map);
 }
-
-function renderOverloadTable(trendMap) {
-  const el = document.getElementById('overloadTable');
-  const entries = Object.entries(trendMap).filter(([,h]) => h.length >= 1);
-  if (!entries.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-i">📊</div><div class="empty-t">ยังไม่มีข้อมูล</div></div>';
-    return;
-  }
-  el.innerHTML = entries.map(([name, hist]) => {
-    const last = hist[hist.length-1];
-    const prev = hist.length >= 2 ? hist[hist.length-2] : null;
-    const diff = prev ? last.maxWeight - prev.maxWeight : 0;
-    const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-    const tagCls = diff > 0 ? 'g' : diff < 0 ? 'r' : '';
-    return `<div class="trend-row">
-      <div style="font-size:14px;font-weight:600;color:var(--text);flex:1;">${name}</div>
+function renderOverloadTable(map){
+  const el=document.getElementById('overloadTable');
+  const entries=Object.entries(map).filter(([,h])=>h.length>=1);
+  if(!entries.length){el.innerHTML='<div class="empty"><div class="ei">📊</div><div class="et">ยังไม่มีข้อมูล</div></div>';return;}
+  el.innerHTML=entries.map(([name,hist])=>{
+    const last=hist[hist.length-1],prev=hist.length>=2?hist[hist.length-2]:null;
+    const diff=prev?last.maxWeight-prev.maxWeight:0;
+    const cls=diff>0?'tag-g':diff<0?'tag-r':'';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:14px;font-weight:700;color:var(--t);">${name}</span>
       <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:13px;color:var(--text2);">${last.maxWeight}kg × ${last.maxReps}r</span>
-        ${prev ? '<span class="tag '+tagCls+'">'+arrow+' '+Math.abs(diff)+'kg</span>' : '<span class="tag" style="color:var(--text3);">—</span>'}
+        <span style="font-size:13px;color:var(--t2);">${last.maxWeight}kg×${last.maxReps}r</span>
+        ${prev?`<span class="tag ${cls}">${diff>0?'↑':diff<0?'↓':'→'} ${Math.abs(diff)}kg</span>`:'<span class="tag" style="color:var(--t3)">—</span>'}
       </div>
     </div>`;
   }).join('');
 }
-
-function loadProgressChart() {
-  const name = document.getElementById('progressExSelect').value;
-  const trendMap = buildTrendMap(allWorkouts);
-  if (!name || !trendMap[name]) {
-    document.getElementById('progressChartCard').style.display = 'none';
-    document.getElementById('prBanner').style.display = 'none';
-    return;
+function loadProgressChart(){
+  const name=document.getElementById('progressExSelect').value;
+  const map=buildTrendMap(allWorkouts);
+  if(!name||!map[name]){
+    document.getElementById('progressChartCard').style.display='none';
+    document.getElementById('prBanner').style.display='none';return;
   }
-  document.getElementById('progressChartCard').style.display = 'block';
-  document.getElementById('progressChartTitle').textContent = name;
-  drawProgressChart(name, trendMap[name]);
-  // PR banner
-  const pr = Math.max(...trendMap[name].map(h => h.maxWeight));
-  document.getElementById('prValue').textContent = pr + ' kg';
-  document.getElementById('prBanner').style.display = 'flex';
+  document.getElementById('progressChartCard').style.display='block';
+  document.getElementById('progressChartTitle').textContent=name;
+  drawProgressChart(name,map[name]);
+  const pr=Math.max(...map[name].map(h=>h.maxWeight));
+  document.getElementById('prValue').textContent=pr+' kg';
+  document.getElementById('prBanner').style.display='flex';
 }
-
-function drawProgressChart(name, hist) {
-  const labels = hist.map(h => {
-    const d = new Date(h.date);
-    return (d.getDate()+'/'+(d.getMonth()+1));
-  });
-  let data;
-  if (progressMetric === 'weight') data = hist.map(h => h.maxWeight);
-  else if (progressMetric === 'volume') data = hist.map(h => h.totalVol);
-  else data = hist.map(h => h.maxReps);
-  const ctx = document.getElementById('progressChart').getContext('2d');
-  if (progressChartInst) progressChartInst.destroy();
-  progressChartInst = new Chart(ctx, {
+function drawProgressChart(name,hist){
+  const labels=hist.map(h=>{const d=new Date(h.date);return d.getDate()+'/'+(d.getMonth()+1);});
+  const data=progressMetric==='weight'?hist.map(h=>h.maxWeight):progressMetric==='volume'?hist.map(h=>h.totalVol):hist.map(h=>h.maxReps);
+  const ctx=document.getElementById('progressChart').getContext('2d');
+  if(progressChartInst)progressChartInst.destroy();
+  progressChartInst=new Chart(ctx,{
     type:'line',
-    data:{labels, datasets:[{
-      data,
-      borderColor:'rgba(124,95,255,1)',
-      backgroundColor:'rgba(124,95,255,0.15)',
-      borderWidth:2.5, pointBackgroundColor:'#a78bfa', pointRadius:5, fill:true, tension:0.35
-    }]},
-    options:{
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{color:'#9090c0'},grid:{display:false}},
-        y:{ticks:{color:'#9090c0',maxTicksLimit:5},grid:{color:'rgba(130,100,255,.08)'}}
-      },
-      responsive:true, maintainAspectRatio:false
-    }
+    data:{labels,datasets:[{data,borderColor:'rgba(124,95,255,.9)',backgroundColor:'rgba(124,95,255,.12)',borderWidth:2.5,pointBackgroundColor:'#a78bfa',pointRadius:hist.length>20?2:5,fill:true,tension:.35}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8888bb'},grid:{display:false}},y:{ticks:{color:'#8888bb',maxTicksLimit:5},grid:{color:'rgba(120,100,255,.06)'}}},responsive:true,maintainAspectRatio:false}
   });
 }
-
-function switchProgressMetric(m, el) {
-  progressMetric = m;
-  document.querySelectorAll('#progressChartCard .chip').forEach(c => c.classList.remove('active'));
+function switchProgressMetric(m,el){
+  progressMetric=m;
+  document.querySelectorAll('#progressChartCard .chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
-  const name = document.getElementById('progressExSelect').value;
-  if (!name) return;
-  const trendMap = buildTrendMap(allWorkouts);
-  if (trendMap[name]) drawProgressChart(name, trendMap[name]);
+  const name=document.getElementById('progressExSelect').value;
+  if(!name)return;
+  drawProgressChart(name,buildTrendMap(allWorkouts)[name]);
+}
+function switchProgressTab(tab,el){
+  document.querySelectorAll('#progressTabs .chip').forEach(c=>c.classList.remove('active'));
+  if(el)el.classList.add('active');
+  ['overload','weight','body'].forEach(t=>{
+    const d=document.getElementById('progressTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(d)d.style.display=t===tab?'flex':'none';
+  });
+  if(tab==='weight')initWeightTab();
+  if(tab==='body')renderBodyMap();
 }
 </script>
 
 <script>
 // ══ CALCULATORS ══
-
-function switchCalc(id, el) {
-  document.querySelectorAll('.calc-panel').forEach(p => p.style.display='none');
+function switchCalc(id,el){
+  document.querySelectorAll('.calc-panel').forEach(p=>p.style.display='none');
   document.getElementById('calc-'+id).style.display='block';
-  document.querySelectorAll('#page-calc .chip-row .chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#calcTabs .chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
 }
-
-// 1RM
-function calc1RM() {
-  const w = parseFloat(document.getElementById('rm_weight').value);
-  const r = parseInt(document.getElementById('rm_reps').value);
-  const f = document.getElementById('rm_formula').value;
-  if (!w || !r || r < 1) { document.getElementById('rmResult').style.display='none'; return; }
-  let oneRM;
-  if (f === 'epley')   oneRM = r === 1 ? w : w * (1 + r/30);
-  if (f === 'brzycki') oneRM = r === 1 ? w : w * (36/(37-r));
-  if (f === 'lander')  oneRM = r === 1 ? w : (100*w)/(101.3 - 2.67123*r);
-  oneRM = Math.round(oneRM * 10)/10;
-  document.getElementById('rmValue').textContent = oneRM + ' kg';
+function calc1RM(){
+  const w=parseFloat(document.getElementById('rm_weight').value);
+  const r=parseInt(document.getElementById('rm_reps').value);
+  const f=document.getElementById('rm_formula').value;
+  if(!w||!r||r<1){document.getElementById('rmResult').style.display='none';return;}
+  let one=f==='epley'?(r===1?w:w*(1+r/30)):f==='brzycki'?(r===1?w:w*(36/(37-r))):(100*w)/(101.3-2.67123*r);
+  one=Math.round(one*10)/10;
+  document.getElementById('rmValue').textContent=one+' kg';
   document.getElementById('rmResult').style.display='block';
-  const percs = [100,95,90,85,80,75,70,65];
-  document.getElementById('rmPercentages').innerHTML = percs.map(p =>
-    `<div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center;">
-      <div style="font-size:18px;font-weight:800;color:var(--purple2);">${Math.round(oneRM*p/100*10)/10}</div>
-      <div style="font-size:11px;color:var(--text3);">${p}%</div>
+  document.getElementById('rmPercentages').innerHTML=[100,95,90,85,80,75,70,65].map(p=>
+    `<div style="background:rgba(255,255,255,.05);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);">
+      <div style="font-size:18px;font-weight:900;color:var(--p2);">${Math.round(one*p/100*10)/10}</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px;">${p}%</div>
     </div>`
   ).join('');
 }
-
-// Plate
-function calcPlate() {
-  const target = parseFloat(document.getElementById('plate_target').value);
-  const bar = parseFloat(document.getElementById('plate_bar').value);
-  if (!target || target < bar) { document.getElementById('plateResult').style.display='none'; return; }
-  const perSide = (target - bar) / 2;
-  const plates = [25,20,15,10,5,2.5,1.25];
-  let remaining = perSide;
-  const used = [];
-  for (const p of plates) {
-    while (remaining >= p - 0.001) { used.push(p); remaining = Math.round((remaining - p)*100)/100; }
-  }
-  const plateColors = {25:'#ff5b7f',20:'#7c5fff',15:'#22d3a4',10:'#ffd166',5:'#ff8c42',2.5:'#a78bfa',1.25:'#9090c0'};
-  document.getElementById('plateList').innerHTML = used.length
-    ? used.map(p => `<div style="background:${plateColors[p]||'#555'};color:#111;font-weight:800;padding:8px 14px;border-radius:8px;font-size:14px;">${p}kg</div>`).join('')
-    : '<span style="color:var(--text3);">Bar เปล่า หรือใช้ collars</span>';
-  document.getElementById('plateNote').textContent = used.length
-    ? 'รวม ' + used.length + ' แผ่นต่อข้าง (total: ' + (used.reduce((s,p)=>s+p,0)*2+bar) + 'kg)'
-    : '';
-  if (remaining > 0.01) document.getElementById('plateNote').textContent += ' | ขาด ' + remaining + 'kg';
+function calcPlate(){
+  const t=parseFloat(document.getElementById('plate_target').value);
+  const bar=parseFloat(document.getElementById('plate_bar').value);
+  if(!t||t<bar){document.getElementById('plateResult').style.display='none';return;}
+  const perSide=(t-bar)/2;
+  const plates=[25,20,15,10,5,2.5,1.25];
+  let rem=perSide;const used=[];
+  for(const p of plates){while(rem>=p-0.001){used.push(p);rem=Math.round((rem-p)*100)/100;}}
+  const cols={25:'#ff4d7e',20:'#7c5fff',15:'#00d4aa',10:'#ffd166',5:'#ff8534',2.5:'#a78bfa',1.25:'#8888bb'};
+  document.getElementById('plateList').innerHTML=used.length
+    ?used.map(p=>`<div style="background:${cols[p]||'#555'};color:#000;font-weight:900;padding:8px 14px;border-radius:8px;font-size:14px;">${p}kg</div>`).join('')
+    :'<span style="color:var(--t3)">Bar เปล่า</span>';
+  document.getElementById('plateNote').textContent=used.length
+    ?`${used.length} แผ่นต่อข้าง (รวม ${used.reduce((s,p)=>s+p,0)*2+bar}kg)${rem>0.01?' | ขาด '+rem+'kg':''}`:'';
   document.getElementById('plateResult').style.display='block';
 }
-
-// BMI
-function calcBMI() {
-  const w = parseFloat(document.getElementById('bmi_weight').value);
-  const h = parseFloat(document.getElementById('bmi_height').value) / 100;
-  if (!w || !h) { document.getElementById('bmiResult').style.display='none'; return; }
-  const bmi = Math.round(w/(h*h)*10)/10;
-  let label, color, pct;
-  if (bmi < 18.5)      { label='น้ำหนักน้อย (Underweight)'; color='var(--orange)'; pct=15; }
-  else if (bmi < 25)   { label='น้ำหนักปกติ ✓ (Normal)'; color='var(--green)'; pct=40; }
-  else if (bmi < 30)   { label='น้ำหนักเกิน (Overweight)'; color='var(--yellow)'; pct=65; }
-  else if (bmi < 35)   { label='อ้วน (Obese I)'; color='var(--orange)'; pct=80; }
-  else                 { label='อ้วนมาก (Obese II+)'; color='var(--red)'; pct=95; }
-  document.getElementById('bmiValue').textContent = bmi;
-  document.getElementById('bmiLabel').textContent = label;
-  document.getElementById('bmiBar').style.width = pct + '%';
-  document.getElementById('bmiBar').style.background = color;
+function calcBMI(){
+  const w=parseFloat(document.getElementById('bmi_weight').value);
+  const h=parseFloat(document.getElementById('bmi_height').value)/100;
+  if(!w||!h){document.getElementById('bmiResult').style.display='none';return;}
+  const bmi=Math.round(w/(h*h)*10)/10;
+  let label,color,pct;
+  if(bmi<18.5){label='น้ำหนักน้อย';color='var(--o)';pct=15;}
+  else if(bmi<23){label='ปกติ ✓';color='var(--g2)';pct=35;}
+  else if(bmi<25){label='ปกติ (เอเชีย)';color='var(--g2)';pct=47;}
+  else if(bmi<30){label='น้ำหนักเกิน';color='var(--y)';pct=65;}
+  else{label='อ้วน';color='var(--r)';pct=88;}
+  document.getElementById('bmiValue').textContent=bmi;
+  document.getElementById('bmiValue').style.color=color;
+  document.getElementById('bmiLabel').textContent=label;
+  document.getElementById('bmiBar').style.cssText=`height:8px;width:${pct}%;background:${color};`;
   document.getElementById('bmiResult').style.display='block';
 }
-
-// TDEE (Mifflin-St Jeor)
-function calcTDEE() {
-  const w = parseFloat(document.getElementById('tdee_weight').value);
-  const h = parseFloat(document.getElementById('tdee_height').value);
-  const age = parseInt(document.getElementById('tdee_age').value);
-  const gender = document.getElementById('tdee_gender').value;
-  const act = parseFloat(document.getElementById('tdee_activity').value);
-  if (!w || !h || !age) { document.getElementById('tdeeResult').style.display='none'; return; }
-  let bmr = gender === 'male'
-    ? 10*w + 6.25*h - 5*age + 5
-    : 10*w + 6.25*h - 5*age - 161;
-  const tdee = Math.round(bmr * act);
-  document.getElementById('tdeeValue').textContent = tdee.toLocaleString();
+function calcTDEE(){
+  const w=parseFloat(document.getElementById('tdee_weight').value);
+  const h=parseFloat(document.getElementById('tdee_height').value);
+  const age=parseInt(document.getElementById('tdee_age').value);
+  const gender=document.getElementById('tdee_gender').value;
+  const act=parseFloat(document.getElementById('tdee_activity').value);
+  if(!w||!h||!age){document.getElementById('tdeeResult').style.display='none';return;}
+  const bmr=gender==='male'?10*w+6.25*h-5*age+5:10*w+6.25*h-5*age-161;
+  const tdee=Math.round(bmr*act);
+  document.getElementById('tdeeValue').textContent=tdee.toLocaleString();
   document.getElementById('tdeeResult').style.display='block';
-  const goals = [
-    { label:'ลดน้ำหนัก', kcal: tdee-500, color:'var(--green)' },
-    { label:'Maintain', kcal: tdee, color:'var(--purple2)' },
-    { label:'เพิ่มกล้าม', kcal: tdee+300, color:'var(--orange)' },
-  ];
-  document.getElementById('tdeeGoals').innerHTML = goals.map(g =>
-    `<div style="background:var(--bg3);border-radius:10px;padding:10px;text-align:center;">
-      <div style="font-size:17px;font-weight:800;color:${g.color};">${g.kcal.toLocaleString()}</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:3px;">${g.label}</div>
-    </div>`
-  ).join('');
+  document.getElementById('tdeeGoals').innerHTML=[
+    {l:'ลดน้ำหนัก',v:tdee-500,c:'var(--g2)'},{l:'Maintain',v:tdee,c:'var(--p2)'},{l:'เพิ่มกล้าม',v:tdee+300,c:'var(--o)'}
+  ].map(g=>`<div style="background:rgba(255,255,255,.05);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);">
+    <div style="font-size:18px;font-weight:900;color:${g.c};">${g.v.toLocaleString()}</div>
+    <div style="font-size:10px;color:var(--t3);margin-top:2px;">${g.l}</div>
+  </div>`).join('');
 }
-
-// Macro
-function calcMacro() {
-  const cal = parseInt(document.getElementById('macro_cal').value);
-  const goal = document.getElementById('macro_goal').value;
-  if (!cal) { document.getElementById('macroResult').style.display='none'; return; }
-  let proteinPct, carbPct, fatPct;
-  if      (goal==='bulk')     { proteinPct=.3; carbPct=.5; fatPct=.2; }
-  else if (goal==='cut')      { proteinPct=.4; carbPct=.35; fatPct=.25; }
-  else if (goal==='maintain') { proteinPct=.3; carbPct=.45; fatPct=.25; }
-  else                        { proteinPct=.35; carbPct=.4; fatPct=.25; }
-  const protein = Math.round(cal*proteinPct/4);
-  const carbs   = Math.round(cal*carbPct/4);
-  const fat     = Math.round(cal*fatPct/9);
+function calcMacro(){
+  const cal=parseInt(document.getElementById('macro_cal').value);
+  const goal=document.getElementById('macro_goal').value;
+  if(!cal){document.getElementById('macroResult').style.display='none';return;}
+  const ratios={bulk:[.30,.50,.20],cut:[.40,.35,.25],maintain:[.30,.45,.25],recomp:[.35,.40,.25]};
+  const[pp,cp,fp]=ratios[goal]||ratios.maintain;
+  const protein=Math.round(cal*pp/4),carbs=Math.round(cal*cp/4),fat=Math.round(cal*fp/9);
   document.getElementById('macroResult').style.display='block';
-  document.getElementById('macroBreakdown').innerHTML = [
-    { label:'Protein 🥩', val:protein+'g', color:'var(--red)', pct:Math.round(proteinPct*100) },
-    { label:'Carbs 🍚', val:carbs+'g', color:'var(--yellow)', pct:Math.round(carbPct*100) },
-    { label:'Fat 🥑', val:fat+'g', color:'var(--green2)', pct:Math.round(fatPct*100) },
-  ].map(m =>
-    `<div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
-      <div style="font-size:19px;font-weight:800;color:${m.color};">${m.val}</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:3px;">${m.label}</div>
-      <div style="font-size:10px;color:var(--text3);">${m.pct}%</div>
-    </div>`
-  ).join('');
+  document.getElementById('macroBreakdown').innerHTML=[
+    {l:'Protein 🥩',v:protein+'g',c:'var(--r)',p:Math.round(pp*100)},
+    {l:'Carbs 🍚',v:carbs+'g',c:'var(--y)',p:Math.round(cp*100)},
+    {l:'Fat 🥑',v:fat+'g',c:'var(--g2)',p:Math.round(fp*100)},
+  ].map(m=>`<div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px;text-align:center;border:1px solid var(--border);">
+    <div style="font-size:20px;font-weight:900;color:${m.c};">${m.v}</div>
+    <div style="font-size:10px;color:var(--t3);margin-top:3px;">${m.l}</div>
+    <div style="font-size:10px;color:var(--t3);">${m.p}%</div>
+  </div>`).join('');
 }
 </script>
 
 <script>
-// ══ INIT ══
-async function init() {
-  await openDB();
-  allWorkouts = await dbGetAll('workouts');
-  updateGreeting();
-  navTo('home');
-  // Pre-seed exercises into suggestions
-  renderExSuggestions('');
-}
-
-// Load Chart.js from CDN then init
-window.addEventListener('load', () => {
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-  script.onload = () => init();
-  script.onerror = () => {
-    // fallback: init without charts
-    init();
-  };
-  document.head.appendChild(script);
-});
-
-// Service Worker for PWA offline
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
-</script>
-</div>
-
-<script>
-// ══ BODY MUSCLE MAP ══
-
-// Map exercise names → muscle group IDs
-const MUSCLE_MAP = {
-  'Chest':      { front:['f-chest'],                               back:[],                              emoji:'🫁', tip:'Bench Press, Fly, Push-Up' },
-  'Shoulders':  { front:['f-shoulders'],                           back:[],                              emoji:'🔵', tip:'OHP, Lateral Raise, Front Raise' },
-  'Rear Delt':  { front:[],                                        back:['b-rdelt-l','b-rdelt-r'],       emoji:'🔵', tip:'Face Pull, Reverse Fly, Band Pull' },
-  'Back':       { front:[],                                        back:['b-lats','b-lats-r','b-midback'], emoji:'🔷', tip:'Deadlift, Row, Pull-Up, Pulldown' },
-  'Traps':      { front:[],                                        back:['b-traps'],                     emoji:'🟣', tip:'Shrug, Face Pull, Upright Row' },
-  'Biceps':     { front:['f-biceps-l','f-biceps-r'],               back:[],                              emoji:'💪', tip:'Curl, Hammer Curl, Chin-Up' },
-  'Triceps':    { front:[],                                        back:['b-triceps-l','b-triceps-r'],   emoji:'💪', tip:'Pushdown, Skull Crusher, Dip' },
-  'Forearms':   { front:['f-forearms-l','f-forearms-r'],           back:['b-forearms-l','b-forearms-r'], emoji:'🖐️', tip:'Wrist Curl, Reverse Curl, Farmer Walk' },
-  'Core':       { front:['f-abs'],                                 back:[],                              emoji:'🟡', tip:'Plank, Crunch, Leg Raise, Cable Crunch' },
-  'Obliques':   { front:['f-obliques-l','f-obliques-r'],           back:[],                              emoji:'🟡', tip:'Russian Twist, Side Plank, Cable Woodchop' },
-  'Quads':      { front:['f-quads-l','f-quads-r'],                 back:[],                              emoji:'🦵', tip:'Squat, Leg Press, Lunge, Leg Extension' },
-  'Hamstrings': { front:[],                                        back:['b-hams-l','b-hams-r'],         emoji:'🦵', tip:'RDL, Leg Curl, Good Morning' },
-  'Glutes':     { front:[],                                        back:['b-glutes'],                    emoji:'🍑', tip:'Hip Thrust, Squat, RDL, Glute Bridge' },
-  'Calves':     { front:['f-calves-l','f-calves-r'],               back:['b-calves-l','b-calves-r'],     emoji:'🦶', tip:'Calf Raise (standing/seated)' },
-  'Cardio':     { front:[],                                        back:[],                              emoji:'❤️', tip:'Running, Cycling, Jump Rope, HIIT' },
-};
-
-// Map exercise name keywords → muscle group
-const EX_TO_MUSCLE = {
-  // Chest
-  'Bench Press':'Chest','Incline Bench Press':'Chest','Decline Bench':'Chest',
-  'Dumbbell Fly':'Chest','Cable Fly':'Chest','Pec Deck':'Chest',
-  'Push-Up':'Chest','Dip':'Chest','Chest Press':'Chest',
-  // Shoulders
-  'Overhead Press':'Shoulders','Arnold Press':'Shoulders','Military Press':'Shoulders',
-  'Lateral Raise':'Shoulders','Front Raise':'Shoulders','Upright Row':'Shoulders',
-  'Shoulder Press':'Shoulders','DB Shoulder Press':'Shoulders',
-  // Rear Delt / Upper Back
-  'Face Pull':'Rear Delt','Reverse Fly':'Rear Delt','Band Pull Apart':'Rear Delt',
-  'Rear Delt Fly':'Rear Delt',
-  // Back
-  'Deadlift':'Back','Pull-Up':'Back','Chin-Up':'Back','Lat Pulldown':'Back',
-  'Seated Row':'Back','Barbell Row':'Back','Dumbbell Row':'Back',
-  'Cable Row':'Back','T-Bar Row':'Back','Chest Supported Row':'Back',
-  'Meadows Row':'Back','Pendlay Row':'Back',
-  // Traps
-  'Shrug':'Traps','Barbell Shrug':'Traps','Dumbbell Shrug':'Traps','Trap Bar':'Traps',
-  // Biceps
-  'Bicep Curl':'Biceps','Barbell Curl':'Biceps','Dumbbell Curl':'Biceps',
-  'Hammer Curl':'Biceps','Preacher Curl':'Biceps','Concentration Curl':'Biceps',
-  'Cable Curl':'Biceps','EZ Bar Curl':'Biceps','Incline Curl':'Biceps',
-  // Triceps
-  'Tricep Pushdown':'Triceps','Skull Crusher':'Triceps','Overhead Tricep':'Triceps',
-  'Close Grip Bench':'Triceps','Tricep Extension':'Triceps','Diamond Push-Up':'Triceps',
-  'Cable Tricep':'Triceps','JM Press':'Triceps',
-  // Forearms
-  'Wrist Curl':'Forearms','Reverse Curl':'Forearms','Farmer Walk':'Forearms',
-  'Farmer Carry':'Forearms','Dead Hang':'Forearms',
-  // Core
-  'Plank':'Core','Crunch':'Core','Cable Crunch':'Core','Ab Wheel':'Core',
-  'Leg Raise':'Core','Hanging Knee Raise':'Core','Sit-Up':'Core',
-  'Dragon Flag':'Core','Hollow Body':'Core','V-Up':'Core',
-  // Obliques
-  'Russian Twist':'Obliques','Side Plank':'Obliques','Woodchop':'Obliques',
-  'Oblique Crunch':'Obliques','Pallof Press':'Obliques',
-  // Quads
-  'Squat':'Quads','Front Squat':'Quads','Hack Squat':'Quads',
-  'Leg Press':'Quads','Leg Extension':'Quads','Lunge':'Quads',
-  'Split Squat':'Quads','Bulgarian Split':'Quads','Step-Up':'Quads',
-  'Wall Sit':'Quads',
-  // Hamstrings
-  'Romanian Deadlift':'Hamstrings','RDL':'Hamstrings','Leg Curl':'Hamstrings',
-  'Nordic Curl':'Hamstrings','Good Morning':'Hamstrings','Stiff Leg':'Hamstrings',
-  'Glute Ham Raise':'Hamstrings',
-  // Glutes
-  'Hip Thrust':'Glutes','Glute Bridge':'Glutes','Sumo Deadlift':'Glutes',
-  'Cable Kickback':'Glutes','Donkey Kick':'Glutes','Abduction':'Glutes',
-  // Calves
-  'Calf Raise':'Calves','Seated Calf':'Calves','Standing Calf':'Calves',
-  'Donkey Calf':'Calves','Jump Rope':'Calves',
-  // Cardio
-  'Running':'Cardio','Cycling':'Cardio','Rowing':'Cardio','Elliptical':'Cardio',
-  'HIIT':'Cardio','Stair':'Cardio','Swimming':'Cardio','Burpee':'Cardio',
-};
-
-function getMuscleName(exName) {
-  // exact match first
-  for (const [key, muscle] of Object.entries(EX_TO_MUSCLE)) {
-    if (exName === key) return muscle;
-  }
-  // substring match
-  for (const [key, muscle] of Object.entries(EX_TO_MUSCLE)) {
-    if (exName.toLowerCase().includes(key.toLowerCase())) return muscle;
-  }
-  return null;
-}
-
-let bodyViewPeriod = 'week';
+// ══ BODY MAP ══
+let bodyViewPeriod2 = bodyViewPeriod || 'week';
 
 async function renderBodyMap() {
   allWorkouts = await dbGetAll('workouts');
   const cutoff = bodyViewPeriod === 'week' ? Date.now()-7*86400000
-               : bodyViewPeriod === 'month' ? Date.now()-30*86400000
-               : 0;
-  const filtered = allWorkouts.filter(w => new Date(w.date).getTime() > cutoff);
-
-  // Count sets per muscle group
+               : bodyViewPeriod === 'month' ? Date.now()-30*86400000 : 0;
+  const filtered = allWorkouts.filter(w => new Date(w.date).getTime() >= cutoff);
   const muscleSets = {};
   filtered.forEach(w => {
     w.exercises.forEach(ex => {
-      const muscle = getMuscleName(ex.name);
-      if (!muscle) return;
-      const doneSets = ex.sets.filter(s => s.done).length;
-      muscleSets[muscle] = (muscleSets[muscle]||0) + doneSets;
+      const m = getMuscleName(ex.name);
+      if (!m) return;
+      const done = ex.sets.filter(s => s.done).length;
+      muscleSets[m] = (muscleSets[m]||0) + done;
     });
   });
-
-  const totalSets = Object.values(muscleSets).reduce((a,b)=>a+b,0);
-  const maxSets = Math.max(...Object.values(muscleSets),1);
+  const maxSets = Math.max(...Object.values(muscleSets), 1);
   const muscleCount = Object.keys(muscleSets).length;
-  const topMuscle = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
-
+  const top = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
+  const totalSets = Object.values(muscleSets).reduce((a,b)=>a+b,0);
   document.getElementById('bodySetsWeek').textContent = totalSets;
   document.getElementById('bodyMusclesHit').textContent = muscleCount;
-  document.getElementById('bodyTopMuscle').textContent = topMuscle ? topMuscle[0].split('/')[0] : '—';
+  document.getElementById('bodyTopMuscle').textContent = top ? top[0] : '—';
 
   // Reset all muscles
-  document.querySelectorAll('.muscle-group').forEach(el => {
+  document.querySelectorAll('.muscle').forEach(el => {
     el.classList.remove('warm','hot','fire');
     el.classList.add('cold');
   });
-
-  // Animate muscles based on intensity
+  // Animate per intensity
   Object.entries(muscleSets).forEach(([muscle, sets]) => {
     const info = MUSCLE_MAP[muscle];
     if (!info) return;
     const pct = sets / maxSets;
     const level = pct > 0.75 ? 'fire' : pct > 0.4 ? 'hot' : 'warm';
-    const ids = [...(info.front||[]), ...(info.back||[])];
-    ids.forEach(id => {
+    [...(info.front||[]), ...(info.back||[])].forEach((id, idx) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.classList.remove('cold','warm','hot','fire');
-      setTimeout(() => el.classList.add(level), Math.random()*400);
+      setTimeout(() => { el.classList.remove('cold'); el.classList.add(level); }, idx * 40);
     });
   });
-
   renderMuscleBreakdown(muscleSets, maxSets);
   renderRecoveryStatus(filtered, muscleSets);
 }
 
 function renderMuscleBreakdown(muscleSets, maxSets) {
   const el = document.getElementById('muscleBreakdown');
-  const sorted = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1]);
+  const sorted = Object.entries(muscleSets).sort((a,b) => b[1]-a[1]);
   if (!sorted.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-i">💪</div><div class="empty-t">ยังไม่มีข้อมูล</div></div>';
+    el.innerHTML = '<div class="empty"><div class="ei">💪</div><div class="et">บันทึก workout เพื่อดู heatmap</div></div>';
     return;
   }
   el.innerHTML = sorted.map(([muscle, sets]) => {
     const pct = Math.round((sets/maxSets)*100);
-    const color = pct > 75 ? 'var(--orange)' : pct > 40 ? 'var(--green)' : 'var(--purple2)';
+    const color = pct > 75 ? 'var(--o)' : pct > 40 ? 'var(--g)' : 'var(--p2)';
     return `<div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <span style="font-size:13px;font-weight:600;color:var(--text);">${muscle}</span>
-        <span style="font-size:12px;color:var(--text3);">${sets} sets</span>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-size:13px;font-weight:700;color:var(--t);">${MUSCLE_MAP[muscle]?.emoji||'💪'} ${muscle}</span>
+        <span style="font-size:12px;color:var(--t3);">${sets} sets</span>
       </div>
-      <div class="pb-bg">
-        <div class="pb-fill" style="width:0%;background:${color};transition:width .8s cubic-bezier(.4,0,.2,1);"
-          data-target="${pct}"></div>
+      <div class="pb-bg" style="height:6px;">
+        <div style="height:6px;width:0%;border-radius:100px;background:${color};transition:width .8s cubic-bezier(.4,0,.2,1);" data-target="${pct}"></div>
       </div>
     </div>`;
   }).join('');
-  // Animate bars
   setTimeout(() => {
-    el.querySelectorAll('[data-target]').forEach(bar => {
-      bar.style.width = bar.dataset.target + '%';
-    });
-  }, 100);
+    el.querySelectorAll('[data-target]').forEach(b => { b.style.width = b.dataset.target + '%'; });
+  }, 80);
 }
 
 function renderRecoveryStatus(filtered, muscleSets) {
   const el = document.getElementById('recoveryStatus');
   const now = Date.now();
-  // Find last workout date per muscle
   const lastTrained = {};
-  [...filtered].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(w => {
+  [...filtered].sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(w => {
     w.exercises.forEach(ex => {
-      const muscle = getMuscleName(ex.name);
-      if (!muscle || lastTrained[muscle]) return;
-      if (ex.sets.some(s=>s.done)) lastTrained[muscle] = new Date(w.date).getTime();
+      const m = getMuscleName(ex.name);
+      if (!m || lastTrained[m]) return;
+      if (ex.sets.some(s => s.done)) lastTrained[m] = new Date(w.date).getTime();
     });
   });
-
-  const muscles = Object.keys(MUSCLE_MAP);
-  const items = muscles.map(muscle => {
+  const items = Object.keys(MUSCLE_MAP).map(muscle => {
     const last = lastTrained[muscle];
-    if (!last) return { muscle, status: 'ready', label: '✅ พร้อม train', hours: null };
+    if (!last) return null;
     const hoursSince = (now - last) / 3600000;
-    const recommended = 48; // 48h recovery
-    if (hoursSince >= recommended) return { muscle, status: 'ready', label: '✅ พร้อม train', hours: Math.round(hoursSince) };
-    const pct = Math.round((hoursSince/recommended)*100);
-    return { muscle, status: 'recovering', label: `🔄 Recovery ${pct}%`, hours: Math.round(hoursSince), pct };
-  }).filter(i => i.hours !== null || i.status === 'ready');
+    const pct = Math.min(100, Math.round((hoursSince / 48) * 100));
+    return { muscle, pct, hours: Math.round(hoursSince) };
+  }).filter(Boolean).sort((a,b) => a.pct - b.pct);
 
-  const sorted = items.filter(i=>i.status==='recovering').sort((a,b)=>b.pct-a.pct)
-    .concat(items.filter(i=>i.status==='ready' && i.hours !== null).sort((a,b)=>b.hours-a.hours));
-
-  if (!sorted.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-i">🛌</div><div class="empty-t">ยังไม่มีข้อมูล</div></div>';
+  if (!items.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">🛌</div><div class="et">ยังไม่มีข้อมูล</div></div>';
     return;
   }
-  el.innerHTML = sorted.slice(0,8).map(item => {
-    const bar = item.status === 'recovering'
-      ? `<div class="pb-bg" style="margin-top:5px;"><div class="pb-fill" style="width:${item.pct}%;background:var(--orange);"></div></div>`
-      : '';
+  el.innerHTML = items.slice(0, 8).map(item => {
+    const ready = item.pct >= 100;
+    const color = ready ? 'var(--g2)' : item.pct > 60 ? 'var(--y)' : 'var(--r)';
+    const label = ready ? '✅ พร้อม' : `🔄 ${item.pct}%`;
     return `<div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:13px;font-weight:600;color:var(--text);">${item.muscle}</span>
-        <span style="font-size:12px;color:${item.status==='ready'?'var(--green2)':'var(--orange)'};">${item.label}</span>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:700;color:var(--t);">${item.muscle}</span>
+        <span style="font-size:12px;font-weight:800;color:${color};">${label}</span>
       </div>
-      ${bar}
+      ${!ready ? `<div class="recovery-bar-bg"><div class="recovery-bar-fill" style="width:${item.pct}%;background:${color};"></div></div>` : ''}
     </div>`;
   }).join('');
 }
@@ -1684,13 +1878,12 @@ function switchBodyView(period, el) {
 function showMuscleInfo(muscle) {
   const info = MUSCLE_MAP[muscle];
   if (!info) return;
-  // Count sets for this muscle from current view period
   const cutoff = bodyViewPeriod === 'week' ? Date.now()-7*86400000
                : bodyViewPeriod === 'month' ? Date.now()-30*86400000 : 0;
-  const relevant = (allWorkouts||[]).filter(w => new Date(w.date).getTime() >= cutoff);
-  let totalSets = 0, topEx = '', topSets = 0;
+  const filtered = (allWorkouts||[]).filter(w => new Date(w.date).getTime() >= cutoff);
+  let totalSets = 0;
   const exCounts = {};
-  relevant.forEach(w => {
+  filtered.forEach(w => {
     w.exercises.forEach(ex => {
       if (getMuscleName(ex.name) !== muscle) return;
       const done = ex.sets.filter(s => s.done).length;
@@ -1698,58 +1891,46 @@ function showMuscleInfo(muscle) {
       exCounts[ex.name] = (exCounts[ex.name]||0) + done;
     });
   });
-  if (Object.keys(exCounts).length) {
-    topEx = Object.entries(exCounts).sort((a,b)=>b[1]-a[1])[0][0];
-    topSets = exCounts[topEx];
-  }
-  const period = bodyViewPeriod === 'week' ? 'สัปดาห์นี้' : bodyViewPeriod === 'month' ? 'เดือนนี้' : 'ทั้งหมด';
+  const topEx = Object.entries(exCounts).sort((a,b)=>b[1]-a[1])[0];
+  const period = bodyViewPeriod === 'week' ? 'สัปดาห์' : bodyViewPeriod === 'month' ? 'เดือน' : 'ทั้งหมด';
   const msg = totalSets
-    ? `${info.emoji||'💪'} ${muscle}: ${totalSets} sets ${period}${topEx ? ' · ' + topEx : ''}`
-    : `${info.emoji||'💪'} ${muscle} — ยังไม่ได้ train ${period}`;
+    ? `${info.emoji||'💪'} ${muscle}: ${totalSets} sets (${period})${topEx ? ' · '+topEx[0] : ''}`
+    : `${muscle} — ยังไม่ได้ train ${period}`;
   showToast(msg, '');
 }
+</script>
 
-
+<script>
 // ══ WEIGHT TRACKER ══
+let wtRange2 = 30;
 
-let wtRange = 30;
-let wtChartInst = null;
-
-// ── Init weight inputs ──
 async function initWeightTab() {
   const now = new Date();
   const hh = String(now.getHours()).padStart(2,'0');
   const mm = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('wtTime').value = hh + ':' + mm;
-
+  document.getElementById('wtTime').value = hh+':'+mm;
   const goal = localStorage.getItem('wtGoal');
   if (goal) document.getElementById('wtGoal').value = goal;
-
   const height = localStorage.getItem('wtHeight');
   if (height) document.getElementById('wtHeight').value = height;
-
   await renderWeightTab();
 }
 
-// ── Log weight entry ──
 async function logWeight() {
   const val = parseFloat(document.getElementById('wtInput').value);
   if (!val || val < 20 || val > 300) { showToast('ใส่น้ำหนักให้ถูกต้อง (20-300 kg)', '⚠️'); return; }
   const timeVal = document.getElementById('wtTime').value || '00:00';
   const [hh, mm] = timeVal.split(':');
-  const now = new Date();
-  now.setHours(parseInt(hh), parseInt(mm), 0, 0);
-
-  await dbPut('weights', { date: now.toISOString(), weight: val });
+  const d = new Date(); d.setHours(parseInt(hh), parseInt(mm), 0, 0);
+  await dbPut('weights', { date: d.toISOString(), weight: val });
   document.getElementById('wtInput').value = '';
-  triggerConfetti();
-  showToast('บันทึก ' + val + ' kg แล้ว! 💪', '⚖️');
+  confetti();
+  showToast('บันทึก ' + val + ' kg แล้ว!', '⚖️');
   await renderWeightTab();
 }
 
 function saveGoalWeight() {
-  const val = document.getElementById('wtGoal').value;
-  localStorage.setItem('wtGoal', val);
+  localStorage.setItem('wtGoal', document.getElementById('wtGoal').value);
   renderWeightTab();
 }
 
@@ -1764,210 +1945,128 @@ function recalcBMI() {
   renderBMICard();
 }
 
-// ── Main render ──
 async function renderWeightTab() {
   const all = await dbGetAll('weights');
-  all.sort((a,b) => new Date(a.date) - new Date(b.date));
-
+  all.sort((a,b) => new Date(a.date)-new Date(b.date));
   if (!all.length) {
-    document.getElementById('wtCurrent').textContent = '—';
+    ['wtCurrent','wtMin','wtMax'].forEach(id => document.getElementById(id).textContent = '—');
     document.getElementById('wtChange').textContent = '—';
-    document.getElementById('wtMin').textContent = '—';
-    document.getElementById('wtMax').textContent = '—';
-    document.getElementById('wtTotalEntries').textContent = '0 รายการ';
-    document.getElementById('wtHistoryList').innerHTML =
-      '<div class="empty"><div class="empty-i">⚖️</div><div class="empty-t">กด + เพื่อบันทึกน้ำหนักแรก!</div></div>';
+    document.getElementById('wtTotalEntries').textContent = '0 entries';
+    document.getElementById('wtHistoryList').innerHTML = '<div class="empty"><div class="ei">⚖️</div><div class="et">กด + เพื่อบันทึกน้ำหนักแรก!</div></div>';
     renderWeightChart([], []);
+    document.getElementById('wtGoalCard').style.display = 'none';
     return;
   }
-
   const weights = all.map(e => e.weight);
   const current = all[all.length-1].weight;
   const first = all[0].weight;
-  const diff = Math.round((current - first) * 10) / 10;
-  const diffStr = (diff > 0 ? '+' : '') + diff + ' kg';
-  const diffColor = diff < 0 ? 'var(--green2)' : diff > 0 ? 'var(--red)' : 'var(--text3)';
-
+  const diff = Math.round((current - first)*10)/10;
+  const diffColor = diff < 0 ? 'var(--g2)' : diff > 0 ? 'var(--r)' : 'var(--t3)';
   document.getElementById('wtCurrent').textContent = current + ' kg';
-  document.getElementById('wtChange').innerHTML = `<span style="color:${diffColor};font-size:14px;">${diffStr}</span>`;
+  document.getElementById('wtChange').innerHTML = `<span style="color:${diffColor};font-size:14px;">${diff>0?'+':''}${diff}kg</span>`;
   document.getElementById('wtMin').textContent = Math.min(...weights) + ' kg';
   document.getElementById('wtMax').textContent = Math.max(...weights) + ' kg';
-  document.getElementById('wtTotalEntries').textContent = all.length + ' รายการ';
-
-  // Filter by range
-  const cutoff = wtRange > 0 ? Date.now() - wtRange * 86400000 : 0;
+  document.getElementById('wtTotalEntries').textContent = all.length + ' entries';
+  const cutoff = wtRange > 0 ? Date.now() - wtRange*86400000 : 0;
   const filtered = all.filter(e => new Date(e.date).getTime() >= cutoff);
-
-  const labels = filtered.map(e => {
-    const d = new Date(e.date);
-    return (d.getDate() + '/' + (d.getMonth()+1));
-  });
-  const data = filtered.map(e => e.weight);
-  renderWeightChart(labels, data);
+  const labels = filtered.map(e => { const d=new Date(e.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  renderWeightChart(labels, filtered.map(e => e.weight));
   renderGoalProgress(current, first);
   renderBMICard(current);
   renderWtHistory(all.slice().reverse().slice(0, 20), current);
 }
 
-// ── Weight Chart ──
 function renderWeightChart(labels, data) {
   const ctx = document.getElementById('wtChart').getContext('2d');
   if (wtChartInst) wtChartInst.destroy();
   if (!data.length) return;
-
-  // Calculate 7-day moving average
-  const avg = data.map((_, i) => {
-    const slice = data.slice(Math.max(0, i-3), i+4);
-    return Math.round(slice.reduce((a,b)=>a+b,0)/slice.length * 10)/10;
+  const avg = data.map((_,i) => {
+    const sl = data.slice(Math.max(0,i-3),i+4);
+    return Math.round(sl.reduce((a,b)=>a+b,0)/sl.length*10)/10;
   });
-
   const goal = parseFloat(localStorage.getItem('wtGoal'));
-
   const datasets = [
-    {
-      label: 'น้ำหนัก',
-      data,
-      borderColor: 'rgba(124,95,255,.9)',
-      backgroundColor: 'rgba(124,95,255,.08)',
-      borderWidth: 2,
-      pointBackgroundColor: '#a78bfa',
-      pointRadius: data.length > 30 ? 2 : 4,
-      pointHoverRadius: 6,
-      fill: true,
-      tension: 0.4,
-      order: 2,
-    },
-    {
-      label: 'Trend',
-      data: avg,
-      borderColor: 'rgba(34,211,164,.7)',
-      borderWidth: 2,
-      pointRadius: 0,
-      borderDash: [4,3],
-      fill: false,
-      tension: 0.4,
-      order: 1,
-    }
+    { label:'น้ำหนัก', data, borderColor:'rgba(124,95,255,.9)', backgroundColor:'rgba(124,95,255,.1)', borderWidth:2.5, pointBackgroundColor:'#a78bfa', pointRadius:data.length>30?2:4, fill:true, tension:.4, order:2 },
+    { label:'Trend', data:avg, borderColor:'rgba(0,212,170,.7)', borderWidth:2, pointRadius:0, borderDash:[4,3], fill:false, tension:.4, order:1 },
   ];
-
-  if (goal) {
-    datasets.push({
-      label: 'เป้าหมาย',
-      data: new Array(data.length).fill(goal),
-      borderColor: 'rgba(255,209,102,.6)',
-      borderWidth: 1.5,
-      borderDash: [6,4],
-      pointRadius: 0,
-      fill: false,
-      order: 0,
-    });
-  }
-
-  const minVal = Math.min(...data, goal||Infinity) - 2;
-  const maxVal = Math.max(...data, goal||0) + 2;
-
+  if (goal) datasets.push({ label:'เป้าหมาย', data:new Array(data.length).fill(goal), borderColor:'rgba(255,209,102,.6)', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false, order:0 });
+  const minV = Math.min(...data, goal||Infinity) - 2;
+  const maxV = Math.max(...data, goal||0) + 2;
   wtChartInst = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      plugins: {
-        legend: { display: true, labels: { color: '#9090c0', font: {size:11}, boxWidth:12 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw + ' kg'
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color:'#9090c0', maxTicksLimit:8 }, grid: { display:false } },
-        y: {
-          min: Math.floor(minVal),
-          max: Math.ceil(maxVal),
-          ticks: { color:'#9090c0', maxTicksLimit:6, callback: v => v+'kg' },
-          grid: { color:'rgba(130,100,255,.08)' }
-        }
-      },
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode:'index', intersect:false }
+    type:'line', data:{ labels, datasets },
+    options:{
+      plugins:{ legend:{display:true,labels:{color:'#8888bb',font:{size:11},boxWidth:12}}, tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.raw+' kg'}} },
+      scales:{ x:{ticks:{color:'#8888bb',maxTicksLimit:8},grid:{display:false}}, y:{min:Math.floor(minV),max:Math.ceil(maxV),ticks:{color:'#8888bb',maxTicksLimit:6,callback:v=>v+'kg'},grid:{color:'rgba(120,100,255,.06)'}} },
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}
     }
   });
 }
 
-// ── Goal progress ──
 function renderGoalProgress(current, start) {
   const goalRaw = localStorage.getItem('wtGoal');
   const card = document.getElementById('wtGoalCard');
   if (!goalRaw) { card.style.display = 'none'; return; }
   const goal = parseFloat(goalRaw);
   card.style.display = 'block';
-
-  const totalDiff = start - goal;  // how much to lose/gain
-  const doneDiff  = start - current;
-  let pct = totalDiff !== 0 ? Math.round((doneDiff / totalDiff) * 100) : 100;
+  const totalDiff = start - goal;
+  const doneDiff = start - current;
+  let pct = totalDiff !== 0 ? Math.round((doneDiff/totalDiff)*100) : 100;
   pct = Math.max(0, Math.min(100, pct));
-
   document.getElementById('wtGoalPct').textContent = pct + '%';
   document.getElementById('wtGoalBar').style.width = pct + '%';
   document.getElementById('wtGoalStart').textContent = 'เริ่มต้น: ' + start + ' kg';
   document.getElementById('wtGoalTarget').textContent = 'เป้า: ' + goal + ' kg';
 }
 
-// ── BMI card ──
 function renderBMICard(current) {
   const h = parseFloat(localStorage.getItem('wtHeight'));
-  const card = document.getElementById('wtBMICard');
-  card.style.display = 'block';
   if (!h || !current) {
     document.getElementById('wtBMIVal').textContent = '—';
     document.getElementById('wtBMILabel').textContent = 'ตั้งส่วนสูงเพื่อดู BMI';
+    document.getElementById('wtHeight').value = h || '';
     return;
   }
-  const bmi = Math.round(current / ((h/100)**2) * 10) / 10;
+  const bmi = Math.round(current/((h/100)**2)*10)/10;
   let label, color, pct;
-  if      (bmi < 18.5) { label='น้อยเกินไป';   color='var(--orange)'; pct=15; }
-  else if (bmi < 23)   { label='ปกติ ✓';        color='var(--green2)'; pct=35; }
-  else if (bmi < 25)   { label='ปกติ (เอเชีย)'; color='var(--green2)'; pct=48; }
-  else if (bmi < 30)   { label='น้ำหนักเกิน';   color='var(--yellow)'; pct=65; }
-  else                 { label='อ้วน';           color='var(--red)';    pct=88; }
+  if (bmi<18.5){label='น้อยเกินไป';color='var(--o)';pct=15;}
+  else if (bmi<23){label='ปกติ ✓';color='var(--g2)';pct=35;}
+  else if (bmi<25){label='ปกติ (เอเชีย)';color='var(--g2)';pct=48;}
+  else if (bmi<30){label='น้ำหนักเกิน';color='var(--y)';pct=65;}
+  else{label='อ้วน';color='var(--r)';pct=88;}
   document.getElementById('wtBMIVal').textContent = bmi;
   document.getElementById('wtBMIVal').style.color = color;
   document.getElementById('wtBMILabel').textContent = label;
-  document.getElementById('wtBMIBar').style.width  = pct + '%';
-  document.getElementById('wtBMIBar').style.background = color;
+  document.getElementById('wtBMIBar').style.cssText = `height:8px;width:${pct}%;background:${color};`;
   document.getElementById('wtHeight').value = h;
 }
 
-// ── History list ──
-function renderWtHistory(entries, current) {
+function renderWtHistory(entries) {
   const el = document.getElementById('wtHistoryList');
   if (!entries.length) { el.innerHTML = ''; return; }
-  el.innerHTML = entries.map((e, i) => {
+  el.innerHTML = entries.map((e,i) => {
     const prev = entries[i+1];
-    const diff = prev ? Math.round((e.weight - prev.weight)*10)/10 : null;
-    const diffStr = diff !== null ? (diff > 0 ? '+'+diff : diff) + ' kg' : '';
-    const diffColor = diff < 0 ? 'var(--green2)' : diff > 0 ? 'var(--red)' : 'var(--text3)';
+    const diff = prev ? Math.round((e.weight-prev.weight)*10)/10 : null;
+    const diffColor = diff===null?'':diff<0?'var(--g2)':diff>0?'var(--r)':'var(--t3)';
     const d = new Date(e.date);
-    const dateStr = d.toLocaleDateString('th-TH', {day:'numeric',month:'short'});
-    const timeStr = d.toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit'});
     const isToday = new Date().toDateString() === d.toDateString();
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+    const dateStr = isToday ? 'วันนี้' : d.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
+    const timeStr = d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="wt-hist-row">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:${i===0?'var(--purple)':'var(--bg3)'};display:flex;align-items:center;justify-content:center;font-size:14px;">${i===0?'⚖️':'•'}</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:${i===0?'rgba(124,95,255,.3)':'rgba(255,255,255,.05)'};display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid ${i===0?'var(--p2)':'var(--border)'};">${i===0?'⚖️':'·'}</div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:var(--text);">${e.weight} kg</div>
-          <div style="font-size:11px;color:var(--text3);">${isToday?'วันนี้':dateStr} ${timeStr}</div>
+          <div style="font-size:15px;font-weight:900;color:var(--t);">${e.weight} <span style="font-size:12px;color:var(--t3);font-weight:600;">kg</span></div>
+          <div style="font-size:11px;color:var(--t3);">${dateStr} ${timeStr}</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
-        ${diff !== null ? `<span style="font-size:13px;font-weight:700;color:${diffColor};">${diffStr}</span>` : ''}
-        <button onclick="deleteWeight(${e.id})" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px;">🗑</button>
+        ${diff!==null?`<span style="font-size:13px;font-weight:800;color:${diffColor};">${diff>0?'+':''}${diff}kg</span>`:''}
+        <button onclick="deleteWeight(${e.id})" style="background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:4px;opacity:.6;">🗑</button>
       </div>
     </div>`;
   }).join('');
 }
 
-// ── Delete weight entry ──
 async function deleteWeight(id) {
   if (!confirm('ลบรายการนี้ใช่ไหม?')) return;
   await dbDelete('weights', id);
@@ -1975,46 +2074,38 @@ async function deleteWeight(id) {
   await renderWeightTab();
 }
 
-// ── Range switcher ──
 function switchWtRange(days, el) {
   wtRange = days;
   document.querySelectorAll('#wtRangeChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   renderWeightTab();
 }
-
-// ── Patch switchProgressTab to init weight tab ──
-const _origSwitchProgressTab = switchProgressTab;
-switchProgressTab = function(tab, el) {
-  // Show/hide weight tab
-  const wt = document.getElementById('progressTabWeight');
-  if (wt) wt.style.display = tab === 'weight' ? 'flex' : 'none';
-  if (tab === 'weight') {
-    _origSwitchProgressTab('__skip__', el);
-    document.querySelectorAll('#progressTabs .chip').forEach(c => c.classList.remove('active'));
-    if (el) el.classList.add('active');
-    initWeightTab();
-    return;
-  }
-  _origSwitchProgressTab(tab, el);
-};
-
-// ── Progress tab switcher ──
-function switchProgressTab(tab, el) {
-  document.querySelectorAll('#progressTabs .chip').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-  const overload = document.getElementById('progressTabOverload');
-  const body     = document.getElementById('progressTabBody');
-  if (tab === 'overload') {
-    overload.style.display = 'flex';
-    body.style.display = 'none';
-  } else {
-    overload.style.display = 'none';
-    body.style.display = 'flex';
-    renderBodyMap();
-  }
-}
 </script>
 
+<script>
+// ══ INIT ══
+async function init() {
+  await openDB();
+  allWorkouts = await dbGetAll('workouts');
+  updateGreeting();
+  navTo('home');
+  renderExSuggestions('');
+}
+
+window.addEventListener('load', () => {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  script.onload = () => init();
+  script.onerror = () => init();
+  document.head.appendChild(script);
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</div>
 </body>
 </html>
