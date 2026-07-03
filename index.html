@@ -227,6 +227,7 @@ canvas.chart{width:100%!important;height:180px!important;}
   <div class="page-hdr"><div><div class="page-title">📈 Progress</div><div class="page-sub">Overload + Body Map</div></div></div>
   <div class="chip-row" id="progressTabs">
     <div class="chip active" onclick="switchProgressTab('overload',this)">📈 Overload</div>
+    <div class="chip" onclick="switchProgressTab('weight',this)">⚖️ น้ำหนัก</div>
     <div class="chip" onclick="switchProgressTab('body',this)">🫀 Body Map</div>
   </div>
   <div id="progressTabOverload" style="display:flex;flex-direction:column;gap:16px;">
@@ -492,7 +493,7 @@ canvas.chart{width:100%!important;height:180px!important;}
 // ══════════════════════════════════════════
 
 // ── DB ──
-const DB_NAME = 'FitTrackPro', DB_VER = 1;
+const DB_NAME = 'FitTrackPro', DB_VER = 2;
 let db;
 function openDB() {
   return new Promise((res, rej) => {
@@ -505,6 +506,10 @@ function openDB() {
       }
       if (!d.objectStoreNames.contains('exercises')) {
         d.createObjectStore('exercises', {keyPath:'name'});
+      }
+      if (!d.objectStoreNames.contains('weights')) {
+        const ws2 = d.createObjectStore('weights', {keyPath:'id', autoIncrement:true});
+        ws2.createIndex('date','date',{unique:false});
       }
     };
     req.onsuccess = e => { db = e.target.result; res(db); };
@@ -1519,6 +1524,296 @@ function showMuscleInfo(muscle) {
   const breakdownEl = document.getElementById('muscleBreakdown');
   showToast(muscle + ' — กดดูใน breakdown ด้านล่าง', '💪');
 }
+
+
+// ══ WEIGHT TRACKER ══
+
+let wtRange = 30;
+let wtChartInst = null;
+
+// ── Init weight inputs ──
+async function initWeightTab() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('wtTime').value = hh + ':' + mm;
+
+  const goal = localStorage.getItem('wtGoal');
+  if (goal) document.getElementById('wtGoal').value = goal;
+
+  const height = localStorage.getItem('wtHeight');
+  if (height) document.getElementById('wtHeight').value = height;
+
+  await renderWeightTab();
+}
+
+// ── Log weight entry ──
+async function logWeight() {
+  const val = parseFloat(document.getElementById('wtInput').value);
+  if (!val || val < 20 || val > 300) { showToast('ใส่น้ำหนักให้ถูกต้อง (20-300 kg)', '⚠️'); return; }
+  const timeVal = document.getElementById('wtTime').value || '00:00';
+  const [hh, mm] = timeVal.split(':');
+  const now = new Date();
+  now.setHours(parseInt(hh), parseInt(mm), 0, 0);
+
+  await dbPut('weights', { date: now.toISOString(), weight: val });
+  document.getElementById('wtInput').value = '';
+  triggerConfetti();
+  showToast('บันทึก ' + val + ' kg แล้ว! 💪', '⚖️');
+  await renderWeightTab();
+}
+
+function saveGoalWeight() {
+  const val = document.getElementById('wtGoal').value;
+  localStorage.setItem('wtGoal', val);
+  renderWeightTab();
+}
+
+function toggleHeightInput() {
+  const row = document.getElementById('wtHeightRow');
+  row.style.display = row.style.display === 'none' ? 'block' : 'none';
+}
+
+function recalcBMI() {
+  const h = parseFloat(document.getElementById('wtHeight').value);
+  if (h) localStorage.setItem('wtHeight', h);
+  renderBMICard();
+}
+
+// ── Main render ──
+async function renderWeightTab() {
+  const all = await dbGetAll('weights');
+  all.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  if (!all.length) {
+    document.getElementById('wtCurrent').textContent = '—';
+    document.getElementById('wtChange').textContent = '—';
+    document.getElementById('wtMin').textContent = '—';
+    document.getElementById('wtMax').textContent = '—';
+    document.getElementById('wtTotalEntries').textContent = '0 รายการ';
+    document.getElementById('wtHistoryList').innerHTML =
+      '<div class="empty"><div class="empty-i">⚖️</div><div class="empty-t">กด + เพื่อบันทึกน้ำหนักแรก!</div></div>';
+    renderWeightChart([], []);
+    return;
+  }
+
+  const weights = all.map(e => e.weight);
+  const current = all[all.length-1].weight;
+  const first = all[0].weight;
+  const diff = Math.round((current - first) * 10) / 10;
+  const diffStr = (diff > 0 ? '+' : '') + diff + ' kg';
+  const diffColor = diff < 0 ? 'var(--green2)' : diff > 0 ? 'var(--red)' : 'var(--text3)';
+
+  document.getElementById('wtCurrent').textContent = current + ' kg';
+  document.getElementById('wtChange').innerHTML = `<span style="color:${diffColor};font-size:14px;">${diffStr}</span>`;
+  document.getElementById('wtMin').textContent = Math.min(...weights) + ' kg';
+  document.getElementById('wtMax').textContent = Math.max(...weights) + ' kg';
+  document.getElementById('wtTotalEntries').textContent = all.length + ' รายการ';
+
+  // Filter by range
+  const cutoff = wtRange > 0 ? Date.now() - wtRange * 86400000 : 0;
+  const filtered = all.filter(e => new Date(e.date).getTime() >= cutoff);
+
+  const labels = filtered.map(e => {
+    const d = new Date(e.date);
+    return (d.getDate() + '/' + (d.getMonth()+1));
+  });
+  const data = filtered.map(e => e.weight);
+  renderWeightChart(labels, data);
+  renderGoalProgress(current, first);
+  renderBMICard(current);
+  renderWtHistory(all.slice().reverse().slice(0, 20), current);
+}
+
+// ── Weight Chart ──
+function renderWeightChart(labels, data) {
+  const ctx = document.getElementById('wtChart').getContext('2d');
+  if (wtChartInst) wtChartInst.destroy();
+  if (!data.length) return;
+
+  // Calculate 7-day moving average
+  const avg = data.map((_, i) => {
+    const slice = data.slice(Math.max(0, i-3), i+4);
+    return Math.round(slice.reduce((a,b)=>a+b,0)/slice.length * 10)/10;
+  });
+
+  const goal = parseFloat(localStorage.getItem('wtGoal'));
+
+  const datasets = [
+    {
+      label: 'น้ำหนัก',
+      data,
+      borderColor: 'rgba(124,95,255,.9)',
+      backgroundColor: 'rgba(124,95,255,.08)',
+      borderWidth: 2,
+      pointBackgroundColor: '#a78bfa',
+      pointRadius: data.length > 30 ? 2 : 4,
+      pointHoverRadius: 6,
+      fill: true,
+      tension: 0.4,
+      order: 2,
+    },
+    {
+      label: 'Trend',
+      data: avg,
+      borderColor: 'rgba(34,211,164,.7)',
+      borderWidth: 2,
+      pointRadius: 0,
+      borderDash: [4,3],
+      fill: false,
+      tension: 0.4,
+      order: 1,
+    }
+  ];
+
+  if (goal) {
+    datasets.push({
+      label: 'เป้าหมาย',
+      data: new Array(data.length).fill(goal),
+      borderColor: 'rgba(255,209,102,.6)',
+      borderWidth: 1.5,
+      borderDash: [6,4],
+      pointRadius: 0,
+      fill: false,
+      order: 0,
+    });
+  }
+
+  const minVal = Math.min(...data, goal||Infinity) - 2;
+  const maxVal = Math.max(...data, goal||0) + 2;
+
+  wtChartInst = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      plugins: {
+        legend: { display: true, labels: { color: '#9090c0', font: {size:11}, boxWidth:12 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw + ' kg'
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color:'#9090c0', maxTicksLimit:8 }, grid: { display:false } },
+        y: {
+          min: Math.floor(minVal),
+          max: Math.ceil(maxVal),
+          ticks: { color:'#9090c0', maxTicksLimit:6, callback: v => v+'kg' },
+          grid: { color:'rgba(130,100,255,.08)' }
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false }
+    }
+  });
+}
+
+// ── Goal progress ──
+function renderGoalProgress(current, start) {
+  const goalRaw = localStorage.getItem('wtGoal');
+  const card = document.getElementById('wtGoalCard');
+  if (!goalRaw) { card.style.display = 'none'; return; }
+  const goal = parseFloat(goalRaw);
+  card.style.display = 'block';
+
+  const totalDiff = start - goal;  // how much to lose/gain
+  const doneDiff  = start - current;
+  let pct = totalDiff !== 0 ? Math.round((doneDiff / totalDiff) * 100) : 100;
+  pct = Math.max(0, Math.min(100, pct));
+
+  document.getElementById('wtGoalPct').textContent = pct + '%';
+  document.getElementById('wtGoalBar').style.width = pct + '%';
+  document.getElementById('wtGoalStart').textContent = 'เริ่มต้น: ' + start + ' kg';
+  document.getElementById('wtGoalTarget').textContent = 'เป้า: ' + goal + ' kg';
+}
+
+// ── BMI card ──
+function renderBMICard(current) {
+  const h = parseFloat(localStorage.getItem('wtHeight'));
+  const card = document.getElementById('wtBMICard');
+  card.style.display = 'block';
+  if (!h || !current) {
+    document.getElementById('wtBMIVal').textContent = '—';
+    document.getElementById('wtBMILabel').textContent = 'ตั้งส่วนสูงเพื่อดู BMI';
+    return;
+  }
+  const bmi = Math.round(current / ((h/100)**2) * 10) / 10;
+  let label, color, pct;
+  if      (bmi < 18.5) { label='น้อยเกินไป';   color='var(--orange)'; pct=15; }
+  else if (bmi < 23)   { label='ปกติ ✓';        color='var(--green2)'; pct=35; }
+  else if (bmi < 25)   { label='ปกติ (เอเชีย)'; color='var(--green2)'; pct=48; }
+  else if (bmi < 30)   { label='น้ำหนักเกิน';   color='var(--yellow)'; pct=65; }
+  else                 { label='อ้วน';           color='var(--red)';    pct=88; }
+  document.getElementById('wtBMIVal').textContent = bmi;
+  document.getElementById('wtBMIVal').style.color = color;
+  document.getElementById('wtBMILabel').textContent = label;
+  document.getElementById('wtBMIBar').style.width  = pct + '%';
+  document.getElementById('wtBMIBar').style.background = color;
+  document.getElementById('wtHeight').value = h;
+}
+
+// ── History list ──
+function renderWtHistory(entries, current) {
+  const el = document.getElementById('wtHistoryList');
+  if (!entries.length) { el.innerHTML = ''; return; }
+  el.innerHTML = entries.map((e, i) => {
+    const prev = entries[i+1];
+    const diff = prev ? Math.round((e.weight - prev.weight)*10)/10 : null;
+    const diffStr = diff !== null ? (diff > 0 ? '+'+diff : diff) + ' kg' : '';
+    const diffColor = diff < 0 ? 'var(--green2)' : diff > 0 ? 'var(--red)' : 'var(--text3)';
+    const d = new Date(e.date);
+    const dateStr = d.toLocaleDateString('th-TH', {day:'numeric',month:'short'});
+    const timeStr = d.toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit'});
+    const isToday = new Date().toDateString() === d.toDateString();
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${i===0?'var(--purple)':'var(--bg3)'};display:flex;align-items:center;justify-content:center;font-size:14px;">${i===0?'⚖️':'•'}</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);">${e.weight} kg</div>
+          <div style="font-size:11px;color:var(--text3);">${isToday?'วันนี้':dateStr} ${timeStr}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${diff !== null ? `<span style="font-size:13px;font-weight:700;color:${diffColor};">${diffStr}</span>` : ''}
+        <button onclick="deleteWeight(${e.id})" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px;">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Delete weight entry ──
+async function deleteWeight(id) {
+  if (!confirm('ลบรายการนี้ใช่ไหม?')) return;
+  await dbDelete('weights', id);
+  showToast('ลบแล้ว', '🗑');
+  await renderWeightTab();
+}
+
+// ── Range switcher ──
+function switchWtRange(days, el) {
+  wtRange = days;
+  document.querySelectorAll('#wtRangeChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderWeightTab();
+}
+
+// ── Patch switchProgressTab to init weight tab ──
+const _origSwitchProgressTab = switchProgressTab;
+switchProgressTab = function(tab, el) {
+  // Show/hide weight tab
+  const wt = document.getElementById('progressTabWeight');
+  if (wt) wt.style.display = tab === 'weight' ? 'flex' : 'none';
+  if (tab === 'weight') {
+    _origSwitchProgressTab('__skip__', el);
+    document.querySelectorAll('#progressTabs .chip').forEach(c => c.classList.remove('active'));
+    if (el) el.classList.add('active');
+    initWeightTab();
+    return;
+  }
+  _origSwitchProgressTab(tab, el);
+};
 
 // ── Progress tab switcher ──
 function switchProgressTab(tab, el) {
