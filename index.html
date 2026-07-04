@@ -91,6 +91,8 @@ body::before{
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 @keyframes floatIn{0%{opacity:0;transform:translateY(20px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes confettiDrop{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(80px) rotate(720deg)}}
+@keyframes musclePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.8}}
+@keyframes glowPulse{0%,100%{opacity:.2}50%{opacity:.5}}
 
 /* ── NAV ── */
 #nav{
@@ -1309,21 +1311,29 @@ const EXERCISES=[
 ];
 const EXERCISE_GIFS={'Arnold Press':'https://static.exercisedb.dev/media/UM8mgyG.gif','Assisted Dip':'https://static.exercisedb.dev/media/PAgTVaK.gif','Assisted Pull-Up':'https://static.exercisedb.dev/media/r1XNRYB.gif','Assisted Tricep Dip':'https://static.exercisedb.dev/media/PAgTVaK.gif','Band Pull Apart':'https://static.exercisedb.dev/media/VtTbiP3.gif','Barbell Curl':'https://static.exercisedb.dev/media/6TG6x2w.gif','Barbell Row':'https://static.exercisedb.dev/media/eZyBC3j.gif','Barbell Shrug':'https://static.exercisedb.dev/media/dG7tG5y.gif','Bench Press':'https://static.exercisedb.dev/media/trqKQv2.gif','Bicep Curl':'https://static.exercisedb.dev/media/q6y3OhV.gif','Bulgarian Split Squat':'https://static.exercisedb.dev/media/arsYEd3.gif','Burpee':'https://static.exercisedb.dev/media/mr7pkqP.gif','Cable Crossover':'https://static.exercisedb.dev/media/UFGF6gk.gif','Cable Crunch':'https://static.exercisedb.dev/media/WW95auq.gif','Cable Curl':'https://static.exercisedb.dev/media/G08RZcQ.gif','Cable Fly':'https://static.exercisedb.dev/media/aqvSOQE.gif','Cable Hammer Curl':'https://static.exercisedb.dev/media/HPlPoQA.gif','Cable Hip Abduction':'https://static.exercisedb.dev/media/hBGWILP.gif','Cable Kickback':'https://static.exercisedb.dev/media/HEJ6DIX.gif','Cable Lateral Raise':'https://static.exercisedb.dev/media/goJ6ezq.gif','Cable Overhead Extension':'https://static.exercisedb.dev/media/1xHyxys.gif','Cable Reverse Fly':'https://static.exercisedb.dev/media/P5p0j8B.gif','Cable Row':'https://static.exercisedb.dev/media/kesXOpB.gif','Cable Shrug':'https://static.exercisedb.dev/media/Eg98Ft9.gif','Cable Side Bend':'https://static.exercisedb.dev/media/wPypxFY.gif','Calf Raise':'https://static.exercisedb.dev/media/6HmFgmx.gif','Captain Chair Leg Raise':'https://static.exercisedb.dev/media/weoDEpH.gif','Chest Press Machine':'https://static.exercisedb.dev/media/wDN97Ca.gif','Chin-Up':'https://static.exercisedb.dev/media/T2mxWqc.gif','Close Grip Bench':'https://static.exercisedb.dev/media/gx7s7uF.gif','Close Grip Lat Pulldown':'https://static.exercisedb.dev/media/4LoWllp.gif','Concentration Curl':'https://static.exercisedb.dev/media/gvsWLQw.gif','Crunch':'https://static.exercisedb.dev/media/s8nrDXF.gif','Deadlift':'https://static.exercisedb.dev/media/UfePqpx.gif','Decline Bench Press':'https://static.exercisedb.dev/media/ETZfAbZ.gif','Decline Crunch':'https://static.exercisedb.dev/media/9Ap7miY.gif','Dip':'https://static.exercisedb.dev/media/Wgbn9qo.gif','Donkey Calf Raise':'https://static.exercisedb.dev/media/LmaFNZS.gif','Dumbbell Curl':'https://static.exercisedb.dev/media/CfKsRbG.gif','Dumbbell Fly':'https://static.exercisedb.dev/media/P9ZRyLT.gif','Dumbbell Press':'https://static.exercisedb.dev/media/izMnLqz.gif','Dumbbell Row':'https://static.exercisedb.dev/media/BJ0Hz5L.gif','Dumbbell Shoulder Press':'https://static.exercisedb.dev/media/84RyJf8.gif','Dumbbell Shrug':'https://static.exercisedb.dev/media/NJzBsGJ.gif','EZ Bar Curl':'https://static.exercisedb.dev/media/Dsfz0Id.gif','Front Raise':'https://static.exercisedb.dev/media/e4aFmFY.gif','Front Squat':'https://static.exercisedb.dev/media/lFhb2Rw.gif','Glute Bridge':'https://static.exercisedb.dev/media/qKBpF7I.gif','Goblet Squat':'https://static.exercisedb.dev/media/ZA8b5hc.gif','Good Morning':'https://static.exercisedb.dev/media/XlZ4lAC.gif','Hack Squat':'https://static.exercisedb.dev/media/ZuPXtCK.gif','Hammer Curl':'https://static.exercisedb.dev/media/slDvUAU.gif','Hanging Knee Raise':'https://static.exercisedb.dev/media/03lzqwk.gif','Hanging Leg Raise':'https://static.exercisedb.dev/media/I3tsCnC.gif','Hanging Side Raise':'https://static.exercisedb.dev/media/03lzqwk.gif','High Cable Fly':'https://static.exercisedb.dev/media/P5p0j8B.gif','Hip Abductor Machine':'https://static.exercisedb.dev/media/mQ1tBXn.gif','Incline Bench Press':'https://static.exercisedb.dev/media/5v7KYld.gif','Incline Chest Press Machine':'https://static.exercisedb.dev/media/PDaMuyV.gif','Incline Dumbbell Curl':'https://static.exercisedb.dev/media/F3xgbjF.gif','Incline Dumbbell Fly':'https://static.exercisedb.dev/media/ESOd5Pl.gif','Incline Dumbbell Press':'https://static.exercisedb.dev/media/TVdivgY.gif','Jump Rope':'https://static.exercisedb.dev/media/e1e76I2.gif','Kickback':'https://static.exercisedb.dev/media/W6PxUkg.gif','Lat Pulldown':'https://static.exercisedb.dev/media/LEprlgG.gif','Lateral Raise':'https://static.exercisedb.dev/media/dRTfGZT.gif','Leg Curl':'https://static.exercisedb.dev/media/0rHfvy9.gif','Leg Extension':'https://static.exercisedb.dev/media/my33uHU.gif','Leg Press':'https://static.exercisedb.dev/media/7zdxRTl.gif','Leg Press Calf Raise':'https://static.exercisedb.dev/media/IeDEXTe.gif','Leg Press Machine':'https://static.exercisedb.dev/media/IeDEXTe.gif','Leg Raise':'https://static.exercisedb.dev/media/ZNgOYQU.gif','Low Cable Fly':'https://static.exercisedb.dev/media/FVmZVhk.gif','Lunge':'https://static.exercisedb.dev/media/IZVHb27.gif','Lying Leg Curl':'https://static.exercisedb.dev/media/17lJ1kr.gif','Machine Lateral Raise':'https://static.exercisedb.dev/media/UGhRD1A.gif','Machine Preacher Curl':'https://static.exercisedb.dev/media/SYJ4Bkt.gif','Machine Shoulder Press':'https://static.exercisedb.dev/media/peAeMR3.gif','Machine Tricep Extension':'https://static.exercisedb.dev/media/o8aOcrz.gif','Military Press':'https://static.exercisedb.dev/media/CggQhII.gif','Oblique Crunch':'https://static.exercisedb.dev/media/cJgSTmh.gif','Overhead Press':'https://static.exercisedb.dev/media/u4bAmKp.gif','Overhead Tricep Extension':'https://static.exercisedb.dev/media/1xHyxys.gif','Pendlay Row':'https://static.exercisedb.dev/media/r0z6xzQ.gif','Preacher Curl':'https://static.exercisedb.dev/media/b6hQYMb.gif','Pull-Up':'https://static.exercisedb.dev/media/HMzLjXx.gif','Push-Up':'https://static.exercisedb.dev/media/IaGQCrC.gif','Reverse Curl':'https://static.exercisedb.dev/media/eOG0r6v.gif','Reverse Fly':'https://static.exercisedb.dev/media/EAs3xL9.gif','Reverse Wrist Curl':'https://static.exercisedb.dev/media/BLCvwr2.gif','Romanian Deadlift':'https://static.exercisedb.dev/media/rR0LJzx.gif','Rope Curl':'https://static.exercisedb.dev/media/PcPe0P5.gif','Russian Twist':'https://static.exercisedb.dev/media/WU9BLIs.gif','Seated Cable Row':'https://static.exercisedb.dev/media/kesXOpB.gif','Seated Calf Raise':'https://static.exercisedb.dev/media/bOOdeyc.gif','Seated Leg Curl':'https://static.exercisedb.dev/media/Zg3XY7P.gif','Seated Row':'https://static.exercisedb.dev/media/7I6LNUG.gif','Shoulder Press Machine':'https://static.exercisedb.dev/media/peAeMR3.gif','Side Bend':'https://static.exercisedb.dev/media/6bOA1Oi.gif','Side Plank':'https://static.exercisedb.dev/media/5VXmnV5.gif','Single Arm Lat Pulldown':'https://static.exercisedb.dev/media/pmnrOp0.gif','Single Arm Pushdown':'https://static.exercisedb.dev/media/arsYEd3.gif','Sissy Squat':'https://static.exercisedb.dev/media/0lQnxMZ.gif','Skull Crusher':'https://static.exercisedb.dev/media/h8LFzo9.gif','Smith Bench Press':'https://static.exercisedb.dev/media/trqKQv2.gif','Smith Incline Press':'https://static.exercisedb.dev/media/5v7KYld.gif','Smith Overhead Press':'https://static.exercisedb.dev/media/u4bAmKp.gif','Smith Shrug':'https://static.exercisedb.dev/media/OUQ0ZyW.gif','Smith Squat':'https://static.exercisedb.dev/media/jFtipLl.gif','Squat':'https://static.exercisedb.dev/media/JZuApnB.gif','Standing Cable Crunch':'https://static.exercisedb.dev/media/XU3ePuv.gif','Standing Calf Raise':'https://static.exercisedb.dev/media/6HmFgmx.gif','Stiff Leg Deadlift':'https://static.exercisedb.dev/media/5eLRITT.gif','Straight Arm Pulldown':'https://static.exercisedb.dev/media/DT14T9T.gif','Sumo Deadlift':'https://static.exercisedb.dev/media/KgI0tqW.gif','T-Bar Row':'https://static.exercisedb.dev/media/BgljGjd.gif','Trap Bar Deadlift':'https://static.exercisedb.dev/media/jQGwmxN.gif','Tricep Pushdown':'https://static.exercisedb.dev/media/qRZ5S1N.gif','Wide Grip Lat Pulldown':'https://static.exercisedb.dev/media/CmEr4pM.gif','Wrist Curl':'https://static.exercisedb.dev/media/LrV4s90.gif'};
 function gifBtn(name){
-  if(!EXERCISE_GIFS[name])return'';
   var safe=name.replace(/'/g,"\\'");
-  return' <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showExerciseGif(\''+safe+'\')" style="padding:4px 10px;font-size:11px;font-weight:700;background:rgba(124,95,255,.2);border:1px solid rgba(124,95,255,.3);" title="ดูท่าออกกำลังกาย">🎬 ดูท่า</button>';
+  return' <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showExerciseGif(\''+safe+'\')" style="padding:4px 10px;font-size:11px;font-weight:700;background:rgba(124,95,255,.2);border:1px solid rgba(124,95,255,.3);cursor:pointer;transition:all .2s;" title="ดูกล้ามเนื้อที่ใช้">🎯 กล้ามเนื้อ</button>';
 }
 function showExerciseGif(name){
-  var u=EXERCISE_GIFS[name];if(!u){showToast('No animation','\u26a0');return;}
-  var img=document.getElementById('gifImage');img.style.display='';
-  document.getElementById('gifFallback').style.display='none';
-  img.src=u;
-  document.getElementById('gifTitle').textContent=name;
-  document.getElementById('gifModal').style.display='flex';
+  var ex=EXERCISES.find(function(e){return e.name===name;});
+  var muscle=ex?ex.muscle:'';
+  var type=ex?ex.type:'';
+  var typeLabel={weight:'Weight',bodyweight:'Bodyweight',cardio:'Cardio',machine:'Machine',band:'Band',assisted:'Assisted'};
+  var modal=document.getElementById('muscleModal');
+  document.getElementById('muscleExName').textContent=name;
+  document.getElementById('muscleGroup').textContent=muscle||'General';
+  document.getElementById('muscleType').textContent=typeLabel[type]||type;
+  var badge=document.getElementById('muscleBadge');
+  var colors={Chest:'#ff4d7e',Back:'#5b9bd5',Shoulders:'#ff8534',Arms:'#c4b2ff',Legs:'#00d4aa',Core:'#ffd166',Cardio:'#ff4d7e',Glutes:'#ff8534'};
+  badge.style.background=colors[muscle]||'#7c5fff';
+  badge.style.boxShadow='0 0 30px '+(colors[muscle]||'#7c5fff')+'80';
+  document.getElementById('muscleGlow').style.background=colors[muscle]||'#7c5fff';
+  var emoji={Chest:'💪',Back:'🔷',Shoulders:'🔶',Arms:'💪',Legs:'🦵',Core:'🔵',Cardio:'❤️',Glutes:'🔶'};
+  document.getElementById('muscleEmoji').textContent=emoji[muscle]||'🏋️';
+  modal.style.display='flex';
 }
 function closeGifModal(){
-  document.getElementById('gifModal').style.display='none';
-  document.getElementById('gifImage').src='';
+  document.getElementById('muscleModal').style.display='none';
 }
 
 
@@ -2771,21 +2781,25 @@ window.addEventListener('appinstalled', () => {
 </script>
 
 
-<div id="gifModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,.85);justify-content:center;align-items:center;flex-direction:column;" onclick="closeGifModal()">
-  <div style="position:relative;max-width:380px;width:90%;background:var(--surface);border-radius:20px;padding:16px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.6);" onclick="event.stopPropagation()">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div id="gifTitle" style="font-size:16px;font-weight:800;color:var(--t);"></div>
-      <button onclick="closeGifModal()" style="background:none;border:none;color:var(--t3);font-size:22px;cursor:pointer;line-height:1;">✕</button>
+<div id="muscleModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,.88);justify-content:center;align-items:center;flex-direction:column;" onclick="closeGifModal()">
+    <div id="muscleCard" onclick="event.stopPropagation()" style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;max-width:340px;width:90%;text-align:center;position:relative;overflow:hidden;">
+      <div id="muscleGlow" style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:200px;border-radius:50%;filter:blur(60px);opacity:.3;animation:glowPulse 2s ease-in-out infinite;"></div>
+      <div id="muscleEmoji" style="font-size:64px;margin-bottom:8px;position:relative;z-index:1;animation:musclePulse 2s ease-in-out infinite;">🏋️</div>
+      <h3 id="muscleExName" style="font-size:22px;font-weight:700;color:var(--t);margin:0 0 4px;position:relative;z-index:1;">Bench Press</h3>
+      <div id="muscleBadge" style="display:inline-block;padding:6px 18px;border-radius:20px;font-size:13px;font-weight:600;color:#fff;margin:8px 0;position:relative;z-index:1;letter-spacing:.5px;text-transform:uppercase;">
+        <span id="muscleGroup">Chest</span>
+      </div>
+      <div style="font-size:13px;color:var(--t2);margin:8px 0;position:relative;z-index:1;">
+        🏋️‍♂️ <span id="muscleType">Weight</span>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:rgba(124,95,255,.08);border-radius:12px;position:relative;z-index:1;">
+        <div style="font-size:12px;color:var(--t2);line-height:1.5;">
+          💡 ดูกล้ามเนื้อทั้งหมดได้ที่<br><b>Progress → Body Map</b>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-size:11px;color:var(--t3);position:relative;z-index:1;">แตะเพื่อปิด</div>
     </div>
-    <img id="gifImage" src="" alt="Animation" style="width:100%;height:auto;border-radius:12px;background:rgba(0,0,0,.3);" loading="lazy" onerror="this.style.display='none';document.getElementById('gifFallback').style.display='flex';"/>
-    <div id="gifFallback" style="display:none;flex-direction:column;align-items:center;gap:12px;padding:20px;">
-      <div style="font-size:48px;">🏋️</div>
-      <div style="font-size:14px;color:var(--t3);">ภาพ animation โหลดไม่ได้</div>
-      <div style="font-size:11px;color:var(--t4);">CDN อาจไม่พร้อมใช้งานในเครือข่ายนี้</div>
-    </div>
-    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Source: ExerciseDB</div>
   </div>
-</div>
 
 </body>
 </html>
