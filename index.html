@@ -1659,6 +1659,8 @@ function renderEditableModal(){
       html+=`<button class="btn btn-ghost btn-sm" onclick="addSetToEdit(${ei})" style="margin-top:6px;padding:5px 12px;font-size:11px;">+ Set</button>`;
       html+=`</div>`;
     });
+    html+=`<button class="btn btn-p btn-sm" onclick="showAddExSelector()" style="margin-top:8px;padding:8px 14px;font-size:12px;width:100%;">➕ เพิ่มท่า</button>`;
+    html+=`<div id="addExSelector" style="display:none;margin-top:8px;max-height:220px;overflow-y:auto;background:rgba(0,0,0,.2);border-radius:10px;padding:8px;"></div>`;
     document.getElementById('modalBody').innerHTML=html;
     window._editWorkout=w;
   });
@@ -1702,6 +1704,45 @@ async function saveWorkoutEdits(){
   openWorkoutDetail(currentModalWorkoutId); // refresh view
   if(currentPage==='home')renderHome();
   if(currentPage==='history')renderHistory('all');
+}
+
+function showAddExSelector(){
+  var sel=document.getElementById('addExSelector');
+  if(sel.style.display==='block'){ sel.style.display='none'; return; }
+  sel.style.display='block';
+  var current=window._editWorkout?window._editWorkout.exercises.map(function(e){return e.name}):[];
+  var html='<input type="text" class="inp" id="addExSearch" placeholder="\ud83d\udd0d \u0e04\u0e49\u0e19\u0e2b\u0e32\u0e17\u0e48\u0e32..." style="width:100%;margin-bottom:6px;">';
+  EXERCISES.forEach(function(ex){
+    var already=current.includes(ex.name);
+    var safe=ex.name.replace(/'/g,"\\'");
+    html+='<div class="ex-opt" data-name="'+safe+'" style="padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--t2);margin:2px 0;">'+(already?'\u2705 ':'')+ex.name+' <span style="font-size:10px;color:var(--t3);">'+ex.muscle+'</span></div>';
+  });
+  sel.innerHTML=html;
+  // Attach search filter + click handlers
+  document.getElementById('addExSearch').oninput=function(){
+    var v=this.value.toLowerCase();
+    sel.querySelectorAll('.ex-opt').forEach(function(el){
+      el.style.display=el.textContent.toLowerCase().includes(v)?'block':'none';
+    });
+  };
+  sel.querySelectorAll('.ex-opt').forEach(function(el){
+    el.onclick=function(){ addExerciseToEdit(el.dataset.name); };
+    el.onmouseenter=function(){
+      el.style.background='rgba(124,95,255,.15)'; el.style.color='var(--t)';
+    };
+    el.onmouseleave=function(){
+      el.style.background=''; el.style.color='var(--t2)';
+    };
+  });
+}
+
+function addExerciseToEdit(name){
+  if(!window._editWorkout) return;
+  var ex=EXERCISES.find(function(e){return e.name===name});
+  if(!ex) return;
+  window._editWorkout.exercises.push({name:ex.name,muscle:ex.muscle,type:ex.type,sets:[{weight:'',reps:'',done:false}]});
+  document.getElementById('addExSelector').style.display='none';
+  renderEditableModal();
 }
 
 // ── LOG PAST WORKOUT ──
