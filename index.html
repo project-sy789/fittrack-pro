@@ -982,6 +982,8 @@ canvas.chart{width:100%!important;height:180px!important;}
       <div class="card">
         <div class="stitle" style="margin-bottom:14px;">🛌 Recovery Status</div>
         <div id="recoveryStatus" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+    </div>
 
     <!-- ── TAB: RECORDS ── -->
     <div id="progressTabRecords" style="display:none;flex-direction:column;gap:14px;">
@@ -991,8 +993,8 @@ canvas.chart{width:100%!important;height:180px!important;}
         <div id="prRecordsList" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
     </div>
-      </div>
-    </div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -1846,6 +1848,8 @@ async function savePastWorkout(){
   const saved={name:pastData.name.trim(),exercises:pastData.exercises,date:dateStr,duration:0};
   await dbPut('workouts',saved);
   allWorkouts.push(saved);
+  // Check for Personal Records
+  await checkAllPRs(saved);
   closeModal('logPastModal');
   confetti();
   showToast('บันทึกย้อนหลังแล้ว! 📅','✅');
