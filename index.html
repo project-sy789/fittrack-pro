@@ -1711,7 +1711,8 @@ function showAddExSelector(){
   if(sel.style.display==='block'){ sel.style.display='none'; return; }
   sel.style.display='block';
   var current=window._editWorkout?window._editWorkout.exercises.map(function(e){return e.name}):[];
-  var html='<input type="text" class="inp" id="addExSearch" placeholder="\ud83d\udd0d \u0e04\u0e49\u0e19\u0e2b\u0e32\u0e17\u0e48\u0e32..." style="width:100%;margin-bottom:6px;">';
+  var html='<button class="btn btn-p btn-sm" onclick="addAllExercisesToEdit()" style="width:100%;padding:10px;font-size:14px;font-weight:800;margin-bottom:8px;">✅ เพิ่มทั้งหมด ('+EXERCISES.length+' ท่า)</button>';
+  html+='<input type="text" class="inp" id="addExSearch" placeholder="\ud83d\udd0d \u0e04\u0e49\u0e19\u0e2b\u0e32\u0e17\u0e48\u0e32..." style="width:100%;margin-bottom:6px;">';
   EXERCISES.forEach(function(ex){
     var already=current.includes(ex.name);
     var esc=ex.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -1725,6 +1726,21 @@ function showAddExSelector(){
       el.style.display=el.textContent.toLowerCase().includes(v)?'block':'none';
     });
   };
+}
+
+function addAllExercisesToEdit(){
+  if(!window._editWorkout) return;
+  var current=window._editWorkout.exercises.map(function(e){return e.name});
+  var added=0;
+  EXERCISES.forEach(function(ex){
+    if(!current.includes(ex.name)){
+      window._editWorkout.exercises.push({name:ex.name,muscle:ex.muscle,type:ex.type,sets:[{weight:'',reps:'',done:false}]});
+      added++;
+    }
+  });
+  document.getElementById('addExSelector').style.display='none';
+  renderEditableModal();
+  showToast('เพิ่ม '+added+' ท่าแล้ว! 🎉','✅');
 }
 
 function addExerciseToEdit(name){
@@ -1783,6 +1799,7 @@ function renderLogPastBody(){
   }
   // Add exercise
   html+=`<div style="margin-bottom:8px;">
+    <button class="btn btn-p btn-sm" onclick="addAllPastExercises()" style="width:100%;padding:10px;font-size:14px;font-weight:800;margin-bottom:6px;">✅ เพิ่มทั้งหมด (${EXERCISES.length} ท่า)</button>
     <input type="text" class="inp" id="pastExSearch" placeholder="ค้นหาท่า…" oninput="renderPastExSuggestions(this.value)" style="width:100%;">
   </div>`;
   html+=`<div id="pastExSuggestions" class="chip-row" style="max-height:120px;overflow-y:auto;gap:6px;margin-bottom:14px;"></div>`;
@@ -1805,6 +1822,20 @@ function addPastExercise(name,muscle){
   pastData.exercises.push({name,muscle,sets:[{weight:'',reps:'',done:true}]});
   const s=document.getElementById('pastExSearch');
   if(s){s.value='';}
+  renderLogPastBody();
+}
+function addAllPastExercises(){
+  var current=pastData.exercises.map(function(e){return e.name});
+  var added=0;
+  EXERCISES.forEach(function(ex){
+    if(!current.includes(ex.name)){
+      pastData.exercises.push({name:ex.name,muscle:ex.muscle,sets:[{weight:'',reps:'',done:true}]});
+      added++;
+    }
+  });
+  const s=document.getElementById('pastExSearch');
+  if(s){s.value='';}
+  showToast('เพิ่ม '+added+' ท่าแล้ว! 🎉','✅');
   renderLogPastBody();
 }
 async function savePastWorkout(){
@@ -1962,7 +1993,7 @@ function renderActiveExercises(){
     const headerCols=renderSetHeader(type);
     return `<div class="ex-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div><div class="ex-card-name">${typeIcon} ${ex.name}</div>${gifBtn(ex.name)}<div class="ex-card-muscle">${ex.muscle||''} · ${typeLabel}</div></div>
+        <div><div class="ex-card-name">${typeIcon} ${ex.name}</div><div class="ex-card-muscle">${ex.muscle||''} · ${typeLabel}</div></div>
         <div style="display:flex;gap:6px;">
           <button class="btn btn-ghost btn-sm" onclick="openRestTimer()" style="padding:6px 10px;">⏱</button>
           <button class="btn btn-ghost btn-sm" onclick="addSet(${ei})" style="padding:6px 10px;">+Set</button>
