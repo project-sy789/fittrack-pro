@@ -1714,26 +1714,17 @@ function showAddExSelector(){
   var html='<input type="text" class="inp" id="addExSearch" placeholder="\ud83d\udd0d \u0e04\u0e49\u0e19\u0e2b\u0e32\u0e17\u0e48\u0e32..." style="width:100%;margin-bottom:6px;">';
   EXERCISES.forEach(function(ex){
     var already=current.includes(ex.name);
-    var safe=ex.name.replace(/'/g,"\\'");
-    html+='<div class="ex-opt" data-name="'+safe+'" style="padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--t2);margin:2px 0;">'+(already?'\u2705 ':'')+ex.name+' <span style="font-size:10px;color:var(--t3);">'+ex.muscle+'</span></div>';
+    var esc=ex.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html+='<div class="ex-opt" onclick="addExerciseToEdit(\''+esc+'\')" style="padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--t2);margin:2px 0;" onmouseenter="this.style.background=\'rgba(124,95,255,.15)\';this.style.color=\'var(--t)\'" onmouseleave="this.style.background=\'\';this.style.color=\'var(--t2)\'">'+(already?'\u2705 ':'')+ex.name+' <span style="font-size:10px;color:var(--t3);">'+ex.muscle+'</span></div>';
   });
   sel.innerHTML=html;
-  // Attach search filter + click handlers
+  // Attach search filter
   document.getElementById('addExSearch').oninput=function(){
     var v=this.value.toLowerCase();
     sel.querySelectorAll('.ex-opt').forEach(function(el){
       el.style.display=el.textContent.toLowerCase().includes(v)?'block':'none';
     });
   };
-  sel.querySelectorAll('.ex-opt').forEach(function(el){
-    el.onclick=function(){ addExerciseToEdit(el.dataset.name); };
-    el.onmouseenter=function(){
-      el.style.background='rgba(124,95,255,.15)'; el.style.color='var(--t)';
-    };
-    el.onmouseleave=function(){
-      el.style.background=''; el.style.color='var(--t2)';
-    };
-  });
 }
 
 function addExerciseToEdit(name){
