@@ -658,6 +658,7 @@ canvas.chart{width:100%!important;height:180px!important;}
       <div class="chip active" onclick="switchProgressTab('overload',this)">📈 Overload</div>
       <div class="chip" onclick="switchProgressTab('weight',this)">⚖️ น้ำหนัก</div>
       <div class="chip" onclick="switchProgressTab('body',this)">🫀 Body Map</div>
+      <div class="chip" onclick="switchProgressTab('records',this)">🏆 Records</div>
     </div>
 
     <!-- ── TAB: OVERLOAD ── -->
@@ -1144,7 +1145,7 @@ canvas.chart{width:100%!important;height:180px!important;}
 // ══════════════════════════════════════
 
 // ── DB ──
-const DB_NAME='FitTrackPro', DB_VER=2;
+const DB_NAME='FitTrackPro', DB_VER=3;
 let db;
 function openDB(){
   return new Promise((res,rej)=>{
@@ -1160,6 +1161,9 @@ function openDB(){
       if(!d.objectStoreNames.contains('weights')){
         const ws2=d.createObjectStore('weights',{keyPath:'id',autoIncrement:true});
         ws2.createIndex('date','date',{unique:false});
+      }
+      if(!d.objectStoreNames.contains('prs')){
+        const prs=d.createObjectStore('prs',{keyPath:'exerciseName'});
       }
     };
     req.onsuccess=e=>{db=e.target.result;res(db);};
@@ -1977,8 +1981,14 @@ async function finishWorkout(){
   const saved={...currentWorkoutData,date:new Date().toISOString(),duration};
   await dbPut('workouts',saved);
   allWorkouts.push(saved); // update in-memory cache
+  // Check for Personal Records
+  const newPRs = await checkAllPRs(saved);
   workoutActive=false;resetWorkoutUI();confetti();
   showToast('บันทึก Workout แล้ว! 🎉','🏆');
+  if(newPRs.length) {
+    setTimeout(() => showToast('🔥 New PRs: '+newPRs.map(p=>p.name).join(', '),'🏆'), 400);
+    prConfetti();
+  }
   // Refresh body map in background so it's ready when user visits Progress
   renderBodyMap().catch(()=>{});
   navTo('home');
@@ -2034,6 +2044,71 @@ function confetti(){
     document.body.appendChild(el);
     setTimeout(()=>el.remove(),1200);
   }
+}
+
+// ── PERSONAL RECORDS ──
+function getLatestBW(){
+  const w=parseFloat(localStorage.getItem('lastBodyWeight'))||0;
+  return w||75; // default 75kg
+}
+async function checkAllPRs(workout){
+  const newPRs=[];
+  const allPRs={};
+  try{
+    const stored = await dbGetAll('prs');
+    stored.forEach(p=>{ allPRs[p.exerciseName]=p; });
+  }catch(e){}
+  for(const ex of workout.exercises){
+    for(const set of ex.sets){
+      if(!set.done) continue;
+      const vol=calcSetVolume(set,ex.name);
+      const prev=allPRs[ex.name];
+      if(!prev||vol>prev.volume){
+        newPRs.push({name:ex.name,volume:vol,prev:prev?.volume||0});
+        allPRs[ex.name]={exerciseName:ex.name,type:ex.type||getExType(ex.name),weight:parseFloat(set.weight)||0,reps:parseInt(set.reps)||0,duration:parseFloat(set.duration)||0,volume:vol,date:workout.date};
+        await dbPut('prs',allPRs[ex.name]);
+      }
+    }
+  }
+  return newPRs;
+}
+function prConfetti(){
+  const cols=['#ffd700','#ffb800','#ffe44d','#ff6b35','#ff4500','#ffda79'];
+  for(let i=0;i<20;i++){
+    const el=document.createElement('div');
+    el.className='cfp';
+    el.style.cssText=`left:${10+Math.random()*80}%;top:${15+Math.random()*35}%;background:${cols[i%cols.length]};width:${6+Math.random()*6}px;height:${6+Math.random()*8}px;animation-delay:${Math.random()*.4}s;animation-duration:${.8+Math.random()*.5}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1400);
+  }
+}
+async function renderRecords(){
+  const el=document.getElementById('prRecordsList');
+  if(!el)return;
+  try{
+    const prs=await dbGetAll('prs');
+    if(!prs||!prs.length){
+      el.innerHTML='<div class="empty"><div class="ei">🏆</div><div class="et">ยังไม่มี Personal Records<br>ออกกำลังกายเพื่อสร้างสถิติ!</div></div>';
+      return;
+    }
+    const all=await dbGetAll('workouts');
+    const exCount={};
+    all.forEach(w=>{w.exercises.forEach(ex=>{exCount[ex.name]=(exCount[ex.name]||0)+1;});});
+    const sorted=prs.sort((a,b)=>b.volume-a.volume);
+    el.innerHTML=sorted.map(p=>{
+      const typeIcon={weight:'🏋️',bodyweight:'🤸',assisted:'🦵',band:'🎯',cardio:'❤️'}[p.type]||'🏋️';
+      const vFmt=p.type==='cardio'?Math.round(p.volume)+' min':Math.round(p.volume)+' kg';
+      const detail=p.type==='cardio'?`${p.duration} min`:`${p.weight}kg × ${p.reps}`;
+      return `<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+        <div style="font-size:28px;">${typeIcon}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:800;color:var(--t);">${p.exerciseName}</div>
+          <div style="font-size:11px;color:var(--t3);">${detail} · ${new Date(p.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'})}${exCount[p.exerciseName]?` · ${exCount[p.exerciseName]}×`:' '}</div>
+        </div>
+        <div style="font-size:18px;font-weight:900;color:var(--o);">${vFmt}</div>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty"><div class="ei">⚠️</div><div class="et">โหลดข้อมูลล้มเหลว</div></div>';}
 }
 </script>
 
@@ -2124,12 +2199,13 @@ function switchProgressMetric(m,el){
 function switchProgressTab(tab,el){
   document.querySelectorAll('#progressTabs .chip').forEach(c=>c.classList.remove('active'));
   if(el)el.classList.add('active');
-  ['overload','weight','body'].forEach(t=>{
+  ['overload','weight','body','records'].forEach(t=>{
     const d=document.getElementById('progressTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(d)d.style.display=t===tab?'flex':'none';
   });
   if(tab==='weight')initWeightTab();
   if(tab==='body')renderBodyMap();
+  if(tab==='records')renderRecords();
 }
 </script>
 
@@ -2665,6 +2741,15 @@ window.addEventListener('appinstalled', () => {
   if (ib) ib.style.display = 'none';
 });
 </script>
+
+    <!-- ── TAB: RECORDS ── -->
+    <div id="progressTabRecords" style="display:none;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div style="font-size:18px;font-weight:900;margin-bottom:4px;">🏆 Personal Records</div>
+        <div style="font-size:12px;color:var(--t3);margin-bottom:16px;">สถิติสูงสุดแต่ละท่า</div>
+        <div id="prRecordsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
 </div>
 </body>
 </html>
