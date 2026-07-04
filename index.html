@@ -1744,8 +1744,7 @@ function showAddExSelector(){
   if(sel.style.display==='block'){ sel.style.display='none'; return; }
   sel.style.display='block';
   var current=window._editWorkout?window._editWorkout.exercises.map(function(e){return e.name}):[];
-  var html='<button class="btn btn-p btn-sm" onclick="addAllExercisesToEdit()" style="width:100%;padding:10px;font-size:14px;font-weight:800;margin-bottom:8px;">✅ เพิ่มทั้งหมด ('+EXERCISES.length+' ท่า)</button>';
-  html+='<input type="text" class="inp" id="addExSearch" placeholder="\ud83d\udd0d \u0e04\u0e49\u0e19\u0e2b\u0e32\u0e17\u0e48\u0e32..." style="width:100%;margin-bottom:6px;">';
+  var html='<input type="text" class="inp" id="addExSearch" placeholder="🔍 ค้นหาท่า..." style="width:100%;margin-bottom:6px;">';
   EXERCISES.forEach(function(ex){
     var already=current.includes(ex.name);
     var esc=ex.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -1761,22 +1760,7 @@ function showAddExSelector(){
   };
 }
 
-function addAllExercisesToEdit(){
-  if(!window._editWorkout) return;
-  var current=window._editWorkout.exercises.map(function(e){return e.name});
-  var added=0;
-  EXERCISES.forEach(function(ex){
-    if(!current.includes(ex.name)){
-      window._editWorkout.exercises.push({name:ex.name,muscle:ex.muscle,type:ex.type,sets:[{weight:'',reps:'',done:false}]});
-      added++;
-    }
-  });
-  document.getElementById('addExSelector').style.display='none';
-  renderEditableModal();
-  showToast('เพิ่ม '+added+' ท่าแล้ว! 🎉','✅');
-}
-
-function addExerciseToEdit(name){
+// ── LOG PAST WORKOUT ──
   if(!window._editWorkout) return;
   var ex=EXERCISES.find(function(e){return e.name===name});
   if(!ex) return;

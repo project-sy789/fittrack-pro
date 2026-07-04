@@ -1,10 +1,10 @@
-/* FitTrack Pro — Service Worker v9
+/* FitTrack Pro — Service Worker v10
  * - Auto-update: skipWaiting + clients.claim + reload notification
  * - network-first for navigation (always fresh HTML)
  * - cache-first for static assets (icons, manifest)
  * - stale-while-revalidate for CDN (Chart.js)
  */
-const CACHE = 'fittrack-v9';
+const CACHE = 'fittrack-v10';
 const ASSETS = [
   './',
   './index.html',
