@@ -2375,13 +2375,10 @@ async function renderBodyMap() {
   });
   // Animate per intensity
   Object.entries(muscleSets).forEach(([muscle, sets]) => {
-    const info = MUSCLE_MAP[muscle];
-    if (!info) return;
     const pct = sets / maxSets;
     const level = pct > 0.75 ? 'fire' : pct > 0.4 ? 'hot' : 'warm';
-    [...(info.front||[]), ...(info.back||[])].forEach((id, idx) => {
-      const el = document.getElementById(id);
-      if (!el) return;
+    const els = document.querySelectorAll('[data-m="'+muscle+'"]');
+    els.forEach((el, idx) => {
       setTimeout(() => { el.classList.remove('cold'); el.classList.add(level); }, idx * 40);
     });
   });
